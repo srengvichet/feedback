@@ -1,0 +1,333 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Teacher Self-Assessment Detail</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --primary: #2563eb;
+      --shadow: 0 10px 30px rgba(15, 23, 42, .08);
+    }
+
+    body {
+      background: radial-gradient(circle at top left, #f8fbff 0%, #f4f7fb 40%, #eef3f9 100%);
+      color: var(--text);
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
+
+    .page-wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .topbar,
+    .card-shell,
+    .kpi {
+      background: var(--card);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .topbar {
+      padding: 24px 28px;
+      margin-bottom: 1.25rem;
+    }
+
+    .back-link {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .page-title {
+      font-size: 1.9rem;
+      font-weight: 800;
+      margin: .35rem 0 0;
+    }
+
+    .page-subtitle {
+      color: var(--muted);
+      margin: .35rem 0 0;
+    }
+
+    .soft-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .45rem .8rem;
+      border-radius: 999px;
+      background: #eef4ff;
+      color: #1d4ed8;
+      font-weight: 700;
+      font-size: .84rem;
+    }
+
+    .kpi {
+      padding: 1.1rem 1.2rem;
+      height: 100%;
+    }
+
+    .kpi .label {
+      color: var(--muted);
+      font-size: .84rem;
+      font-weight: 700;
+      margin-bottom: .3rem;
+    }
+
+    .kpi .value {
+      font-size: 1.55rem;
+      font-weight: 800;
+    }
+
+    .card-shell {
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 18px 22px 14px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fff 0%, #fbfdff 100%);
+    }
+
+    .panel-title {
+      font-size: 1.02rem;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .panel-subtitle {
+      color: var(--muted);
+      font-size: .88rem;
+      margin: .2rem 0 0;
+    }
+
+    .panel-body {
+      padding: 20px 22px;
+    }
+
+    .table {
+      margin-bottom: 0;
+      border-collapse: separate;
+      border-spacing: 0 8px;
+    }
+
+    .table thead th {
+      color: var(--muted);
+      font-size: .77rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      font-weight: 800;
+      border: none;
+      padding: 6px 12px 2px;
+    }
+
+    .table tbody tr {
+      background: #fff;
+      box-shadow: 0 3px 12px rgba(15, 23, 42, .05);
+    }
+
+    .table tbody td {
+      padding: 13px 12px;
+      border-top: 1px solid #f1f5f9;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+
+    .table tbody td:first-child {
+      border-left: 1px solid #f1f5f9;
+      border-top-left-radius: 14px;
+      border-bottom-left-radius: 14px;
+    }
+
+    .table tbody td:last-child {
+      border-right: 1px solid #f1f5f9;
+      border-top-right-radius: 14px;
+      border-bottom-right-radius: 14px;
+    }
+
+    .comment-item {
+      border: 1px solid rgba(0, 0, 0, .06);
+      border-radius: 14px;
+      padding: .85rem .95rem;
+      background: #fff;
+      margin-bottom: .75rem;
+    }
+
+    .comment-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .mono {
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container-fluid py-4 py-lg-5">
+    <div class="page-wrap">
+      <div class="topbar">
+        <a th:href="@{'/admin/reports?semesterId=' + ${semesterId} + '&kind=' + ${kind}}" href="/admin/reports" class="back-link">
+          <i class="bi bi-arrow-left me-1"></i> Reports
+        </a>
+        <h1 class="page-title" th:text="${teacherName}">Teacher Name</h1>
+        <p class="page-subtitle">Teacher self-assessment detail for the selected semester with grouped results across 20 questions.</p>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <span class="soft-pill"><span>Semester:</span><span th:text="${semester.name}">Semester</span></span>
+          <span class="soft-pill"><span>Type:</span><span>Teacher Self-Assessment</span></span>
+          <span class="soft-pill" th:if="${submittedAtText != null}"><span>Submitted:</span><span th:text="${submittedAtText}">2026-03-31 12:00</span></span>
+        </div>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <div class="btn-group">
+            <button type="button" class="btn btn-outline-danger dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item"
+                  th:href="@{'/admin/reports/' + ${teacherId} + '/teacher-self/export.pdf?semesterId=' + ${semesterId} + '&lang=en'}">
+                  <i class="bi bi-file-earmark-pdf me-1"></i> English
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item"
+                  th:href="@{'/admin/reports/' + ${teacherId} + '/teacher-self/export.pdf?semesterId=' + ${semesterId} + '&lang=km'}">
+                  <i class="bi bi-file-earmark-pdf me-1"></i> ភាសាខ្មែរ
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="kpi">
+            <div class="label">Submitted</div>
+            <div class="value mono" th:text="${count}">0</div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="kpi">
+            <div class="label">Eligible</div>
+            <div class="value mono" th:text="${enrolled}">1</div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="kpi">
+            <div class="label">Completion Rate</div>
+            <div class="value mono" th:text="${responseRate != null ? #numbers.formatDecimal(responseRate,1,2) + '%' : '-'}">-</div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="kpi">
+            <div class="label">Overall Score</div>
+            <div class="value mono" th:text="${overall != null ? #numbers.formatDecimal(overall,1,2) : '-'}">-</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-12 col-xl-8">
+          <div class="card-shell mb-4">
+            <div class="panel-head">
+              <div class="panel-title"><i class="bi bi-grid-3x3-gap me-1"></i> Category Scores</div>
+              <div class="panel-subtitle">Teacher self-assessment rating questions grouped as Q1-Q5, Q6-Q10, Q11-Q15, and Q16-Q20.</div>
+            </div>
+            <div class="panel-body">
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <div class="kpi">
+                    <div class="label">Q1-Q5</div>
+                    <div class="value mono" th:text="${catA != null ? #numbers.formatDecimal(catA,1,2) : '-'}">-</div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="kpi">
+                    <div class="label">Q6-Q10</div>
+                    <div class="value mono" th:text="${catB != null ? #numbers.formatDecimal(catB,1,2) : '-'}">-</div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="kpi">
+                    <div class="label">Q11-Q15</div>
+                    <div class="value mono" th:text="${catC != null ? #numbers.formatDecimal(catC,1,2) : '-'}">-</div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="kpi">
+                    <div class="label">Q16-Q20</div>
+                    <div class="value mono" th:text="${catD != null ? #numbers.formatDecimal(catD,1,2) : '-'}">-</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-shell">
+            <div class="panel-head">
+              <div class="panel-title"><i class="bi bi-list-check me-1"></i> Question Breakdown</div>
+              <div class="panel-subtitle">Average, minimum, maximum, and answer count for each rating question.</div>
+            </div>
+            <div class="panel-body">
+              <div class="table-responsive">
+                <table class="table align-middle">
+                  <thead>
+                    <tr>
+                      <th>No.</th>
+                      <th>Question</th>
+                      <th class="text-center">Min</th>
+                      <th class="text-center">Max</th>
+                      <th class="text-center">Avg</th>
+                      <th class="text-center">N</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr th:each="q : ${qStats}">
+                      <td class="mono" th:text="${q.orderNo}">1</td>
+                      <td th:text="${q.questionText}">Question text</td>
+                      <td class="text-center mono" th:text="${q.minScore != null ? q.minScore : '-'}">-</td>
+                      <td class="text-center mono" th:text="${q.maxScore != null ? q.maxScore : '-'}">-</td>
+                      <td class="text-center mono" th:text="${q.avgScore != null ? #numbers.formatDecimal(q.avgScore,1,2) : '-'}">-</td>
+                      <td class="text-center mono" th:text="${q.n != null ? q.n : 0}">0</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(qStats)}">
+                      <td colspan="6" class="text-center text-muted py-4">No rating data for this teacher in the selected semester.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+          <div class="card-shell">
+            <div class="panel-head">
+              <div class="panel-title"><i class="bi bi-chat-left-text me-1"></i> Self-Reflection Comments</div>
+              <div class="panel-subtitle">Open-text reflections submitted with the teacher self-assessment.</div>
+            </div>
+            <div class="panel-body">
+              <div th:if="${comments != null and !#lists.isEmpty(comments)}">
+                <div class="comment-item" th:each="comment : ${comments}" th:text="${comment}">Comment</div>
+              </div>
+              <div class="text-muted" th:if="${comments == null or #lists.isEmpty(comments)}">No self-reflection comments.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

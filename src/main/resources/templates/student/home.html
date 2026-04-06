@@ -1,0 +1,594 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title th:text="#{student.dashboard.title}">My Classes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg1: #f4f7fb;
+      --bg2: #eef3f9;
+      --card: #ffffff;
+      --text: #1f2a37;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --soft-primary: #e8f0ff;
+      --soft-success: #eafaf4;
+      --soft-warning: #fff7e8;
+      --soft-danger: #fef2f2;
+      --soft-dark: #f3f4f6;
+      --shadow: 0 10px 30px rgba(15, 23, 42, .08);
+      --radius: 24px;
+    }
+
+    body {
+      background: var(--bg1);
+      color: var(--text);
+      font-family: "Segoe UI", "Noto Sans Khmer", Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+    }
+
+    .page-wrap { max-width: 1450px; margin: 0 auto; }
+
+    /* ── Sticky top navbar ── */
+    .student-topnav {
+      background: #0f172a;
+      padding: 0 28px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: 0 4px 20px rgba(15,23,42,.35);
+    }
+
+    .nav-brand { display: flex; align-items: center; gap: 10px; flex: 1; }
+
+    .nav-brand-icon {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: .85rem;
+      box-shadow: 0 4px 12px rgba(37,99,235,.4);
+    }
+
+    .nav-brand-text { line-height: 1.2; }
+    .nav-brand-title { font-size: .9rem; font-weight: 700; color: #fff; }
+    .nav-brand-sub   { font-size: .7rem; color: #64748b; }
+
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+
+    .lang-toggle {
+      display: flex;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 999px; padding: 3px; gap: 2px;
+    }
+
+    .lang-opt {
+      text-decoration: none; font-size: .72rem; font-weight: 700;
+      padding: 4px 11px; border-radius: 999px;
+      color: rgba(255,255,255,.5); transition: .15s;
+    }
+    .lang-opt:hover { color: rgba(255,255,255,.85); }
+    .lang-opt.active { background: #2563eb; color: #fff; }
+
+    .user-chip {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 999px; padding: 4px 14px 4px 5px;
+    }
+
+    .user-avatar {
+      width: 27px; height: 27px; border-radius: 50%;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      font-size: .72rem; font-weight: 800;
+    }
+
+    .user-name { font-size: .8rem; font-weight: 600; color: #cbd5e1; }
+
+    .nav-logout {
+      background: rgba(239,68,68,.12);
+      border: 1px solid rgba(239,68,68,.25);
+      color: #f87171; border-radius: 10px; padding: 6px 14px;
+      font-size: .8rem; font-weight: 600; cursor: pointer; transition: .15s;
+      display: flex; align-items: center; gap: 5px; white-space: nowrap;
+    }
+    .nav-logout:hover { background: rgba(239,68,68,.22); border-color: rgba(239,68,68,.45); color: #fca5a5; }
+
+    /* ── Page hero ── */
+    .page-hero {
+      background: linear-gradient(135deg, #064e3b 0%, #059669 55%, #10b981 100%);
+      padding: 28px 28px 36px;
+      position: relative; overflow: hidden;
+    }
+    .page-hero::before {
+      content: ""; position: absolute; right: -80px; top: -80px;
+      width: 300px; height: 300px; border-radius: 50%;
+      background: rgba(255,255,255,.06);
+    }
+    .page-hero::after {
+      content: ""; position: absolute; left: -60px; bottom: -80px;
+      width: 240px; height: 240px; border-radius: 50%;
+      background: rgba(255,255,255,.04);
+    }
+    .page-hero > * { position: relative; z-index: 1; }
+
+    .page-title { font-size: 1.85rem; font-weight: 800; color: #fff; margin: 0 0 .3rem; letter-spacing: -.02em; }
+    .page-subtitle { color: rgba(255,255,255,.75); margin: 0; font-size: .93rem; }
+
+    .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .btn-hero {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.22);
+      color: #fff; border-radius: 12px; padding: 9px 18px;
+      font-size: .87rem; font-weight: 600; text-decoration: none; transition: .15s;
+    }
+    .btn-hero:hover { background: rgba(255,255,255,.22); color: #fff; }
+
+    .btn-hero-accent {
+      background: #fff; border: none; color: #065f46; font-weight: 700;
+      box-shadow: 0 6px 18px rgba(0,0,0,.18);
+    }
+    .btn-hero-accent:hover { background: #f0fdf4; color: #065f46; transform: translateY(-1px); }
+
+    /* ── Content area ── */
+    .content-area { background: var(--bg1); padding: 28px; min-height: calc(100vh - 58px - 140px); }
+
+    /* ── Cards / panels ── */
+    .card {
+      border: none !important; border-radius: var(--radius) !important;
+      box-shadow: var(--shadow) !important; overflow: hidden; background: var(--card);
+    }
+
+    .panel-head {
+      padding: 20px 24px 14px; border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+    .panel-title { font-size: 1.08rem; font-weight: 800; margin: 0; }
+    .panel-subtitle { color: var(--muted); font-size: .92rem; margin: 4px 0 0; }
+    .panel-body { padding: 22px 24px; }
+
+    .mini-stat {
+      background: #fff; border-radius: 20px; box-shadow: var(--shadow);
+      padding: 1rem 1.1rem; height: 100%;
+    }
+    .mini-stat .label { color: var(--muted); font-size: .86rem; font-weight: 700; margin-bottom: .25rem; }
+    .mini-stat .value { font-size: 1.55rem; font-weight: 800; line-height: 1.1; }
+
+    /* ── Buttons ── */
+    .btn { border-radius: 14px; font-weight: 700; }
+    .btn-primary  { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border: none; box-shadow: 0 8px 18px rgba(37,99,235,.18); }
+    .btn-success  { background: linear-gradient(135deg, #16a34a, #15803d); border: none; box-shadow: 0 8px 18px rgba(22,163,74,.18); }
+
+    .form-control { border-radius: 14px; min-height: 48px; border: 1px solid #dbe3ee; box-shadow: none; }
+    .form-control:focus { border-color: #93c5fd; box-shadow: 0 0 0 .2rem rgba(37,99,235,.10); }
+
+    /* ── Table ── */
+    .table-wrap { padding: 10px 18px 18px; }
+    .table { margin-bottom: 0; border-collapse: separate; border-spacing: 0 10px; }
+    .table thead th { border: none; color: var(--muted); font-size: .84rem; text-transform: uppercase; letter-spacing: .04em; font-weight: 800; padding: 10px 14px; white-space: nowrap; }
+    .table tbody tr { background: #fff; box-shadow: 0 4px 14px rgba(15,23,42,.05); }
+    .table tbody td { padding: 16px 14px; vertical-align: middle; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; font-size: .95rem; }
+    .table tbody td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 14px; border-bottom-left-radius: 14px; }
+    .table tbody td:last-child  { border-right: 1px solid #f1f5f9; border-top-right-radius: 14px; border-bottom-right-radius: 14px; }
+
+    /* ── Status pills ── */
+    .status-pill { display: inline-flex; align-items: center; border-radius: 999px; padding: 7px 12px; font-size: .83rem; font-weight: 800; white-space: nowrap; }
+    .status-submitted { background: #eafaf4; color: #0f766e; }
+    .status-notyet    { background: #f3f4f6; color: #4b5563; }
+
+    .shift-pill  { display: inline-flex; align-items: center; border-radius: 999px; padding: 7px 12px; font-size: .83rem; font-weight: 800; white-space: nowrap; background: #eef2ff; color: #4338ca; }
+    .course-pill { display: inline-flex; align-items: center; border-radius: 999px; padding: 7px 12px; font-size: .83rem; font-weight: 800; white-space: nowrap; background: #ecfeff; color: #0f766e; margin-bottom: 6px; }
+
+    .mini-muted   { color: var(--muted); font-size: .84rem; }
+    .helper-text  { font-size: .85rem; color: var(--muted); }
+    .alert-inline { font-size: .84rem; margin-top: 10px; }
+
+    @media (max-width: 992px) {
+      .student-topnav { padding: 0 16px; }
+      .page-hero { padding: 20px 16px 28px; }
+      .content-area { padding: 16px; }
+      .page-title { font-size: 1.55rem; }
+      .nav-brand-sub { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── Toast notification (bottom-right, auto-shows on load) ── -->
+  <div th:if="${anyFeedbackOpen}" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index:1100">
+    <div id="feedbackToast" class="toast align-items-center border-0 text-white"
+         style="background:linear-gradient(135deg,#1d4ed8,#2563eb);border-radius:16px;box-shadow:0 8px 24px rgba(37,99,235,.35);"
+         role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="8000">
+      <div class="d-flex">
+        <div class="toast-body d-flex align-items-center gap-2" style="font-weight:600;">
+          <span style="font-size:1.3rem">⭐</span>
+          <div>
+            <div th:if="${pendingFeedbackCount > 0}">
+              You have <strong th:text="${pendingFeedbackCount}">0</strong> pending feedback(s) to submit!
+            </div>
+            <div th:if="${pendingFeedbackCount == 0}">
+              All feedback submitted — great job! 🎉
+            </div>
+            <a href="#enrolled-card" class="text-white text-decoration-underline" style="font-size:.85rem">
+              View my subjects ↓
+            </a>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Sticky Top Navigation ── -->
+  <nav class="student-topnav">
+    <div class="nav-brand">
+      <div class="nav-brand-icon">
+        <img th:src="@{/images/num_logo.jpg}" alt="NUM Logo" object-fit="cover" style="width: 100%; height: 100%; border-radius: 10px;">
+      </div>
+      <div class="nav-brand-text">
+        <div class="nav-brand-title" th:text="#{common.brand}">NUM Feedback</div>
+        <div class="nav-brand-sub" th:text="#{student.brand.subtitle}">Student Portal</div>
+      </div>
+    </div>
+
+    <div class="nav-right">
+      <!-- Language toggle -->
+      <div class="lang-toggle">
+        <a href="javascript:void(0)" onclick="switchLang('en')" class="lang-opt" th:classappend="${#locale.language == 'en'} ? ' active'">EN</a>
+        <a href="javascript:void(0)" onclick="switchLang('kh')" class="lang-opt" th:classappend="${#locale.language == 'kh'} ? ' active'">KH</a>
+      </div>
+
+      <!-- User chip -->
+      <div class="user-chip">
+        <div class="user-avatar">S</div>
+        <span class="user-name"
+              th:text="${student != null and student.fullName != null and !#strings.isEmpty(student.fullName)} ? ${student.fullName} : ${#authentication.name}">Student</span>
+      </div>
+
+      <!-- Logout -->
+      <form th:action="@{/login?logout}" method="post" style="margin:0;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <button class="nav-logout" type="submit">
+          <i class="bi bi-box-arrow-right"></i> <span th:text="#{common.logout}">Logout</span>
+        </button>
+      </form>
+    </div>
+  </nav>
+
+  <!-- ── Page Hero Header ── -->
+  <div class="page-hero">
+    <div class="page-wrap d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3">
+      <div>
+        <h1 class="page-title" th:text="#{student.dashboard.title}">My Classes</h1>
+        <p class="page-subtitle" th:text="#{student.dashboard.subtitle}">These are your enrolled class sections for each subject, teacher, and semester.</p>
+      </div>
+      <div class="hero-actions">
+        <a class="btn-hero btn-hero-accent" th:href="@{/student/profile}">
+          <i class="bi bi-person-circle"></i> <span th:text="#{student.btn.profile}">My Profile</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Main content ── -->
+  <div class="content-area">
+    <div class="page-wrap">
+
+      <!-- ── Feedback alert banner ── -->
+      <div th:if="${anyFeedbackOpen and pendingFeedbackCount > 0}"
+           class="d-flex align-items-center justify-content-between gap-3 mb-3 px-4 py-3"
+           style="background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:16px;
+                  border-left:5px solid #f59e0b;box-shadow:0 4px 16px rgba(245,158,11,.18);">
+        <div class="d-flex align-items-center gap-3">
+          <span style="font-size:1.6rem">🔔</span>
+          <div>
+            <div style="font-weight:800;color:#92400e;font-size:1rem;" th:text="#{student.alert.feedbackOpen.title}">
+              Feedback Window is Open!
+            </div>
+            <div style="color:#78350f;font-size:.9rem;">
+              <span th:utext="#{student.alert.feedbackOpen.desc(${pendingFeedbackCount})}">You have <strong>0</strong> subject(s) waiting.</span>
+            </div>
+          </div>
+        </div>
+        <a href="#enrolled-card"
+           style="background:#f59e0b;color:#1c1917;font-weight:800;border-radius:12px;
+                  padding:10px 20px;text-decoration:none;white-space:nowrap;font-size:.9rem;
+                  box-shadow:0 4px 12px rgba(245,158,11,.4);"
+           th:text="#{student.alert.feedbackOpen.btn}">Give Feedback ↓</a>
+      </div>
+
+      <div th:if="${anyFeedbackOpen and pendingFeedbackCount == 0}"
+           class="d-flex align-items-center gap-3 mb-3 px-4 py-3"
+           style="background:linear-gradient(135deg,#d1fae5,#a7f3d0);border-radius:16px;
+                  border-left:5px solid #10b981;box-shadow:0 4px 16px rgba(16,185,129,.15);">
+        <span style="font-size:1.5rem">✅</span>
+        <div>
+          <div style="font-weight:800;color:#065f46;font-size:1rem;" th:text="#{student.alert.feedbackDone.title}">All Feedback Submitted!</div>
+          <div style="color:#047857;font-size:.9rem;" th:text="#{student.alert.feedbackDone.desc}">
+            Great job! You have completed all feedback for the current open window.
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4 mt-1">
+        <div class="col-md-4">
+          <div class="mini-stat">
+            <div class="label" th:text="#{student.stat.enrolled}">Enrolled Classes</div>
+            <div class="value" th:text="${#lists.size(enrollments)}">0</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="mini-stat">
+            <div class="label" th:text="#{student.stat.feedbackAccess}">Feedback Access</div>
+            <div class="value" th:text="#{status.active}">Active</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="mini-stat">
+            <div class="label" th:text="#{student.stat.portal}">Student Portal</div>
+            <div class="value" th:text="#{status.ready}">Ready</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-4">
+        <div class="panel-head">
+          <h2 class="panel-title" th:text="#{student.panel.join.title}">Join Class (by Code)</h2>
+          <p class="panel-subtitle" th:text="#{student.panel.join.subtitle}">Use the class join code provided by your teacher or administrator.</p>
+        </div>
+        <div class="panel-body">
+          <form method="post" th:action="@{/student/join-by-code}" class="row g-2">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <div class="col-md-6">
+              <input class="form-control" name="code" th:placeholder="#{student.join.placeholder}" placeholder="Enter join code (e.g., ABCD1234)" required>
+            </div>
+            <div class="col-md-3">
+              <button class="btn btn-success w-100" type="submit" th:text="#{student.join.btn}">Continue</button>
+            </div>
+          </form>
+          <div class="text-danger alert-inline" th:if="${msg == 'empty_code'}" th:text="#{student.join.emptyCode}">Please enter a code.</div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm" id="enrolled-card">
+        <div class="panel-head">
+          <h2 class="panel-title" th:text="#{student.panel.enrolled.title}">Enrolled Class Sections</h2>
+          <p class="panel-subtitle" th:text="#{student.panel.enrolled.subtitle}">Review your enrolled subjects and submit feedback when the window is open.</p>
+        </div>
+
+        <div class="panel-body"
+             th:if="${enrollments != null and !#lists.isEmpty(enrollments)}"
+             th:with="firstSec=${enrollments[0].section}">
+
+          <!-- Shared class information -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-3">
+              <div class="mini-stat">
+                <div class="label" th:text="#{common.semester}">Semester</div>
+                <div class="value" th:text="${firstSec != null && firstSec.semester != null ? firstSec.semester.name : '-'}">2025-2026 S2</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="mini-stat">
+                <div class="label" th:text="#{common.shift}">Shift</div>
+                <div class="value" th:text="${firstSec != null && firstSec.shiftTime != null ? firstSec.shiftTime : '-'}">MORNING</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="mini-stat">
+                <div class="label" th:text="#{student.table.cohortGroup}">Cohort / Group</div>
+                <div class="value">
+                  <span th:text="${student != null && student.cohort != null ? student.cohort.cohortNo : '-'}">33</span>
+                  /
+                  <span th:text="${student != null && student.groupNo != null ? student.groupNo : '-'}">16</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="mini-stat">
+                <div class="label" th:text="#{student.table.roomBuilding}">Room / Building</div>
+                <div class="value">
+                  <span th:text="${firstSec != null && firstSec.room != null ? firstSec.room : '-'}">10</span>
+                  /
+                  <span th:text="${firstSec != null && firstSec.building != null ? firstSec.building : '-'}">A</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filter tabs (built by JS) -->
+          <div id="sem-tabs" class="mb-3 d-flex align-items-center gap-2 flex-wrap"
+               th:attr="data-label-all=#{student.allSemesters},
+                        data-label-semester=#{student.semesterLabel},
+                        data-label-no=#{student.table.no},
+                        data-label-course=#{common.course},
+                        data-label-teacher=#{common.teacher},
+                        data-label-status=#{common.status},
+                        data-label-actions=#{common.actions}">
+            <span class="fw-semibold text-muted me-1" style="font-size:.9rem" th:text="#{common.filter}">Filter:</span>
+          </div>
+
+          <!-- Semester groups inserted here by JS -->
+          <div id="sem-container"></div>
+
+          <!-- Hidden row data rendered by Thymeleaf -->
+          <div id="all-rows" style="display:none">
+            <div th:each="e, stat : ${enrollments}" th:with="
+              sec=${e.section},
+              semName=${sec != null && sec.semester != null ? sec.semester.name : 'Unknown'},
+              submittedAt=${(sec != null && submittedAtBySectionId != null) ? submittedAtBySectionId[sec.id] : null},
+              winOpen=${(sec != null && windowOpenBySectionId != null && windowOpenBySectionId[sec.id] != null) ? windowOpenBySectionId[sec.id] : false}
+            " class="row-data"
+               th:attr="data-sem=${semName}, data-submitted=${submittedAt != null ? 'true' : 'false'}">
+              <table style="display:none"><tbody>
+                <tr>
+                  <td><span class="subject-pill"></span></td>
+                  <td>
+                    <div class="course-pill" th:text="${sec != null && sec.course != null ? sec.course.code : '-'}">CODE</div>
+                    <div class="fw-bold" th:text="${sec != null && sec.course != null ? sec.course.name : '-'}"></div>
+                  </td>
+                  <td>
+                    <div class="fw-bold" th:text="${sec != null && sec.teacher != null ? (sec.teacher.fullName != null ? sec.teacher.fullName : sec.teacher.username) : '-'}"></div>
+                    <div class="mini-muted" th:text="#{student.label.assignedTeacher}">Assigned teacher</div>
+                  </td>
+                  <td>
+                    <span class="status-pill"
+                          th:classappend="${submittedAt != null} ? ' status-submitted' : ' status-notyet'"
+                          th:text="${submittedAt != null} ? #{status.submitted} : #{status.notyet}"></span>
+                    <div th:if="${submittedAt != null}" class="mini-muted mt-1"
+                         th:text="${#temporals.format(submittedAt, 'dd MMM yyyy HH:mm')}"></div>
+                  </td>
+                  <td>
+                    <a class="btn btn-sm"
+                       th:classappend="${winOpen == true} ? ' btn-primary' : ' btn-secondary disabled'"
+                       th:href="${(sec != null && winOpen == true)} ? @{/student/feedback/{id}(id=${sec.id})} : '#'"
+                       th:text="${submittedAt != null} ? #{student.btn.editFeedback} : #{student.btn.giveFeedback}"></a>
+                    <span class="text-muted ms-2" style="font-size:.82rem" th:if="${winOpen != true}" th:text="#{student.label.closed}">(Closed)</span>
+                  </td>
+                </tr>
+              </tbody></table>
+            </div>
+          </div>
+
+          <script>
+          (function () {
+            const rowDivs = Array.from(document.querySelectorAll('#all-rows .row-data'));
+            const container = document.getElementById('sem-container');
+            const tabsBar   = document.getElementById('sem-tabs');
+            const i18n      = tabsBar.dataset;
+
+            const seenSems = [];
+            rowDivs.forEach(d => {
+              const s = d.dataset.sem;
+              if (!seenSems.includes(s)) seenSems.push(s);
+            });
+
+            if (seenSems.length === 0) return;
+
+            const groups = {};
+            seenSems.forEach(sem => {
+              const rows = rowDivs.filter(d => d.dataset.sem === sem);
+              if (rows.length === 0) return;
+
+              let submitted = 0;
+              const tbody = document.createElement('tbody');
+              rows.forEach((d, idx) => {
+                const tr = d.querySelector('tr');
+                if (!tr) return;
+                const pill = tr.querySelector('.subject-pill');
+                if (pill) pill.textContent = idx + 1;
+                tbody.appendChild(tr);
+                if (d.dataset.submitted === 'true') submitted++;
+              });
+
+              const progressBadge = submitted === rows.length
+                ? `<span class="badge bg-success">${submitted} / ${rows.length} submitted</span>`
+                : `<span class="badge bg-warning text-dark">${submitted} / ${rows.length} submitted</span>`;
+
+              const group = document.createElement('div');
+              group.className = 'semester-group';
+              group.dataset.semester = sem;
+              group.innerHTML = `
+                <div class="d-flex align-items-center justify-content-between mb-2 mt-3">
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-primary" style="font-size:.85rem">${sem}</span>
+                    <span class="text-muted" style="font-size:.82rem">${i18n.labelSemester || 'semester'}</span>
+                  </div>
+                  <span class="semester-progress" style="font-size:.82rem">${progressBadge}</span>
+                </div>
+                <div class="table-wrap mb-1">
+                  <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                      <thead><tr>
+                        <th style="width:52px;">${i18n.labelNo || 'No.'}</th>
+                        <th>${i18n.labelCourse || 'Course'}</th>
+                        <th>${i18n.labelTeacher || 'Teacher'}</th>
+                        <th style="width:160px;">${i18n.labelStatus || 'Status'}</th>
+                        <th style="width:180px;">${i18n.labelActions || 'Actions'}</th>
+                      </tr></thead>
+                    </table>
+                  </div>
+                </div>`;
+              group.querySelector('table').appendChild(tbody);
+              container.appendChild(group);
+              groups[sem] = group;
+            });
+
+            const allBtn = document.createElement('button');
+            allBtn.className = 'btn btn-sm btn-primary semester-tab active';
+            allBtn.dataset.sem = 'all';
+            allBtn.textContent = i18n.labelAll || 'All Semesters';
+            tabsBar.appendChild(allBtn);
+
+            seenSems.forEach(sem => {
+              if (!groups[sem]) return;
+              const btn = document.createElement('button');
+              btn.className = 'btn btn-sm btn-outline-primary semester-tab';
+              btn.dataset.sem = sem;
+              btn.textContent = sem;
+              tabsBar.appendChild(btn);
+            });
+
+            document.querySelectorAll('.semester-tab').forEach(btn => {
+              btn.addEventListener('click', function () {
+                document.querySelectorAll('.semester-tab').forEach(b => {
+                  b.classList.remove('active', 'btn-primary');
+                  b.classList.add('btn-outline-primary');
+                });
+                this.classList.add('active', 'btn-primary');
+                this.classList.remove('btn-outline-primary');
+                const filter = this.dataset.sem;
+                Object.entries(groups).forEach(([sem, g]) => {
+                  g.style.display = (filter === 'all' || sem === filter) ? 'block' : 'none';
+                });
+              });
+            });
+          })();
+          </script>
+        </div>
+
+        <div class="panel-body" th:if="${#lists.isEmpty(enrollments)}">
+          <div class="text-muted text-center py-4" th:text="#{student.msg.noEnrolled}">No enrolled classes found.</div>
+        </div>
+      </div>
+
+    </div><!-- /page-wrap -->
+  </div><!-- /content-area -->
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function switchLang(lang) {
+      const u = new URL(window.location.href);
+      u.searchParams.set('lang', lang);
+      window.location.href = u.toString();
+    }
+  </script>
+  <script th:if="${anyFeedbackOpen}">
+    document.addEventListener('DOMContentLoaded', function () {
+      var el = document.getElementById('feedbackToast');
+      if (el) {
+        setTimeout(function () { new bootstrap.Toast(el).show(); }, 800);
+      }
+    });
+  </script>
+</body>
+
+</html>

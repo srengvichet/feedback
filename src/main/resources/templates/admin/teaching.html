@@ -1,0 +1,1213 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title th:text="#{admin.teaching.title}">Teaching Schedule</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --primary:#2563eb;
+      --primary-dark:#1d4ed8;
+      --success:#16a34a;
+      --warning:#d97706;
+      --danger:#dc2626;
+      --soft-primary:#eef4ff;
+      --soft-success:#ecfdf3;
+      --soft-warning:#fff7ed;
+      --shadow:0 10px 30px rgba(15,23,42,.08);
+      --radius:22px;
+    }
+
+    body{
+      background: var(--bg);
+      color:var(--text);
+      font-family:"Segoe UI","Noto Sans Khmer",system-ui,-apple-system,sans-serif;
+      margin:0;
+    }
+
+    .page-wrap{max-width:1500px;margin:0 auto;}
+
+    /* ── Sticky topnav ── */
+    .admin-topnav{
+      background:#0f172a; padding:0 28px; height:58px;
+      display:flex; align-items:center; position:sticky; top:0; z-index:200;
+      box-shadow:0 4px 20px rgba(15,23,42,.35);
+    }
+    .nav-brand{display:flex;align-items:center;gap:10px;flex:1;}
+    .nav-brand-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;box-shadow:0 4px 12px rgba(37,99,235,.4);}
+    .nav-brand-text{line-height:1.2;}
+    .nav-brand-title{font-size:.9rem;font-weight:700;color:#fff;}
+    .nav-brand-sub{font-size:.7rem;color:#64748b;}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .lang-toggle{display:flex;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:3px;gap:2px;}
+    .lang-opt{text-decoration:none;font-size:.72rem;font-weight:700;padding:4px 11px;border-radius:999px;color:rgba(255,255,255,.5);transition:.15s;}
+    .lang-opt:hover{color:rgba(255,255,255,.85);}
+    .lang-opt.active{background:#2563eb;color:#fff;}
+    .user-chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:4px 14px 4px 5px;}
+    .user-avatar{width:27px;height:27px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;}
+    .user-name{font-size:.8rem;font-weight:600;color:#cbd5e1;}
+    .nav-logout{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:#f87171;border-radius:10px;padding:6px 14px;font-size:.8rem;font-weight:600;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:5px;white-space:nowrap;}
+    .nav-logout:hover{background:rgba(239,68,68,.22);color:#fca5a5;}
+
+    /* ── Hero ── */
+    .page-hero{
+      background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 55%,#3b82f6 100%);
+      padding:28px 28px 36px; position:relative; overflow:hidden;
+    }
+    .page-hero::before{content:"";position:absolute;right:-80px;top:-80px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,.06);}
+    .page-hero::after{content:"";position:absolute;left:-60px;bottom:-80px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.04);}
+    .page-hero > *{position:relative;z-index:1;}
+    .page-title{font-size:1.85rem;font-weight:800;color:#fff;margin:0 0 .3rem;letter-spacing:-.02em;}
+    .page-subtitle{color:rgba(255,255,255,.72);margin:0;font-size:.93rem;}
+    .hero-pill{display:inline-flex;align-items:center;gap:.35rem;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:.4rem .85rem;font-size:.8rem;font-weight:700;}
+
+    /* ── Content area ── */
+    .content-area{background:var(--bg);padding:28px;}
+
+    /* ── KPI ── */
+    .kpi-card{background:#fff;border-radius:20px;box-shadow:var(--shadow);padding:1.1rem 1.25rem;height:100%;display:flex;align-items:center;gap:1rem;}
+    .kpi-icon{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;}
+    .kpi-icon.blue{background:#eef4ff;color:#2563eb;}
+    .kpi-icon.green{background:#ecfdf3;color:#16a34a;}
+    .kpi-icon.amber{background:#fff7ed;color:#d97706;}
+    .kpi-label{color:var(--muted);font-size:.84rem;font-weight:700;margin-bottom:.15rem;}
+    .kpi-value{font-size:1rem;font-weight:800;line-height:1.25;}
+
+    /* ── Cards ── */
+    .card{border:none !important;border-radius:22px !important;box-shadow:var(--shadow) !important;overflow:hidden;background:var(--card);}
+    .section-title{font-size:1.08rem;font-weight:800;margin-bottom:.15rem;}
+    .section-subtitle{color:var(--muted);font-size:.9rem;margin:0;}
+    .panel-head{padding:20px 24px 14px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);}
+    .panel-body{padding:22px 24px;}
+
+    /* ── Buttons ── */
+    .btn{border-radius:14px;font-weight:700;}
+    .btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border:none;box-shadow:0 8px 18px rgba(37,99,235,.2);}
+    .btn-success{background:linear-gradient(135deg,#16a34a,#15803d);border:none;box-shadow:0 8px 18px rgba(22,163,74,.18);}
+
+    /* ── Forms ── */
+    .form-label{font-weight:700;color:#374151;font-size:.9rem;}
+    .form-control,.form-select{border-radius:14px;min-height:46px;border:1px solid #dbe3ee;box-shadow:none;}
+    .form-control:focus,.form-select:focus{border-color:#93c5fd;box-shadow:0 0 0 .2rem rgba(37,99,235,.10);}
+    .helper-text{color:var(--muted);font-size:.82rem;margin-top:.35rem;}
+
+    /* ── Table ── */
+    .table-wrap{border-radius:18px;overflow:visible !important;}
+    .table-responsive{overflow:visible !important;}
+    .table{margin-bottom:0;border-collapse:separate;border-spacing:0 10px;}
+    .table thead th{border:none !important;color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;font-weight:800;white-space:nowrap;background:transparent !important;padding:10px 12px;}
+    .table tbody tr{background:#fff;box-shadow:0 4px 14px rgba(15,23,42,.05);transition:.15s ease-in-out;overflow:visible !important;}
+    .table tbody tr:hover{transform:translateY(-1px);}
+    .table tbody td{vertical-align:middle;padding:15px 12px;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;font-size:.94rem;overflow:visible !important;position:relative;}
+    .table tbody td:first-child{border-left:1px solid #f1f5f9;border-top-left-radius:14px;border-bottom-left-radius:14px;}
+    .table tbody td:last-child{border-right:1px solid #f1f5f9;border-top-right-radius:14px;border-bottom-right-radius:14px;}
+
+    .badge-pill{border-radius:999px;padding:.4rem .7rem;font-weight:700;}
+    .cell-muted{color:var(--muted);}
+    .btn-xs{padding:.35rem .65rem;font-size:.82rem;border-radius:10px;}
+
+    /* ── Pagination ── */
+    .pagination .page-link{border-radius:10px !important;margin:0 2px;border:none;box-shadow:0 2px 8px rgba(15,23,42,.06);color:#374151;}
+    .pagination .page-item.active .page-link{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;}
+
+    /* ── Alerts ── */
+    .alert{border:none;border-radius:16px;box-shadow:0 6px 20px rgba(15,23,42,.06);}
+
+    .modal-content{border:none;border-radius:22px;box-shadow:0 20px 50px rgba(15,23,42,.18);overflow:hidden;}
+    .modal-header{border-bottom:1px solid var(--line);color:#fff;}
+    .modal-footer{border-top:1px solid var(--line);}
+
+    /* ── Tom Select ── */
+    .ts-wrapper{width:100%;position:relative;z-index:20;}
+    .ts-wrapper.focus{z-index:2000;}
+    .ts-wrapper.single .ts-control,.ts-wrapper.multi .ts-control{min-height:46px;width:100%;border-radius:14px;border:1px solid #dbe3ee;padding:.55rem .75rem;font-size:.95rem;background:#fff;box-shadow:none;display:flex;align-items:center;}
+    .ts-wrapper.single .ts-control input,.ts-control > input{font-size:.95rem;min-width:120px !important;}
+    .ts-wrapper.focus .ts-control{border-color:#93c5fd;box-shadow:0 0 0 .2rem rgba(37,99,235,.10);}
+    .ts-wrapper.single .ts-control:after{border-color:#6b7280 transparent transparent transparent;right:14px;}
+    .ts-wrapper.single.dropdown-active .ts-control:after{border-color:transparent transparent #6b7280 transparent;margin-top:-8px;}
+    .ts-dropdown{border-radius:14px;border:1px solid #dbe3ee;margin-top:6px;overflow:hidden;box-shadow:0 12px 28px rgba(15,23,42,.12);z-index:99999 !important;background:#fff;}
+    .ts-dropdown .option,.ts-dropdown .create{padding:10px 14px;font-size:.94rem;line-height:1.4;}
+    .ts-dropdown .option.active{background:#eef4ff;color:#1d4ed8;}
+    .ts-dropdown .option.selected{background:#f8fbff;color:#1f2937;font-weight:600;}
+    .no-results{padding:10px 14px;color:#6b7280;}
+    td .ts-wrapper{min-width:100%;}
+
+    @media(max-width:992px){
+      .admin-topnav{padding:0 16px;}
+      .page-hero{padding:20px 16px 28px;}
+      .content-area{padding:16px;}
+      .page-title{font-size:1.55rem;}
+      .nav-brand-sub{display:none;}
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── Sticky Top Navigation ── -->
+  <nav class="admin-topnav">
+    <div class="nav-brand">
+      <div class="nav-brand-icon">
+        <img th:src="@{/images/num_logo.jpg}" alt="NUM Logo" object-fit="cover" style="width: 100%; height: 100%; border-radius: 10px;">
+      </div>
+      <div class="nav-brand-text">
+        <div class="nav-brand-title" th:text="#{common.brand}">NUM Feedback</div>
+        <div class="nav-brand-sub" th:text="#{admin.brand.subtitle}">Admin Panel</div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="lang-toggle">
+        <a href="javascript:void(0)" onclick="switchLang('en')" class="lang-opt" th:classappend="${#locale.language == 'en'} ? ' active'">EN</a>
+        <a href="javascript:void(0)" onclick="switchLang('kh')" class="lang-opt" th:classappend="${#locale.language == 'kh'} ? ' active'">KH</a>
+      </div>
+      <div class="user-chip">
+        <div class="user-avatar">A</div>
+        <span class="user-name" sec:authentication="name">Admin</span>
+      </div>
+      <form th:action="@{/login?logout}" method="post" style="margin:0;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <button class="nav-logout" type="submit">
+          <i class="bi bi-box-arrow-right"></i> <span th:text="#{common.signout}">Sign Out</span>
+        </button>
+      </form>
+    </div>
+  </nav>
+
+  <!-- ── Page Hero ── -->
+  <div class="page-hero">
+    <div class="page-wrap d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3">
+      <div>
+        <div class="mb-2">
+          <a href="/admin" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.22);color:#fff;border-radius:12px;padding:6px 14px;font-size:.8rem;font-weight:600;text-decoration:none;">
+            <i class="bi bi-arrow-left"></i> <span th:text="#{admin.nav.dashboard}">Dashboard</span>
+          </a>
+        </div>
+        <h1 class="page-title" th:text="#{admin.teaching.title}">Teaching Schedule</h1>
+        <p class="page-subtitle" th:text="#{admin.teaching.subtitle}">Create schedules in bulk and manage teaching rows.</p>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <span class="hero-pill"><i class="bi bi-calendar-week"></i> <span th:text="#{admin.teaching.pill.bulk}">5-subject bulk creation</span></span>
+          <span class="hero-pill"><i class="bi bi-funnel"></i> <span th:text="#{admin.teaching.pill.filter}">Filter &amp; pagination</span></span>
+          <span class="hero-pill"><i class="bi bi-search"></i> <span th:text="#{admin.teaching.pill.search}">Smart searchable dropdown</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Content Area ── -->
+  <div class="content-area">
+    <div class="page-wrap">
+
+      <!-- KPI strip -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-4">
+          <div class="kpi-card">
+            <div class="kpi-icon blue"><i class="bi bi-table"></i></div>
+            <div>
+              <div class="kpi-label" th:text="#{admin.teaching.kpi.rows}">Schedule Rows</div>
+              <div class="kpi-value" th:text="${totalRows != null ? totalRows : 0}">0</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-4">
+          <div class="kpi-card">
+            <div class="kpi-icon green"><i class="bi bi-file-earmark-text"></i></div>
+            <div>
+              <div class="kpi-label" th:text="#{admin.teaching.kpi.page}">Current Page</div>
+              <div class="kpi-value" th:text="${page != null ? page : 1}">1</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-4">
+          <div class="kpi-card">
+            <div class="kpi-icon amber"><i class="bi bi-list-ol"></i></div>
+            <div>
+              <div class="kpi-label" th:text="#{admin.teaching.kpi.size}">Page Size</div>
+              <div class="kpi-value" th:text="${size != null ? size : 20}">20</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alerts -->
+      <div th:if="${param.msg != null and param.msg[0] == 'bulkCreated'}" class="alert alert-success mt-3">
+        ✅ <span th:text="#{admin.teaching.alert.bulkCreated}">Bulk schedule created successfully.</span>
+      </div>
+      <div th:if="${param.msg != null and param.msg[0] == 'invalid'}" class="alert alert-warning mt-3">
+        ⚠️ <span th:text="#{admin.teaching.alert.invalid}">Please fill all rows with weekday, course, and teacher.</span>
+      </div>
+      <div th:if="${param.msg != null and param.msg[0] == 'dupDay'}" class="alert alert-warning mt-3">
+        ⚠️ <span th:text="#{admin.teaching.alert.dupDay}">Duplicate weekday detected.</span>
+      </div>
+
+      <!-- ── Bulk Create Card ── -->
+      <div class="card mt-4">
+        <div class="panel-head d-flex justify-content-between align-items-start flex-wrap gap-2">
+          <div>
+            <div class="section-title" th:text="#{admin.teaching.bulk.title}">Bulk Create Schedule</div>
+            <p class="section-subtitle" th:text="#{admin.teaching.bulk.subtitle}">Select semester, cohort, group, shift, and assign teaching rows in one submission.</p>
+          </div>
+        </div>
+
+        <div class="panel-body">
+          <form method="post" th:action="@{/admin/teaching/bulk}" id="bulkForm">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+            <div class="row g-3">
+              <div class="col-md-3">
+                <label class="form-label" th:text="#{admin.teaching.bulk.semester}">Semester</label>
+                <select class="form-select" id="bulkSemesterSelect" name="semesterId" required>
+                  <option value="" th:text="#{admin.teaching.bulk.select}">-- Select --</option>
+                  <option th:each="s : ${semesters}" th:value="${s.id}" th:text="${s.name}"></option>
+                </select>
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label d-flex justify-content-between align-items-center">
+                  <span th:text="#{admin.teaching.bulk.cohort}">Cohort</span>
+                  <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#newGroupModal"
+                          th:text="#{admin.teaching.bulk.newBtn}">+ New</button>
+                </label>
+                <select class="form-select" id="bulkCohortSelect" name="cohortId" required>
+                  <option value="" th:text="#{admin.teaching.bulk.select}">-- Select --</option>
+                  <option th:each="co : ${cohorts}" th:value="${co.id}"
+                    th:text="${co.cohortNo + (co.label != null ? ' - ' + co.label : '')}">
+                  </option>
+                </select>
+              </div>
+
+              <div class="col-md-2">
+                <label class="form-label" th:text="#{admin.teaching.bulk.group}">Group No</label>
+                <select class="form-select" id="bulkGroupSelect" name="groupNo" required>
+                  <option value="" th:text="#{admin.teaching.bulk.select}">-- Select --</option>
+                </select>
+                <div class="helper-text" th:text="#{admin.teaching.bulk.groupHelper}">Loaded from ClassSection after Semester + Cohort.</div>
+              </div>
+
+              <div class="col-md-2">
+                <label class="form-label" th:text="#{admin.teaching.bulk.shift}">Shift</label>
+                <select class="form-select" id="bulkShiftSelect" name="shiftTime" required>
+                  <option value="" th:text="#{admin.teaching.bulk.select}">-- Select --</option>
+                  <option th:each="sh : ${shifts}" th:value="${sh}" th:text="${sh.label}"></option>
+                </select>
+              </div>
+
+              <div class="col-md-1">
+                <label class="form-label" th:text="#{admin.teaching.bulk.building}">Bld</label>
+                <input class="form-control" id="bulkBuildingInput" name="building" placeholder="A">
+              </div>
+
+              <div class="col-md-1">
+                <label class="form-label" th:text="#{admin.teaching.bulk.room}">Room</label>
+                <input class="form-control" id="bulkRoomInput" name="room" placeholder="201">
+              </div>
+            </div>
+
+            <!-- Curriculum Filter -->
+            <div class="d-flex flex-wrap align-items-end gap-3 mt-3 p-3 rounded-3" style="background:#f0f6ff;border:1.5px solid #bfdbfe;">
+              <div>
+                <div class="fw-bold mb-2" style="font-size:.82rem;color:#1d4ed8;">
+                  <i class="bi bi-mortarboard-fill me-1"></i><span th:text="#{admin.teaching.curriculum.title}">Curriculum Filter</span>
+                </div>
+                <div class="d-flex gap-2">
+                  <select id="currYearSel" class="form-select form-select-sm" style="width:120px;">
+                    <option value="" th:text="#{admin.teaching.curriculum.allYears}">All Years</option>
+                    <option value="1" th:text="#{admin.teaching.curriculum.year1}">Year 1</option>
+                    <option value="2" th:text="#{admin.teaching.curriculum.year2}">Year 2</option>
+                    <option value="3" th:text="#{admin.teaching.curriculum.year3}">Year 3</option>
+                    <option value="4" th:text="#{admin.teaching.curriculum.year4}">Year 4</option>
+                  </select>
+                  <select id="currSemSel" class="form-select form-select-sm" style="width:140px;">
+                    <option value="" th:text="#{admin.teaching.curriculum.allSems}">All Semesters</option>
+                    <option value="1" th:text="#{admin.teaching.curriculum.sem1}">Semester 1</option>
+                    <option value="2" th:text="#{admin.teaching.curriculum.sem2}">Semester 2</option>
+                  </select>
+                </div>
+              </div>
+              <button type="button" id="fillCurrBtn" class="btn btn-sm btn-primary">
+                <i class="bi bi-lightning-fill me-1"></i><span th:text="#{admin.teaching.curriculum.fill}">Fill from Curriculum</span>
+              </button>
+              <span class="text-muted" style="font-size:.82rem;line-height:1.4;" th:text="#{admin.teaching.curriculum.hint}">
+                Filter course dropdowns by year/semester, or auto-fill all rows from the curriculum.
+              </span>
+            </div>
+
+            <hr class="my-4">
+
+            <div class="table-wrap">
+              <table class="table align-middle" id="subjectTable">
+                <thead>
+                  <tr>
+                    <th style="width:52px;" th:text="#{admin.teaching.table.no}">#</th>
+                    <th style="width:180px;" th:text="#{admin.teaching.table.weekday}">Weekday</th>
+                    <th th:text="#{admin.teaching.table.course}">Course</th>
+                    <th th:text="#{admin.teaching.table.teacher}">Teacher</th>
+                    <th style="width:44px;"></th>
+                  </tr>
+                </thead>
+                <tbody id="subjectRows">
+                  <tr th:each="n : ${#numbers.sequence(1,5)}">
+                    <td class="text-center fw-bold row-num" th:text="${n}">1</td>
+                    <td>
+                      <select class="form-select weekdaySel" name="weekdays" required>
+                        <option value="" th:text="#{admin.teaching.bulk.selectDay}">-- Select day --</option>
+                        <option th:each="d : ${weekdays}" th:value="${d}" th:text="${d}"></option>
+                      </select>
+                    </td>
+                    <td>
+                      <select class="form-select course-search" name="courseIds" required>
+                        <option value="" th:text="#{admin.teaching.bulk.selectCourse}">-- Select course --</option>
+                        <option th:each="c : ${courses}" th:value="${c.id}" th:text="${c.code + ' - ' + c.name}"></option>
+                      </select>
+                    </td>
+                    <td>
+                      <select class="form-select teacher-search" name="teacherIds" required>
+                        <option value="" th:text="#{admin.teaching.bulk.selectTeacher}">-- Select teacher --</option>
+                        <option th:each="t : ${teachers}" th:value="${t.id}"
+                                th:text="${(t.fullName != null and !#strings.isEmpty(t.fullName) ? t.fullName : t.username) + ' (' + t.username + ')'}">
+                        </option>
+                      </select>
+                    </td>
+                    <td>
+                      <button type="button" class="btn btn-sm btn-outline-danger remove-row-btn"
+                              title="Remove row" onclick="removeRow(this)">
+                        <i class="bi bi-x-lg"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <button type="button" id="addRowBtn" class="btn btn-sm btn-outline-primary mt-1">
+              <i class="bi bi-plus-lg me-1"></i><span th:text="#{admin.teaching.addRow}">Add Subject Row</span>
+            </button>
+
+            <div id="dupDayAlert" class="alert alert-warning d-none mt-3">
+              <i class="bi bi-exclamation-triangle-fill me-1"></i>
+              <span th:text="#{admin.teaching.dupAlert}">Duplicate weekday detected. Please select a different weekday for each row.</span>
+            </div>
+
+            <div class="d-flex gap-2 mt-3">
+              <button id="bulkSubmitBtn" class="btn btn-primary" type="submit">
+                <i class="bi bi-floppy me-1"></i><span th:text="#{admin.teaching.create}">Create Schedule</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ── Filter Card ── -->
+      <div class="card mt-4">
+        <div class="panel-head d-flex justify-content-between align-items-start flex-wrap gap-2">
+          <div>
+            <div class="section-title" th:text="#{admin.teaching.filter.title}">Find Teaching Schedules</div>
+            <p class="section-subtitle" th:text="#{admin.teaching.filter.subtitle}">Filter schedules by semester, cohort, group, shift, and weekday.</p>
+          </div>
+          <a class="btn btn-outline-secondary btn-sm" th:href="@{/admin/teaching(page=1, size=${size})}"
+             th:text="#{admin.teaching.filter.reset}">Reset</a>
+        </div>
+
+        <div class="panel-body">
+          <form method="get" th:action="@{/admin/teaching}" class="row g-3">
+            <input type="hidden" name="page" value="1">
+
+            <div class="col-md-3">
+              <label class="form-label" th:text="#{admin.teaching.filter.semester}">Semester</label>
+              <select class="form-select" id="filterSemesterSelect" name="semesterId">
+                <option value="" th:text="#{admin.teaching.filter.all}">All</option>
+                <option th:each="s : ${semesters}" th:value="${s.id}" th:text="${s.name}"
+                  th:selected="${semesterId != null and semesterId == s.id}">
+                </option>
+              </select>
+            </div>
+
+            <div class="col-md-2" th:if="${faculties != null and !faculties.isEmpty()}">
+              <label class="form-label" th:text="#{admin.teaching.filter.faculty}">Faculty</label>
+              <select class="form-select" name="faculty">
+                <option value="" th:text="#{admin.teaching.filter.all}">All</option>
+                <option th:each="f : ${faculties}" th:value="${f}" th:text="${f}"
+                  th:selected="${faculty != null and faculty == f}">
+                </option>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label" th:text="#{admin.teaching.filter.cohort}">Cohort</label>
+              <select class="form-select" id="filterCohortSelect" name="cohortId">
+                <option value="" th:text="#{admin.teaching.filter.all}">All</option>
+                <option th:each="co : ${cohorts}" th:value="${co.id}" th:text="${co.cohortNo}"
+                  th:selected="${cohortId != null and cohortId == co.id}">
+                </option>
+              </select>
+            </div>
+
+            <div class="col-md-2">
+              <label class="form-label" th:text="#{admin.teaching.filter.group}">Group No</label>
+              <select class="form-select" id="filterGroupSelect" name="groupNo">
+                <option value="" th:text="#{admin.teaching.filter.all}">All</option>
+              </select>
+            </div>
+
+            <div class="col-md-2">
+              <label class="form-label" th:text="#{admin.teaching.filter.shift}">Shift</label>
+              <select class="form-select" id="filterShiftSelect" name="shiftTime">
+                <option value="" th:text="#{admin.teaching.filter.all}">All</option>
+                <option th:each="sh : ${shifts}" th:value="${sh}" th:text="${sh.label}"
+                  th:selected="${shiftTime != null and shiftTime == sh}">
+                </option>
+              </select>
+            </div>
+
+            <div class="col-md-2">
+              <label class="form-label" th:text="#{admin.teaching.filter.weekday}">Weekday</label>
+              <select class="form-select" name="weekday">
+                <option value="" th:text="#{admin.teaching.filter.all}">All</option>
+                <option th:each="d : ${weekdays}" th:value="${d}" th:text="${d}"
+                  th:selected="${weekday != null and weekday == d}">
+                </option>
+              </select>
+            </div>
+
+            <div class="col-md-2">
+              <label class="form-label" th:text="#{admin.teaching.filter.pageSize}">Page size</label>
+              <select class="form-select" name="size" onchange="this.form.submit()">
+                <option value="10" th:selected="${size == 10}">10</option>
+                <option value="20" th:selected="${size == 20}">20</option>
+                <option value="50" th:selected="${size == 50}">50</option>
+                <option value="100" th:selected="${size == 100}">100</option>
+              </select>
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+              <button class="btn btn-primary w-100" th:text="#{admin.teaching.filter.btn}">Filter</button>
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+              <a class="btn btn-outline-secondary w-100" th:href="@{/admin/teaching(page=1, size=${size})}"
+                 th:text="#{admin.teaching.filter.clear}">Clear</a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ── Schedule List Card ── -->
+      <div class="card mt-4">
+        <div class="panel-head">
+          <div class="section-title" th:text="#{admin.teaching.list.title}">Teaching Schedule List</div>
+          <p class="section-subtitle" th:text="#{admin.teaching.list.subtitle}">Manage schedule rows with edit and delete actions.</p>
+        </div>
+
+        <div class="panel-body">
+
+          <!-- Filter tabs (built by JS) -->
+          <div id="sem-tabs" class="d-flex align-items-center gap-2 flex-wrap mb-3">
+            <span class="fw-semibold text-muted me-1" style="font-size:.9rem" th:text="#{common.filter}">Filter:</span>
+          </div>
+
+          <!-- Semester groups inserted here by JS -->
+          <div id="sem-container"></div>
+
+          <!-- Hidden row data rendered by Thymeleaf -->
+          <div id="all-rows" style="display:none">
+            <th:block th:each="t, iter : ${teachings}">
+              <div class="row-data"
+                   th:attr="data-sem=${t.semester != null ? t.semester.name : (t.classSection != null and t.classSection.semester != null ? t.classSection.semester.name : 'Unknown')}">
+                <table style="display:none"><tbody><tr>
+
+                  <td class="fw-semibold" th:text="${(page - 1) * size + iter.index + 1}">1</td>
+
+                  <td>
+                    <span class="badge text-bg-light border badge-pill"
+                          th:text="${t.weekday != null ? t.weekday : '-'}">MONDAY</span>
+                  </td>
+
+                  <td>
+                    <span class="badge badge-pill"
+                      th:classappend="${
+                        (t.shiftTime != null ? t.shiftTime : (t.classSection != null ? t.classSection.shiftTime : '')) == 'MORNING'
+                        ? ' text-bg-primary' :
+                        ((t.shiftTime != null ? t.shiftTime : (t.classSection != null ? t.classSection.shiftTime : '')) == 'AFTERNOON'
+                        ? ' text-bg-success' :
+                        ((t.shiftTime != null ? t.shiftTime : (t.classSection != null ? t.classSection.shiftTime : '')) == 'EVENING'
+                        ? ' text-bg-dark' : ' text-bg-secondary'))
+                      }"
+                      th:text="${t.shiftTime != null ? t.shiftTime.label : (t.classSection != null ? t.classSection.shiftTime.label : '-')}">Morning</span>
+                  </td>
+
+                  <td th:text="${t.course != null ? (t.course.code + ' - ' + t.course.name) : '-'}"></td>
+
+                  <td>
+                    <span class="fw-semibold"
+                          th:text="${t.teacher != null
+                            ? (t.teacher.fullName != null and !#strings.isEmpty(t.teacher.fullName)
+                              ? t.teacher.fullName + ' (' + t.teacher.username + ')'
+                              : t.teacher.username)
+                            : '-'}">
+                    </span>
+                  </td>
+
+                  <td class="cell-muted"
+                    th:text="${(t.cohort != null ? t.cohort.cohortNo :
+                      (t.classSection != null and t.classSection.cohort != null ? t.classSection.cohort.cohortNo : '-'))
+                      + '/' +
+                      (t.groupNo != null ? t.groupNo :
+                      (t.classSection != null ? t.classSection.groupNo : '-'))
+                      + '-' +
+                      (t.room != null ? t.room : (t.classSection != null and t.classSection.room != null ? t.classSection.room : ''))
+                      + (t.building != null ? t.building : (t.classSection != null and t.classSection.building != null ? t.classSection.building : ''))}">
+                  </td>
+
+                  <td class="text-nowrap">
+                    <a class="btn btn-xs btn-outline-primary" th:href="@{|/admin/teaching/${t.id}/edit|}">
+                      <i class="bi bi-pencil"></i> <span th:text="#{admin.teaching.btn.edit}">Edit</span>
+                    </a>
+                    <form method="post" th:action="@{|/admin/teaching/${t.id}/delete|}" class="d-inline">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                      <button class="btn btn-xs btn-outline-danger"
+                              onclick="return confirm('Delete this schedule row?');">
+                        <i class="bi bi-trash"></i> <span th:text="#{admin.teaching.btn.delete}">Delete</span>
+                      </button>
+                    </form>
+                  </td>
+
+                </tr></tbody></table>
+              </div>
+            </th:block>
+          </div>
+
+          <div th:if="${teachings == null or #lists.isEmpty(teachings)}"
+               class="text-center text-muted py-5">
+            <i class="bi bi-inbox display-6 d-block mb-2 opacity-25"></i>
+            <span th:text="#{admin.teaching.list.empty}">No schedule rows found.</span>
+          </div>
+
+          <!-- Pagination -->
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3"
+            th:if="${totalPages != null and totalPages > 1}">
+            <div class="small text-muted">
+              <span th:text="#{admin.teaching.list.page}">Page</span>
+              <span th:text="${page}"></span> /
+              <span th:text="${totalPages}"></span>
+              · <span th:text="#{admin.teaching.list.total}">Total:</span>
+              <span th:text="${totalRows}"></span>
+            </div>
+
+            <nav>
+              <ul class="pagination pagination-sm mb-0">
+                <li class="page-item" th:classappend="${page <= 1} ? ' disabled' : ''">
+                  <a class="page-link" th:text="#{admin.teaching.btn.prev}"
+                     th:href="@{/admin/teaching(page=${page-1},size=${size},semesterId=${semesterId},cohortId=${cohortId},groupNo=${groupNo},shiftTime=${shiftTime},weekday=${weekday})}">Prev</a>
+                </li>
+                <li class="page-item"
+                  th:each="p : ${#numbers.sequence(((page-2) > 1) ? (page-2) : 1, ((page+2) < totalPages) ? (page+2) : totalPages)}"
+                  th:classappend="${p == page} ? ' active' : ''">
+                  <a class="page-link" th:text="${p}"
+                     th:href="@{/admin/teaching(page=${p},size=${size},semesterId=${semesterId},cohortId=${cohortId},groupNo=${groupNo},shiftTime=${shiftTime},weekday=${weekday})}"></a>
+                </li>
+                <li class="page-item" th:classappend="${page >= totalPages} ? ' disabled' : ''">
+                  <a class="page-link" th:text="#{admin.teaching.btn.next}"
+                     th:href="@{/admin/teaching(page=${page+1},size=${size},semesterId=${semesterId},cohortId=${cohortId},groupNo=${groupNo},shiftTime=${shiftTime},weekday=${weekday})}">Next</a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── New Cohort Modal ── -->
+    <div class="modal fade" id="newCohortModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-primary">
+            <h5 class="modal-title" th:text="#{admin.teaching.modal.cohort.title}">Create New Cohort</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label" th:text="#{admin.teaching.modal.cohort.no}">Cohort No</label>
+              <input type="text" class="form-control" id="newCohortNo" placeholder="e.g. 33">
+            </div>
+            <div class="mb-2">
+              <label class="form-label" th:text="#{admin.teaching.modal.cohort.label}">Label</label>
+              <input type="text" class="form-control" id="newCohortLabel" th:placeholder="#{admin.teaching.modal.cohort.placeholder}">
+            </div>
+            <div id="newCohortMsg" class="small text-muted mt-2"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light border" data-bs-dismiss="modal" th:text="#{admin.teaching.modal.cohort.close}">Close</button>
+            <button type="button" class="btn btn-primary" id="saveCohortBtn" th:text="#{admin.teaching.modal.cohort.save}">Save Cohort</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── New Group Modal ── -->
+    <div class="modal fade" id="newGroupModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-success">
+            <h5 class="modal-title" th:text="#{admin.teaching.modal.group.title}">Create New Group</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label" th:text="#{admin.teaching.modal.group.cohort}">Cohort</label>
+              <select class="form-select" id="modalCohortSelect">
+                <option value="" th:text="#{admin.teaching.modal.group.selectCohort}">-- Select Cohort --</option>
+                <option th:each="co : ${cohorts}" th:value="${co.id}"
+                  th:text="${co.cohortNo + (co.label != null ? ' - ' + co.label : '')}"></option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" th:text="#{admin.teaching.modal.group.no}">Group No</label>
+              <input type="text" class="form-control" id="modalGroupNo" placeholder="e.g. 16">
+            </div>
+            <div class="mb-3">
+              <label class="form-label" th:text="#{admin.teaching.modal.group.shift}">Shift</label>
+              <select class="form-select" id="modalShift">
+                <option value="" th:text="#{admin.teaching.bulk.select}">-- Select --</option>
+                <option th:each="sh : ${shifts}" th:value="${sh}" th:text="${sh.label}"></option>
+              </select>
+            </div>
+            <div class="row g-2">
+              <div class="col-md-6">
+                <label class="form-label" th:text="#{admin.teaching.modal.group.building}">Building</label>
+                <input type="text" class="form-control" id="modalBuilding" placeholder="A">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" th:text="#{admin.teaching.modal.group.room}">Room</label>
+                <input type="text" class="form-control" id="modalRoom" placeholder="201">
+              </div>
+            </div>
+            <div id="newGroupMsg" class="small text-muted mt-3"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light border" data-bs-dismiss="modal" th:text="#{admin.teaching.modal.group.close}">Close</button>
+            <button type="button" class="btn btn-success" id="saveGroupBtn" th:text="#{admin.teaching.modal.group.save}">Save Group</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <!-- Hidden option sources for cloning new rows -->
+  <select id="weekdayOptionsSource" class="d-none" aria-hidden="true">
+    <option value="" th:text="#{admin.teaching.bulk.selectDay}">-- Select day --</option>
+    <option th:each="d : ${weekdays}" th:value="${d}" th:text="${d}"></option>
+  </select>
+  <select id="teacherOptionsSource" class="d-none" aria-hidden="true">
+    <option value="" th:text="#{admin.teaching.bulk.selectTeacher}">-- Select teacher --</option>
+    <option th:each="t : ${teachers}" th:value="${t.id}"
+            th:text="${(t.fullName != null and !#strings.isEmpty(t.fullName) ? t.fullName : t.username) + ' (' + t.username + ')'}">
+    </option>
+  </select>
+
+  <!-- Template for dynamically added subject rows -->
+  <template id="rowTpl">
+    <tr>
+      <td class="text-center fw-bold row-num"></td>
+      <td><select class="form-select weekdaySel" name="weekdays" required></select></td>
+      <td><select class="form-select course-search" name="courseIds" required></select></td>
+      <td><select class="form-select teacher-search" name="teacherIds" required></select></td>
+      <td><button type="button" class="btn btn-sm btn-outline-danger remove-row-btn"
+                  title="Remove row" onclick="removeRow(this)"><i class="bi bi-x-lg"></i></button></td>
+    </tr>
+  </template>
+
+  </div><!-- /content-area -->
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+
+  <script th:inline="javascript">
+    (function () {
+      const csrfParam = /*[[${_csrf.parameterName}]]*/ '_csrf';
+      const csrfToken = /*[[${_csrf.token}]]*/ '';
+
+      // Translated labels passed from server
+      const labelAllSemesters = /*[[#{admin.teaching.list.allSem}]]*/ 'All Semesters';
+      const labelSemRows      = /*[[#{admin.teaching.list.semRows}]]*/ 'semester · {0} row(s)';
+      const labelColNo        = /*[[#{admin.teaching.list.col.no}]]*/ 'No.';
+      const labelColWeekday   = /*[[#{admin.teaching.list.col.weekday}]]*/ 'Weekday';
+      const labelColShift     = /*[[#{admin.teaching.list.col.shift}]]*/ 'Shift';
+      const labelColCourse    = /*[[#{admin.teaching.list.col.course}]]*/ 'Course';
+      const labelColTeacher   = /*[[#{admin.teaching.list.col.teacher}]]*/ 'Teacher';
+      const labelColRoom      = /*[[#{admin.teaching.list.col.room}]]*/ 'Cohort/Group-Room';
+      const labelColActions   = /*[[#{admin.teaching.list.col.actions}]]*/ 'Actions';
+      const labelSelectCourse = /*[[#{admin.teaching.bulk.selectCourse}]]*/ '-- Select course --';
+
+      // Curriculum data (id, code, name, year, sem)
+      const ALL_COURSES = /*[[${courseJson}]]*/ [];
+      const courseTomSelectInstances = [];
+
+      function checkDuplicateWeekdays() {
+        const selects = Array.from(document.querySelectorAll('select[name="weekdays"]'));
+        const values = selects.map(s => (s.value || '').trim()).filter(v => v.length > 0);
+        const seen = new Set();
+        let hasDup = false;
+        for (const v of values) {
+          if (seen.has(v)) { hasDup = true; break; }
+          seen.add(v);
+        }
+        const alertBox = document.getElementById('dupDayAlert');
+        const submitBtn = document.getElementById('bulkSubmitBtn');
+        if (alertBox && submitBtn) {
+          if (hasDup) { alertBox.classList.remove('d-none'); submitBtn.disabled = true; }
+          else        { alertBox.classList.add('d-none');    submitBtn.disabled = false; }
+        }
+      }
+
+      function createTomSelect(el, placeholderText, noResultPrefix) {
+        if (el.tomselect) return;
+        new TomSelect(el, {
+          create: false, maxOptions: 500, placeholder: placeholderText,
+          searchField: ['text'], dropdownDirection: 'auto', allowEmptyOption: true,
+          copyClassesToDropdown: false, dropdownParent: 'body',
+          sortField: [{ field: 'text', direction: 'asc' }],
+          render: {
+            no_results: function(data, escape) {
+              return '<div class="no-results">' + noResultPrefix + ' "' + escape(data.input) + '"</div>';
+            }
+          },
+          onInitialize: function() {
+            const control = this.control;
+            const dropdown = this.dropdown;
+            const syncDropdownWidth = () => {
+              const rect = control.getBoundingClientRect();
+              dropdown.style.width = rect.width + 'px';
+            };
+            syncDropdownWidth();
+            window.addEventListener('resize', syncDropdownWidth);
+            this.on('dropdown_open', syncDropdownWidth);
+          }
+        });
+      }
+
+      function initSearchableSelects() {
+        document.querySelectorAll('.course-search').forEach((el) => {
+          if (!el.tomselect) {
+            createTomSelect(el, '🔍 Search course...', 'No course found for');
+            if (el.tomselect) courseTomSelectInstances.push(el.tomselect);
+          }
+        });
+        document.querySelectorAll('.teacher-search').forEach((el) => {
+          createTomSelect(el, '🔍 Search teacher...', 'No teacher found for');
+        });
+      }
+
+      function getFilteredCourses() {
+        const year = parseInt(document.getElementById('currYearSel')?.value) || null;
+        const sem  = parseInt(document.getElementById('currSemSel')?.value)  || null;
+        return ALL_COURSES.filter(c => {
+          if (year !== null && c.year !== year) return false;
+          if (sem  !== null && c.sem  !== sem)  return false;
+          return true;
+        });
+      }
+
+      function refreshCourseOptions() {
+        const filtered = getFilteredCourses();
+        courseTomSelectInstances.forEach(ts => {
+          if (!ts) return;
+          const cur = ts.getValue();
+          ts.clearOptions();
+          ts.addOption({ value: '', text: labelSelectCourse });
+          filtered.forEach(c => ts.addOption({ value: String(c.id), text: c.code + ' - ' + c.name }));
+          ts.refreshOptions(false);
+          if (cur && filtered.some(c => String(c.id) === String(cur))) ts.setValue(cur, true);
+          else ts.setValue('', true);
+        });
+      }
+
+      function renumberRows() {
+        document.querySelectorAll('#subjectRows tr').forEach((tr, i) => {
+          const cell = tr.querySelector('.row-num');
+          if (cell) cell.textContent = i + 1;
+        });
+      }
+
+      window.removeRow = function(btn) {
+        const tbody = document.getElementById('subjectRows');
+        if (!tbody || tbody.querySelectorAll('tr').length <= 1) return;
+        const tr = btn.closest('tr');
+        tr.querySelectorAll('.course-search').forEach(sel => {
+          const ts = sel.tomselect;
+          if (ts) {
+            const idx = courseTomSelectInstances.indexOf(ts);
+            if (idx > -1) courseTomSelectInstances.splice(idx, 1);
+            ts.destroy();
+          }
+        });
+        tr.querySelectorAll('.teacher-search').forEach(sel => {
+          if (sel.tomselect) sel.tomselect.destroy();
+        });
+        tr.remove();
+        renumberRows();
+        checkDuplicateWeekdays();
+      };
+
+      function addSubjectRow(presetCourseId) {
+        const tpl   = document.getElementById('rowTpl');
+        const tbody = document.getElementById('subjectRows');
+        if (!tpl || !tbody) return;
+
+        const clone = tpl.content.cloneNode(true);
+        const tr = clone.querySelector('tr');
+
+        const weekdaySel = tr.querySelector('.weekdaySel');
+        document.getElementById('weekdayOptionsSource')
+          .querySelectorAll('option').forEach(o => weekdaySel.appendChild(o.cloneNode(true)));
+        weekdaySel.addEventListener('change', checkDuplicateWeekdays);
+
+        const courseSel = tr.querySelector('.course-search');
+        const blankOpt = document.createElement('option');
+        blankOpt.value = ''; blankOpt.textContent = labelSelectCourse;
+        courseSel.appendChild(blankOpt);
+        getFilteredCourses().forEach(c => {
+          const o = document.createElement('option');
+          o.value = c.id; o.textContent = c.code + ' - ' + c.name;
+          courseSel.appendChild(o);
+        });
+
+        const teacherSel = tr.querySelector('.teacher-search');
+        document.getElementById('teacherOptionsSource')
+          .querySelectorAll('option').forEach(o => teacherSel.appendChild(o.cloneNode(true)));
+
+        tbody.appendChild(clone);
+        renumberRows();
+
+        createTomSelect(courseSel, '🔍 Search course...', 'No course found for');
+        if (courseSel.tomselect) {
+          courseTomSelectInstances.push(courseSel.tomselect);
+          if (presetCourseId) courseSel.tomselect.setValue(String(presetCourseId), true);
+        }
+        createTomSelect(teacherSel, '🔍 Search teacher...', 'No teacher found for');
+      }
+
+      function fillFromCurriculum() {
+        const year = parseInt(document.getElementById('currYearSel')?.value) || null;
+        const sem  = parseInt(document.getElementById('currSemSel')?.value)  || null;
+        if (!year || !sem) {
+          alert('Please select both a Study Year and a Semester first.');
+          return;
+        }
+        const currCourses = ALL_COURSES.filter(c => c.year === year && c.sem === sem);
+        if (!currCourses.length) {
+          alert('No courses found for Year ' + year + ', Semester ' + sem + '.\nAdd courses via Course Management first.');
+          return;
+        }
+        const tbody = document.getElementById('subjectRows');
+        const rowCount = tbody.querySelectorAll('tr').length;
+        for (let i = rowCount; i < currCourses.length; i++) addSubjectRow();
+        tbody.querySelectorAll('tr').forEach((tr, i) => {
+          if (i >= currCourses.length) return;
+          const sel = tr.querySelector('.course-search');
+          if (sel?.tomselect) sel.tomselect.setValue(String(currCourses[i].id), true);
+        });
+      }
+
+      const bulkSemesterSel  = document.getElementById('bulkSemesterSelect');
+      const bulkCohortSel    = document.getElementById('bulkCohortSelect');
+      const bulkGroupSel     = document.getElementById('bulkGroupSelect');
+      const bulkShiftSel     = document.getElementById('bulkShiftSelect');
+      const bulkBuildingInp  = document.getElementById('bulkBuildingInput');
+      const bulkRoomInp      = document.getElementById('bulkRoomInput');
+
+      const filterSemesterSel = document.getElementById('filterSemesterSelect');
+      const filterCohortSel   = document.getElementById('filterCohortSelect');
+      const filterGroupSel    = document.getElementById('filterGroupSelect');
+
+      const newCohortNo    = document.getElementById('newCohortNo');
+      const newCohortLabel = document.getElementById('newCohortLabel');
+      const newCohortMsg   = document.getElementById('newCohortMsg');
+      const saveCohortBtn  = document.getElementById('saveCohortBtn');
+
+      const modalCohortSel = document.getElementById('modalCohortSelect');
+      const modalGroupNo   = document.getElementById('modalGroupNo');
+      const modalShift     = document.getElementById('modalShift');
+      const modalBuilding  = document.getElementById('modalBuilding');
+      const modalRoom      = document.getElementById('modalRoom');
+      const newGroupMsg    = document.getElementById('newGroupMsg');
+      const saveGroupBtn   = document.getElementById('saveGroupBtn');
+
+      let bulkDefaultsByGroup   = {};
+      let filterDefaultsByGroup = {};
+
+      async function bulkReloadGroups() {
+        if (!bulkSemesterSel || !bulkCohortSel || !bulkGroupSel) return;
+        const semesterId = bulkSemesterSel.value;
+        const cohortId   = bulkCohortSel.value;
+        bulkGroupSel.innerHTML = '<option value="">-- Select --</option>';
+        bulkDefaultsByGroup = {};
+        if (!semesterId || !cohortId) return;
+
+        const url = `/admin/teaching/api/groups?semesterId=${encodeURIComponent(semesterId)}&cohortId=${encodeURIComponent(cohortId)}`;
+        const res = await fetch(url, { method:'GET', credentials:'same-origin', headers:{'Accept':'application/json'} });
+        if (!res.ok) return;
+        const data = await res.json();
+        const groupNos = data.groupNos || [];
+        bulkDefaultsByGroup = data.defaultsByGroup || {};
+        for (const g of groupNos) {
+          const opt = document.createElement('option');
+          opt.value = g; opt.textContent = g;
+          bulkGroupSel.appendChild(opt);
+        }
+      }
+
+      function bulkApplyDefaults() {
+        if (!bulkGroupSel) return;
+        const g = bulkGroupSel.value;
+        if (!g) return;
+        const d = bulkDefaultsByGroup[g];
+        if (!d) return;
+        if (bulkShiftSel && d.shiftTime) bulkShiftSel.value = d.shiftTime;
+        if (bulkBuildingInp && d.building != null) bulkBuildingInp.value = d.building;
+        if (bulkRoomInp && d.room != null) bulkRoomInp.value = d.room;
+      }
+
+      async function filterReloadGroups() {
+        if (!filterSemesterSel || !filterCohortSel || !filterGroupSel) return;
+        const semesterId = filterSemesterSel.value;
+        const cohortId   = filterCohortSel.value;
+        filterGroupSel.innerHTML = '<option value="">All</option>';
+        filterDefaultsByGroup = {};
+        if (!cohortId) return;
+
+        const url = semesterId
+          ? `/admin/teaching/api/groups?semesterId=${encodeURIComponent(semesterId)}&cohortId=${encodeURIComponent(cohortId)}`
+          : `/admin/teaching/api/groups?cohortId=${encodeURIComponent(cohortId)}`;
+        const res = await fetch(url, { method:'GET', credentials:'same-origin', headers:{'Accept':'application/json'} });
+        if (!res.ok) return;
+        const data = await res.json();
+        const groupNos = data.groupNos || [];
+        filterDefaultsByGroup = data.defaultsByGroup || {};
+        for (const g of groupNos) {
+          const opt = document.createElement('option');
+          opt.value = g; opt.textContent = g;
+          filterGroupSel.appendChild(opt);
+        }
+        const selectedGroupNo = /*[[${groupNo}]]*/ null;
+        if (selectedGroupNo != null) filterGroupSel.value = String(selectedGroupNo);
+      }
+
+      async function createCohort() {
+        const cohortNo = (newCohortNo?.value || '').trim();
+        const label    = (newCohortLabel?.value || '').trim();
+        if (!cohortNo) { newCohortMsg.textContent = 'Please enter cohort number.'; return; }
+
+        const body = new URLSearchParams();
+        body.append('cohortNo', cohortNo);
+        if (label) body.append('label', label);
+        body.append(csrfParam, csrfToken);
+
+        const res = await fetch('/admin/teaching/api/cohorts', {
+          method:'POST', credentials:'same-origin',
+          headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8','Accept':'application/json'},
+          body: body.toString()
+        });
+        const data = await res.json();
+        if (data.ok) {
+          newCohortMsg.textContent = 'Cohort created successfully.';
+          const text = data.cohortNo + (data.label ? ' - ' + data.label : '');
+          [bulkCohortSel, filterCohortSel, modalCohortSel].forEach(sel => {
+            if (!sel) return;
+            const opt = document.createElement('option');
+            opt.value = data.id; opt.textContent = text;
+            sel.appendChild(opt);
+          });
+          bulkCohortSel.value = String(data.id);
+          newCohortNo.value = ''; newCohortLabel.value = '';
+        } else {
+          newCohortMsg.textContent = data.msg || 'Failed to create cohort.';
+        }
+      }
+
+      async function createGroup() {
+        const semesterId = bulkSemesterSel?.value;
+        const cohortId   = modalCohortSel?.value;
+        const groupNo    = (modalGroupNo?.value || '').trim();
+        const shiftTime  = modalShift?.value;
+        const building   = (modalBuilding?.value || '').trim();
+        const room       = (modalRoom?.value || '').trim();
+
+        if (!semesterId || !cohortId || !groupNo || !shiftTime) {
+          newGroupMsg.textContent = 'Please fill semester, cohort, group number, and shift.';
+          return;
+        }
+        const body = new URLSearchParams();
+        body.append('semesterId', semesterId); body.append('cohortId', cohortId);
+        body.append('groupNo', groupNo); body.append('shiftTime', shiftTime);
+        body.append('building', building); body.append('room', room);
+        body.append(csrfParam, csrfToken);
+
+        const res = await fetch('/admin/teaching/api/sections', {
+          method:'POST', credentials:'same-origin',
+          headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8','Accept':'application/json'},
+          body: body.toString()
+        });
+        const data = await res.json();
+        if (data.ok) {
+          newGroupMsg.textContent = data.msg || 'Group created successfully.';
+          bulkCohortSel.value = cohortId;
+          await bulkReloadGroups();
+          bulkGroupSel.value = String(groupNo);
+          if (bulkShiftSel) bulkShiftSel.value = shiftTime;
+          if (bulkBuildingInp) bulkBuildingInp.value = building;
+          if (bulkRoomInp) bulkRoomInp.value = room;
+          modalGroupNo.value = ''; modalShift.value = '';
+          modalBuilding.value = ''; modalRoom.value = '';
+        } else {
+          newGroupMsg.textContent = data.msg || 'Failed to create group.';
+        }
+      }
+
+      document.querySelectorAll('select[name="weekdays"]').forEach(el => {
+        el.addEventListener('change', checkDuplicateWeekdays);
+      });
+
+      const currYearSel = document.getElementById('currYearSel');
+      const currSemSel  = document.getElementById('currSemSel');
+      if (currYearSel) currYearSel.addEventListener('change', refreshCourseOptions);
+      if (currSemSel)  currSemSel.addEventListener('change',  refreshCourseOptions);
+      document.getElementById('fillCurrBtn')?.addEventListener('click', fillFromCurriculum);
+      document.getElementById('addRowBtn')?.addEventListener('click', () => addSubjectRow());
+
+      if (bulkSemesterSel) bulkSemesterSel.addEventListener('change', bulkReloadGroups);
+      if (bulkCohortSel)   bulkCohortSel.addEventListener('change', bulkReloadGroups);
+      if (bulkGroupSel)    bulkGroupSel.addEventListener('change', bulkApplyDefaults);
+
+      if (filterSemesterSel) filterSemesterSel.addEventListener('change', filterReloadGroups);
+      if (filterCohortSel)   filterCohortSel.addEventListener('change', filterReloadGroups);
+
+      if (saveCohortBtn) saveCohortBtn.addEventListener('click', createCohort);
+      if (saveGroupBtn)  saveGroupBtn.addEventListener('click', createGroup);
+
+      checkDuplicateWeekdays();
+      initSearchableSelects();
+
+      if (filterSemesterSel && filterCohortSel && filterSemesterSel.value && filterCohortSel.value) {
+        filterReloadGroups();
+      }
+    })();
+  </script>
+
+  <script th:inline="javascript">
+  (function () {
+    const labelAllSemesters = /*[[#{admin.teaching.list.allSem}]]*/ 'All Semesters';
+    const labelSemRows      = /*[[#{admin.teaching.list.semRows}]]*/ 'semester · {0} row(s)';
+    const labelColNo        = /*[[#{admin.teaching.list.col.no}]]*/ 'No.';
+    const labelColWeekday   = /*[[#{admin.teaching.list.col.weekday}]]*/ 'Weekday';
+    const labelColShift     = /*[[#{admin.teaching.list.col.shift}]]*/ 'Shift';
+    const labelColCourse    = /*[[#{admin.teaching.list.col.course}]]*/ 'Course';
+    const labelColTeacher   = /*[[#{admin.teaching.list.col.teacher}]]*/ 'Teacher';
+    const labelColRoom      = /*[[#{admin.teaching.list.col.room}]]*/ 'Cohort/Group-Room';
+    const labelColActions   = /*[[#{admin.teaching.list.col.actions}]]*/ 'Actions';
+
+    const rowDivs   = Array.from(document.querySelectorAll('#all-rows .row-data'));
+    const container = document.getElementById('sem-container');
+    const tabsBar   = document.getElementById('sem-tabs');
+    if (!container || !tabsBar) return;
+
+    const seenSems = [];
+    rowDivs.forEach(d => {
+      const s = d.dataset.sem;
+      if (!seenSems.includes(s)) seenSems.push(s);
+    });
+    if (seenSems.length === 0) return;
+
+    const groups = {};
+    seenSems.forEach((sem) => {
+      const rows = rowDivs.filter(d => d.dataset.sem === sem);
+      if (!rows.length) return;
+
+      const tbody = document.createElement('tbody');
+      rows.forEach(d => {
+        const tr = d.querySelector('tr');
+        if (tr) tbody.appendChild(tr);
+      });
+
+      const rowsLabel = labelSemRows.replace('{0}', rows.length);
+
+      const group = document.createElement('div');
+      group.className = 'semester-group';
+      group.dataset.semester = sem;
+      group.innerHTML = `
+        <div class="d-flex align-items-center gap-2 mb-2 mt-3">
+          <span class="badge bg-primary" style="font-size:.85rem">${sem}</span>
+          <span class="text-muted" style="font-size:.82rem">${rowsLabel}</span>
+        </div>
+        <div class="table-wrap">
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead><tr>
+                <th style="width:60px;">${labelColNo}</th>
+                <th style="width:120px;">${labelColWeekday}</th>
+                <th style="width:120px;">${labelColShift}</th>
+                <th>${labelColCourse}</th>
+                <th>${labelColTeacher}</th>
+                <th style="width:140px;">${labelColRoom}</th>
+                <th style="width:170px;">${labelColActions}</th>
+              </tr></thead>
+            </table>
+          </div>
+        </div>`;
+      group.querySelector('table').appendChild(tbody);
+      container.appendChild(group);
+      groups[sem] = group;
+    });
+
+    const allBtn = document.createElement('button');
+    allBtn.className = 'btn btn-sm btn-primary semester-tab active';
+    allBtn.dataset.sem = 'all';
+    allBtn.textContent = labelAllSemesters;
+    tabsBar.appendChild(allBtn);
+
+    seenSems.forEach(sem => {
+      if (!groups[sem]) return;
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-sm btn-outline-primary semester-tab';
+      btn.dataset.sem = sem;
+      btn.textContent = sem;
+      tabsBar.appendChild(btn);
+    });
+
+    tabsBar.addEventListener('click', e => {
+      const btn = e.target.closest('.semester-tab');
+      if (!btn) return;
+      tabsBar.querySelectorAll('.semester-tab').forEach(b => {
+        b.classList.remove('active', 'btn-primary');
+        b.classList.add('btn-outline-primary');
+      });
+      btn.classList.add('active', 'btn-primary');
+      btn.classList.remove('btn-outline-primary');
+      const filter = btn.dataset.sem;
+      Object.entries(groups).forEach(([sem, g]) => {
+        g.style.display = (filter === 'all' || sem === filter) ? 'block' : 'none';
+      });
+    });
+  })();
+  </script>
+
+  <script>
+    function switchLang(lang) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('lang', lang);
+      window.location.href = url.toString();
+    }
+  </script>
+</body>
+</html>

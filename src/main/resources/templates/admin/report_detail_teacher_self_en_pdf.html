@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title th:text="${teacherName}">Teacher Self-Assessment Report</title>
+  <style type="text/css">
+    @page {
+      size: A4;
+      margin: 14mm 12mm 16mm 12mm;
+      @bottom-center {
+        content: "Page " counter(page) " / " counter(pages);
+        font-family: "Segoe UI", Arial, sans-serif;
+        font-size: 9pt;
+        color: #1f3e6b;
+      }
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: 10pt;
+      line-height: 1.7;
+      color: #1b1f24;
+    }
+
+    .title-bar {
+      background: #1f3e6b;
+      color: #fff;
+      text-align: center;
+      padding: 8px 12px;
+      font-size: 15pt;
+      font-weight: bold;
+      border-bottom: 3px solid #f0a500;
+      margin-bottom: 10px;
+    }
+
+    .meta, .q-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .meta {
+      margin-bottom: 10px;
+      background: #f9fbfd;
+      border: 1px solid #cfd8e3;
+    }
+
+    .meta td, .q-table th, .q-table td {
+      border: 1px solid #aab7c6;
+      padding: 5px 7px;
+      vertical-align: top;
+    }
+
+    .meta .label {
+      width: 18%;
+      color: #1f3e6b;
+      font-weight: bold;
+    }
+
+    .stats {
+      margin: 10px 0 12px 0;
+      padding: 7px 9px;
+      border: 1px solid #ccd6e0;
+      background: #f5f7fa;
+      font-size: 9.5pt;
+    }
+
+    .q-table {
+      margin-bottom: 16px;
+    }
+
+    .q-table thead th {
+      background: #1f3e6b;
+      color: #fff;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .group-row td {
+      background: #dce6f1;
+      color: #1f3e6b;
+      font-weight: bold;
+    }
+
+    .no-col, .avg-col {
+      width: 12%;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .section-banner {
+      background: #2e5e9a;
+      color: #fff;
+      text-align: center;
+      padding: 6px 10px;
+      font-size: 11pt;
+      font-weight: bold;
+      margin: 18px 0 10px 0;
+    }
+
+    .panel {
+      border: 1px solid #afc2d8;
+      margin-bottom: 12px;
+      page-break-inside: avoid;
+    }
+
+    .panel-head {
+      background: #dbe7f4;
+      color: #204a7a;
+      font-size: 10pt;
+      font-weight: bold;
+      padding: 5px 8px;
+      border-bottom: 1px solid #afc2d8;
+    }
+
+    .panel-body {
+      padding: 8px 10px;
+      min-height: 44px;
+      white-space: pre-wrap;
+    }
+
+    .signature {
+      margin-top: 24px;
+      border-top: 1px solid #ccd3db;
+      padding-top: 10px;
+      width: 280px;
+      margin-left: auto;
+      text-align: center;
+    }
+
+    .muted {
+      color: #4b5563;
+    }
+  </style>
+</head>
+<body>
+  <div class="title-bar">Teacher Self-Assessment Report</div>
+
+  <table class="meta">
+    <tr>
+      <td class="label">Teacher</td>
+      <td>
+        <span th:text="${teacherName}">-</span>
+        <span th:if="${submittedAtText != null and submittedAtText != '-'}" style="font-size:9pt;color:#4b5563;"> | </span>
+        <span th:if="${submittedAtText != null and submittedAtText != '-'}" style="font-size:9pt;color:#4b5563;" th:text="${'Submitted: ' + submittedAtText}">Submitted: -</span>
+      </td>
+      <td class="label">Semester</td>
+      <td th:text="${semesterName}">-</td>
+    </tr>
+    <tr>
+      <td class="label">Assessment Type</td>
+      <td th:text="${course}">-</td>
+      <td class="label">Generated At</td>
+      <td th:text="${generatedAt}">-</td>
+    </tr>
+  </table>
+
+  <div class="stats">
+    Submitted: <strong th:text="${count}">0</strong>
+    &#160;&#160; Eligible: <strong th:text="${enrolled}">1</strong>
+    &#160;&#160; Not submitted: <strong th:text="${notResponded}">0</strong>
+    &#160;&#160; Completion rate: <strong th:text="${responseRateText}">-</strong>
+    &#160;&#160; Overall avg: <strong th:text="${overallText}">-</strong>
+  </div>
+
+  <table class="q-table">
+    <thead>
+      <tr>
+        <th class="no-col">No.</th>
+        <th>Indicator</th>
+        <th class="avg-col">Average</th>
+      </tr>
+    </thead>
+    <tbody th:each="cat : ${categories}">
+      <tr class="group-row">
+        <td colspan="3">
+          <span th:text="${cat.label}">A.</span>
+          <span th:text="${'   ·   Average: ' + cat.avgText}">·</span>
+        </td>
+      </tr>
+      <tr th:each="q : ${cat.questions}">
+        <td class="no-col" th:text="${q.orderNo}">1</td>
+        <td th:text="${q.questionText}">Question</td>
+        <td class="avg-col" th:text="${q.avgScore != null ? #numbers.formatDecimal(q.avgScore,1,2) : '-'}">-</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="section-banner">Self-Reflection Comments</div>
+  <div class="panel">
+    <div class="panel-head">Comments</div>
+    <div class="panel-body" th:text="${comments}">-</div>
+  </div>
+
+    <div class="signature">
+      <div class="muted" th:text="${submittedAtText != null and submittedAtText != '-' ? submittedAtText : generatedAt}">-</div>
+      <div style="margin-top: 14px;">Teacher Signature</div>
+      <div style="margin-top: 28px;" th:text="${teacherName}">-</div>
+    </div>
+</body>
+</html>

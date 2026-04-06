@@ -1,0 +1,347 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Class Sections</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root{
+      --bg1:#f4f7fb;
+      --bg2:#eef3f9;
+      --card:#ffffff;
+      --text:#1f2a37;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --primary:#2563eb;
+      --primary-dark:#1d4ed8;
+      --success:#10b981;
+      --soft-primary:#e8f0ff;
+      --soft-success:#eafaf4;
+      --soft-warning:#fff7e8;
+      --shadow:0 10px 30px rgba(15,23,42,.08);
+    }
+
+    body{
+      background:radial-gradient(circle at top left,#f8fbff 0%,#f4f7fb 35%,#eef3f9 100%);
+      color:var(--text);
+      font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;
+    }
+
+    .page-wrap{max-width:1480px;margin:0 auto;}
+
+    /* Topbar */
+    .topbar{
+      background:linear-gradient(135deg,#fff 0%,#f7faff 100%);
+      border:1px solid rgba(255,255,255,.7);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      padding:24px 28px;
+      position:relative;
+      overflow:hidden;
+    }
+    .topbar::after{
+      content:"";
+      position:absolute;
+      right:-60px;
+      top:-60px;
+      width:220px;
+      height:220px;
+      background:radial-gradient(circle,rgba(37,99,235,.18),rgba(37,99,235,.02) 70%);
+      border-radius:50%;
+    }
+
+    .breadcrumb-link{
+      text-decoration:none;
+      color:var(--muted);
+      font-weight:600;
+      font-size:.95rem;
+      display:inline-flex;
+      align-items:center;
+      gap:.35rem;
+    }
+    .breadcrumb-link:hover{color:var(--primary);}
+
+    .page-title{font-size:2rem;font-weight:800;margin:.5rem 0 .25rem;letter-spacing:-.02em;}
+    .page-subtitle{color:var(--muted);margin:0;font-size:.98rem;}
+
+    /* Soft pill */
+    .soft-pill{
+      background:#eef4ff;
+      color:#1d4ed8;
+      border-radius:999px;
+      padding:.45rem .75rem;
+      font-size:.82rem;
+      font-weight:700;
+      display:inline-flex;
+      align-items:center;
+      gap:.3rem;
+    }
+
+    /* KPI mini-stat cards */
+    .kpi-card{
+      background:#fff;
+      border-radius:20px;
+      box-shadow:var(--shadow);
+      padding:20px;
+      height:100%;
+    }
+    .kpi-card .label{color:var(--muted);font-size:.84rem;font-weight:700;margin-bottom:6px;}
+    .kpi-card .value{font-size:1.6rem;font-weight:800;line-height:1.1;margin-bottom:6px;}
+    .kpi-card .sub{color:var(--muted);font-size:.78rem;}
+
+    /* Main card */
+    .main-card{
+      border:none !important;
+      border-radius:22px !important;
+      box-shadow:var(--shadow) !important;
+      overflow:hidden;
+      background:#fff;
+    }
+
+    /* Panel */
+    .panel-head{
+      padding:18px 24px 14px;
+      border-bottom:1px solid var(--line);
+      background:linear-gradient(180deg,#fff 0%,#fbfdff 100%);
+    }
+    .panel-title{font-size:1.05rem;font-weight:800;margin:0;}
+    .panel-subtitle{color:var(--muted);font-size:.88rem;margin:4px 0 0;}
+    .panel-body{padding:20px 24px;}
+
+    /* Primary button */
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8) !important;
+      border:none !important;
+      color:#fff !important;
+      border-radius:14px;
+      font-weight:700;
+      box-shadow:0 6px 18px rgba(37,99,235,.22);
+    }
+    .btn-primary:hover{
+      background:linear-gradient(135deg,#1d4ed8,#1e40af) !important;
+      transform:translateY(-1px);
+      color:#fff !important;
+    }
+
+    /* Table */
+    .table-wrap{padding:10px 18px 18px;}
+    .table{margin-bottom:0;border-collapse:separate;border-spacing:0 8px;}
+    .table thead th{
+      border:none;
+      color:var(--muted);
+      font-size:.84rem;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      font-weight:800;
+      padding:10px 14px;
+      white-space:nowrap;
+    }
+    .table tbody tr{
+      background:#fff;
+      box-shadow:0 3px 12px rgba(15,23,42,.05);
+      transition:transform .15s,box-shadow .15s;
+    }
+    .table tbody tr:hover{
+      transform:translateY(-2px);
+      box-shadow:0 6px 18px rgba(15,23,42,.09);
+    }
+    .table tbody td{
+      padding:14px 14px;
+      vertical-align:middle;
+      border-top:none;
+      border-bottom:none;
+      font-size:.95rem;
+    }
+    .table tbody td:first-child{
+      border-top-left-radius:12px;
+      border-bottom-left-radius:12px;
+    }
+    .table tbody td:last-child{
+      border-top-right-radius:12px;
+      border-bottom-right-radius:12px;
+    }
+
+    /* Cell pills */
+    .teacher-pill,
+    .shift-pill,
+    .room-pill{
+      display:inline-flex;
+      align-items:center;
+      border-radius:999px;
+      padding:5px 12px;
+      font-size:.83rem;
+      font-weight:700;
+      white-space:nowrap;
+    }
+    .teacher-pill{background:#eef2ff;color:#4338ca;}
+    .shift-pill{background:#ecfeff;color:#0f766e;}
+    .room-pill{background:#fff7ed;color:#c2410c;}
+
+    .subject-title{font-weight:800;color:#111827;margin-bottom:2px;}
+    .mini-muted{color:var(--muted);font-size:.84rem;}
+
+    /* Empty state */
+    .empty-state{text-align:center;padding:48px 20px;color:var(--muted);}
+    .empty-state .bi-inbox{font-size:2.4rem;display:block;margin-bottom:10px;}
+
+    @media(max-width:992px){
+      .page-title{font-size:1.6rem}
+      .topbar{padding:20px}
+    }
+  </style>
+</head>
+<body>
+<div class="container-fluid py-4 py-lg-5">
+  <div class="page-wrap">
+
+    <!-- Topbar -->
+    <div class="topbar mb-4">
+      <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3">
+        <div>
+          <a href="/admin" class="breadcrumb-link">
+            <i class="bi bi-arrow-left"></i> Back to Admin
+          </a>
+          <h1 class="page-title">Class Sections</h1>
+          <p class="page-subtitle">Manage semester sections, courses, teachers, room allocation, and shift schedules in one place.</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap align-items-center">
+          <span class="soft-pill">
+            <i class="bi bi-journals"></i>
+            <span th:text="${#lists.size(sections)}">0</span> Sections
+          </span>
+          <a href="/admin/sections/new" class="btn btn-primary" style="border-radius:14px;padding:10px 18px;text-decoration:none;">
+            <i class="bi bi-plus-lg me-1"></i> New Section
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-md-4">
+        <div class="kpi-card">
+          <div class="label">Total Sections</div>
+          <div class="value" th:text="${#lists.size(sections)}">0</div>
+          <div class="sub">Academic setup overview</div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="kpi-card">
+          <div class="label">Teaching Allocation</div>
+          <div class="value">Active</div>
+          <div class="sub">Teacher &amp; room assignment</div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="kpi-card">
+          <div class="label">Schedule Quality</div>
+          <div class="value">Organized</div>
+          <div class="sub">Clean section structure</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Directory Card -->
+    <div class="main-card">
+
+      <div class="panel-head d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+          <h2 class="panel-title">Section Directory</h2>
+          <p class="panel-subtitle">View all class sections with semester, course, teacher, shift, room, and section details.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="soft-pill">
+            <i class="bi bi-list-ul"></i>
+            <span th:text="${#lists.size(sections)}">0</span> records
+          </span>
+          <a href="/admin/sections/new" class="btn btn-primary" style="border-radius:14px;padding:9px 16px;font-size:.9rem;text-decoration:none;">
+            <i class="bi bi-plus-lg me-1"></i> New Section
+          </a>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+            <tr>
+              <th>#</th>
+              <th>Semester</th>
+              <th>Course</th>
+              <th>Teacher</th>
+              <th>Shift</th>
+              <th>Room</th>
+              <th>Section</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            <tr th:if="${#lists.isEmpty(sections)}">
+              <td colspan="7">
+                <div class="empty-state">
+                  <i class="bi bi-inbox"></i>
+                  <div class="fw-bold mb-1">No sections yet</div>
+                  <div class="mini-muted">Start by creating a new class section for the semester.</div>
+                  <a class="btn btn-primary mt-3" href="/admin/sections/new" style="border-radius:14px;padding:10px 20px;text-decoration:none;">
+                    <i class="bi bi-plus-lg me-1"></i> Create First Section
+                  </a>
+                </div>
+              </td>
+            </tr>
+
+            <tr th:each="s,iter : ${sections}">
+              <td class="mini-muted" th:text="${iter.count}">1</td>
+
+              <td>
+                <div class="fw-bold" th:text="${s.semester != null ? s.semester.name : '-'}">Semester Name</div>
+                <div class="mini-muted">Academic term</div>
+              </td>
+
+              <td>
+                <div class="subject-title"
+                     th:text="${s.course != null ? s.course.code + ' - ' + s.course.name : '-'}">
+                  Course Code - Course Name
+                </div>
+                <div class="mini-muted"
+                     th:text="${s.course != null ? 'Structured class offering' : 'No course assigned'}">
+                  Structured class offering
+                </div>
+              </td>
+
+              <td>
+                <span class="teacher-pill"
+                      th:text="${s.teacher != null && s.teacher.fullName != null && !#strings.isEmpty(s.teacher.fullName) ? s.teacher.fullName : (s.teacher != null ? s.teacher.username : '-')}">
+                  Teacher Name
+                </span>
+              </td>
+
+              <td>
+                <span class="shift-pill" th:text="${s.shiftTime != null ? s.shiftTime.label : '-'}">Morning</span>
+              </td>
+
+              <td>
+                <span class="room-pill"
+                      th:text="${(s.building != null ? s.building : '-') + (s.room != null && !#strings.isEmpty(s.room) ? ' / ' + s.room : '')}">
+                  A / 101
+                </span>
+              </td>
+
+              <td>
+                <div class="fw-bold" th:text="${s.sectionName != null ? s.sectionName : '-'}">Section A</div>
+                <div class="mini-muted">Section label</div>
+              </td>
+            </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /main-card -->
+
+  </div><!-- /page-wrap -->
+</div><!-- /container-fluid -->
+</body>
+</html>

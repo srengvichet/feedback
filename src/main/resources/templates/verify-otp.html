@@ -1,0 +1,64 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Verify OTP — NUM Feedback</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top left, #f0f6ff 0%, #f4f7fb 40%, #eaf0f9 100%);
+      font-family: "Segoe UI", system-ui, sans-serif;
+      display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+    }
+    .card { width: 100%; max-width: 420px; border: none; border-radius: 24px; box-shadow: 0 20px 50px rgba(15,23,42,.12); overflow: hidden; }
+    .card-head { background: linear-gradient(135deg, #0088cc, #006fa8); padding: 28px 32px; text-align: center; color: #fff; }
+    .card-head h1 { font-size: 1.2rem; font-weight: 800; margin: 0; }
+    .card-head p { margin: 6px 0 0; color: rgba(255,255,255,.8); font-size: .85rem; }
+    .card-body { padding: 28px 32px; background: #fff; }
+    .otp-input { letter-spacing: .4em; font-size: 1.5rem; font-weight: 700; text-align: center; border-radius: 14px; min-height: 56px; border: 2px solid #dbe3ee; }
+    .otp-input:focus { border-color: #0088cc; box-shadow: 0 0 0 .2rem rgba(0,136,204,.15); }
+    .btn-verify { background: #0088cc; border: none; border-radius: 12px; font-weight: 700; min-height: 46px; color: #fff; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="card-head">
+    <div style="font-size:2rem;margin-bottom:8px;">💬</div>
+    <h1>Verify Telegram OTP</h1>
+    <p>Enter the 6-digit code sent to your Telegram</p>
+  </div>
+  <div class="card-body">
+
+    <div th:if="${otpError}" class="alert alert-danger border-0 rounded-3 mb-3">
+      <i class="bi bi-x-circle-fill me-2"></i>
+      <span th:text="${otpError}">Invalid code</span>
+    </div>
+
+    <form th:action="@{/verify-otp}" method="post">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+      <div class="mb-4">
+        <label class="form-label fw-bold text-center d-block" style="font-size:.9rem;">6-Digit Code</label>
+        <input class="form-control otp-input" name="otp" type="text"
+               inputmode="numeric" pattern="[0-9]{6}" maxlength="6"
+               placeholder="000000" required autofocus autocomplete="one-time-code">
+        <div class="text-muted text-center mt-2" style="font-size:.82rem;">
+          Code expires in 5 minutes
+        </div>
+      </div>
+      <button class="btn btn-verify w-100" type="submit">
+        <i class="bi bi-check-circle me-1"></i>Verify Code
+      </button>
+    </form>
+
+    <div class="text-center mt-3">
+      <a href="/forgot-password" style="color:#6b7280;font-size:.82rem;">
+        <i class="bi bi-arrow-left me-1"></i>Back
+      </a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,908 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Teacher Dashboard</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg1: #f4f7fb;
+      --bg2: #eef3f9;
+      --card: #ffffff;
+      --text: #1f2a37;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --soft-primary: #e8f0ff;
+      --soft-success: #eafaf4;
+      --soft-warning: #fff7e8;
+      --soft-danger: #fef2f2;
+      --shadow: 0 10px 30px rgba(15, 23, 42, .08);
+    }
+
+    body {
+      background: var(--bg1);
+      color: var(--text);
+      font-family: "Segoe UI", "Noto Sans Khmer", Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+    }
+
+    .page-wrap {
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    /* ── Sticky top navbar ── */
+    .teacher-topnav {
+      background: #0f172a;
+      padding: 0 28px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: 0 4px 20px rgba(15,23,42,.35);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .nav-brand-icon {
+      width: 34px; height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: .85rem;
+      box-shadow: 0 4px 12px rgba(37,99,235,.4);
+    }
+
+    .nav-brand-text { line-height: 1.2; }
+    .nav-brand-title { font-size: .9rem; font-weight: 700; color: #fff; }
+    .nav-brand-sub   { font-size: .7rem; color: #64748b; }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .now-pill {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 999px;
+      padding: 5px 13px;
+      font-size: .78rem;
+      font-weight: 700;
+      color: #94a3b8;
+      white-space: nowrap;
+    }
+
+    .lang-toggle {
+      display: flex;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 999px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .lang-opt {
+      text-decoration: none;
+      font-size: .72rem;
+      font-weight: 700;
+      padding: 4px 11px;
+      border-radius: 999px;
+      color: rgba(255,255,255,.5);
+      transition: .15s;
+    }
+
+    .lang-opt:hover { color: rgba(255,255,255,.85); }
+    .lang-opt.active { background: #2563eb; color: #fff; }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 999px;
+      padding: 4px 14px 4px 5px;
+    }
+
+    .user-avatar {
+      width: 27px; height: 27px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .72rem; font-weight: 800;
+    }
+
+    .user-name { font-size: .8rem; font-weight: 600; color: #cbd5e1; }
+
+    .nav-logout {
+      background: rgba(239,68,68,.12);
+      border: 1px solid rgba(239,68,68,.25);
+      color: #f87171;
+      border-radius: 10px;
+      padding: 6px 14px;
+      font-size: .8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: .15s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+
+    .nav-logout:hover {
+      background: rgba(239,68,68,.22);
+      border-color: rgba(239,68,68,.45);
+      color: #fca5a5;
+    }
+
+    /* ── Page hero header ── */
+    .page-hero {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #3b82f6 100%);
+      padding: 28px 28px 36px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 0;
+    }
+
+    .page-hero::before {
+      content: "";
+      position: absolute;
+      right: -80px; top: -80px;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.06);
+    }
+
+    .page-hero::after {
+      content: "";
+      position: absolute;
+      left: -60px; bottom: -80px;
+      width: 240px; height: 240px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.04);
+    }
+
+    .page-hero > * { position: relative; z-index: 1; }
+
+    .page-title {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: #fff;
+      margin: 0 0 .3rem;
+      letter-spacing: -.02em;
+    }
+
+    .page-subtitle {
+      color: rgba(255,255,255,.72);
+      margin: 0;
+      font-size: .93rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-hero {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,.13);
+      border: 1px solid rgba(255,255,255,.22);
+      color: #fff;
+      border-radius: 12px;
+      padding: 9px 18px;
+      font-size: .87rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: .15s;
+    }
+
+    .btn-hero:hover {
+      background: rgba(255,255,255,.22);
+      color: #fff;
+    }
+
+    .btn-hero-accent {
+      background: #fff;
+      border: none;
+      color: #1d4ed8;
+      font-weight: 700;
+      box-shadow: 0 6px 18px rgba(0,0,0,.18);
+    }
+
+    .btn-hero-accent:hover {
+      background: #f0f6ff;
+      color: #1d4ed8;
+      transform: translateY(-1px);
+    }
+
+    /* ── Content area ── */
+    .content-area {
+      background: var(--bg1);
+      padding: 28px;
+      min-height: calc(100vh - 58px - 120px);
+    }
+
+    .btn-premium {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border: none;
+      color: #fff;
+      border-radius: 14px;
+      padding: 10px 18px;
+      font-weight: 700;
+      box-shadow: 0 6px 18px rgba(37, 99, 235, .22);
+    }
+
+    .btn-premium:hover {
+      background: linear-gradient(135deg, var(--primary-dark), #1e40af);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .stat-card,
+    .content-card {
+      background: var(--card);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255, 255, 255, .85);
+    }
+
+    .stat-card {
+      padding: 20px;
+      height: 100%;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: .9rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 1.9rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .stat-badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: .8rem;
+      font-weight: 700;
+    }
+
+    .soft-primary {
+      background: var(--soft-primary);
+      color: var(--primary-dark);
+    }
+
+    .soft-success {
+      background: var(--soft-success);
+      color: #0f766e;
+    }
+
+    .soft-warning {
+      background: var(--soft-warning);
+      color: #b45309;
+    }
+
+    .soft-danger {
+      background: var(--soft-danger);
+      color: #b91c1c;
+    }
+
+    .panel-head {
+      padding: 20px 24px 14px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+
+    .panel-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .panel-subtitle {
+      color: var(--muted);
+      font-size: .92rem;
+      margin: 4px 0 0;
+    }
+
+    .panel-body {
+      padding: 22px 24px;
+    }
+
+    .table-wrap {
+      padding: 10px 18px 18px;
+    }
+
+    .table {
+      margin-bottom: 0;
+      border-collapse: separate;
+      border-spacing: 0 10px;
+    }
+
+    .table thead th {
+      border: none;
+      color: var(--muted);
+      font-size: .84rem;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      font-weight: 800;
+      padding: 10px 14px;
+      white-space: nowrap;
+    }
+
+    .table tbody tr {
+      background: #fff;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, .05);
+    }
+
+    .table tbody td {
+      padding: 16px 14px;
+      vertical-align: middle;
+      border-top: 1px solid #f1f5f9;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: .95rem;
+    }
+
+    .table tbody td:first-child {
+      border-left: 1px solid #f1f5f9;
+      border-top-left-radius: 14px;
+      border-bottom-left-radius: 14px;
+    }
+
+    .table tbody td:last-child {
+      border-right: 1px solid #f1f5f9;
+      border-top-right-radius: 14px;
+      border-bottom-right-radius: 14px;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: .83rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .status-open {
+      background: #eafaf4;
+      color: #0f766e;
+    }
+
+    .status-closed {
+      background: #fef2f2;
+      color: #b91c1c;
+    }
+
+    .status-notset {
+      background: #f3f4f6;
+      color: #4b5563;
+    }
+
+    .status-done {
+      background: #eafaf4;
+      color: #0f766e;
+    }
+
+    .status-pending {
+      background: #fff7e8;
+      color: #b45309;
+    }
+
+    .shift-pill {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: .83rem;
+      font-weight: 800;
+      white-space: nowrap;
+      background: #eef2ff;
+      color: #4338ca;
+    }
+
+    .mini-muted {
+      color: var(--muted);
+      font-size: .84rem;
+    }
+
+    .form-control {
+      border-radius: 14px;
+      min-height: 46px;
+      border: 1px solid #dbe3ee;
+      box-shadow: none;
+    }
+
+    .form-control:focus {
+      border-color: #93c5fd;
+      box-shadow: 0 0 0 .2rem rgba(37, 99, 235, .10);
+    }
+
+    .helper-text {
+      font-size: .85rem;
+      color: var(--muted);
+    }
+
+    @media (max-width: 992px) {
+      .teacher-topnav { padding: 0 16px; }
+      .page-hero { padding: 20px 16px 28px; }
+      .content-area { padding: 16px; }
+      .page-title { font-size: 1.55rem; }
+      .nav-brand-sub, .now-pill { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── Toast notification ── -->
+  <div th:if="${anySelfOpen}" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index:1100">
+    <div id="selfToast" class="toast align-items-center border-0 text-white"
+         style="background:linear-gradient(135deg,#1b2a6b,#2e4fa3);border-radius:16px;box-shadow:0 8px 24px rgba(27,42,107,.35);"
+         role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="9000">
+      <div class="d-flex">
+        <div class="toast-body d-flex align-items-center gap-2" style="font-weight:600;">
+          <i class="bi bi-clipboard-check" style="font-size:1.2rem"></i>
+          <div>
+            <div th:if="${pendingSelfCount > 0}">
+              Self-Assessment is open — <strong th:text="${pendingSelfCount}">0</strong> pending!
+            </div>
+            <div th:if="${pendingSelfCount == 0}">Self-Assessment submitted — thank you!</div>
+            <a href="/teacher/self" class="text-white text-decoration-underline" style="font-size:.85rem">
+              Go to Self-Assessment →
+            </a>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Sticky Top Navigation ── -->
+  <nav class="teacher-topnav">
+    <div class="nav-brand">
+      <div class="nav-brand-icon">
+        <img th:src="@{/images/num_logo.jpg}" alt="NUM Logo" object-fit="cover" style="width: 100%; height: 100%; border-radius: 10px;">
+      </div>
+      <div class="nav-brand-text">
+        <div class="nav-brand-title" th:text="#{common.brand}">NUM Feedback</div>
+        <div class="nav-brand-sub" th:text="#{teacher.brand.subtitle}">Teacher Portal</div>
+      </div>
+    </div>
+
+    <div class="nav-right">
+      <!-- Clock -->
+      <span class="now-pill mono" th:text="${#temporals.format(now, 'HH:mm · dd MMM yyyy')}">20:36</span>
+
+      <!-- Language toggle -->
+      <div class="lang-toggle">
+        <a href="javascript:void(0)" onclick="switchLang('en')" class="lang-opt" th:classappend="${#locale.language == 'en'} ? ' active'">EN</a>
+        <a href="javascript:void(0)" onclick="switchLang('kh')" class="lang-opt" th:classappend="${#locale.language == 'kh'} ? ' active'">KH</a>
+      </div>
+
+      <!-- User chip -->
+      <div class="user-chip">
+        <div class="user-avatar">T</div>
+        <span class="user-name" sec:authentication="name">Teacher</span>
+      </div>
+
+      <!-- Logout -->
+      <form th:action="@{/login?logout}" method="post" style="margin:0;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <button class="nav-logout" type="submit">
+          <i class="bi bi-box-arrow-right"></i> <span th:text="#{common.signout}">Sign Out</span>
+        </button>
+      </form>
+    </div>
+  </nav>
+
+  <!-- ── Page Hero Header ── -->
+  <div class="page-hero">
+    <div class="page-wrap d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3">
+      <div>
+        <h1 class="page-title" th:text="#{teacher.dashboard.title}">Teacher Dashboard</h1>
+        <p class="page-subtitle" th:text="#{teacher.dashboard.subtitle}">Your teaching sections, self-assessment windows, and evaluation tasks in one place.</p>
+      </div>
+      <div class="hero-actions">
+        <a class="btn-hero" href="/teacher/profile">
+          <i class="bi bi-person-circle"></i> <span th:text="#{teacher.btn.profile}">My Profile</span>
+        </a>
+        <a class="btn-hero" href="/teacher/self">
+          <i class="bi bi-clipboard-check"></i> <span th:text="#{teacher.btn.selfAssessment}">Self-Assessment</span>
+        </a>
+        <a class="btn-hero btn-hero-accent" href="/teacher/reports">
+          <i class="bi bi-bar-chart-fill"></i> <span th:text="#{teacher.btn.reports}">Feedback Reports</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Main content ── -->
+  <div class="content-area">
+    <div class="page-wrap">
+
+      <!-- ── Self-assessment alert banner ── -->
+      <div th:if="${anySelfOpen and pendingSelfCount > 0}"
+           class="d-flex align-items-center justify-content-between gap-3 mb-4 px-4 py-3"
+           style="background:linear-gradient(135deg,#eef2ff,#e0e7ff);border-radius:16px;
+                  border-left:5px solid #4f46e5;box-shadow:0 4px 16px rgba(79,70,229,.15);">
+        <div class="d-flex align-items-center gap-3">
+          <span style="font-size:1.6rem">📋</span>
+          <div>
+            <div style="font-weight:800;color:#312e81;font-size:1rem;" th:text="#{teacher.alert.selfOpen.title}">
+              Self-Assessment Window is Open!
+            </div>
+            <div style="color:#3730a3;font-size:.9rem;">
+              <span th:utext="#{teacher.alert.selfOpen.desc(${pendingSelfCount})}">You have <strong>0</strong> pending.</span>
+            </div>
+          </div>
+        </div>
+        <a href="/teacher/self"
+           style="background:#4f46e5;color:#fff;font-weight:800;border-radius:12px;
+                  padding:10px 20px;text-decoration:none;white-space:nowrap;font-size:.9rem;
+                  box-shadow:0 4px 12px rgba(79,70,229,.35);"
+           th:text="#{teacher.alert.selfOpen.btn}">Start Self-Assessment →</a>
+      </div>
+
+      <div th:if="${anySelfOpen and pendingSelfCount == 0}"
+           class="d-flex align-items-center gap-3 mb-4 px-4 py-3"
+           style="background:linear-gradient(135deg,#d1fae5,#a7f3d0);border-radius:16px;
+                  border-left:5px solid #10b981;box-shadow:0 4px 16px rgba(16,185,129,.15);">
+        <span style="font-size:1.5rem">✅</span>
+        <div>
+          <div style="font-weight:800;color:#065f46;font-size:1rem;" th:text="#{teacher.alert.selfDone.title}">Self-Assessment Completed!</div>
+          <div style="color:#047857;font-size:.9rem;" th:text="#{teacher.alert.selfDone.desc}">
+            You have submitted your self-assessment for all open windows. Thank you!
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="stat-card">
+            <div class="stat-label" th:text="#{teacher.stat.selfCompleted}">Self-Assessments Completed</div>
+            <div class="stat-value mono" th:text="${selfCompleted}">0</div>
+            <span class="stat-badge soft-success"
+                  th:text="${selfCompleted} + ' / ' + ${selfTotal} + ' ' + #{teacher.stat.completed}">0 / 0 completed</span>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="stat-card">
+            <div class="stat-label" th:text="#{teacher.stat.sections}">My Teaching Sections</div>
+            <div class="stat-value mono" th:text="${#lists.size(sections)}">0</div>
+            <span class="stat-badge soft-primary" th:text="#{teacher.stat.assignedSections}">Assigned sections</span>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="stat-card">
+            <div class="stat-label" th:text="#{teacher.stat.feedbackReceived}">Student Feedback Received</div>
+            <div class="stat-value mono" th:text="${totalFeedback}">0</div>
+            <span class="stat-badge"
+                  th:classappend="${totalEnrolled gt 0 and totalFeedback ge totalEnrolled ? 'soft-success' : (totalFeedback gt 0 ? 'soft-warning' : 'soft-danger')}"
+                  th:text="${totalFeedback} + ' / ' + ${totalEnrolled} + ' ' + #{teacher.stat.students}">0 / 0 students</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-card overflow-hidden mb-4">
+        <div
+          class="panel-head d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-2">
+          <div>
+            <h2 class="panel-title" th:text="#{teacher.panel.self.title}">Teacher Self-Assessment</h2>
+            <p class="panel-subtitle" th:text="#{teacher.panel.self.subtitle}">Status is based on whether you already submitted for the semester.</p>
+          </div>
+
+          <span class="stat-badge soft-success"
+                th:text="${selfCompleted} + ' / ' + ${selfTotal} + ' ' + #{teacher.stat.completed}">0 / 0 completed</span>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th style="width:220px;" th:text="#{teacher.table.semester}">Semester</th>
+                  <th style="width:140px;" th:text="#{teacher.table.window}">Window</th>
+                  <th th:text="#{teacher.table.dates}">Open → Close</th>
+                  <th style="width:180px;" th:text="#{teacher.table.myStatus}">My Status</th>
+                  <th style="width:150px;" class="text-end" th:text="#{teacher.table.action}">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="sem : ${semesters}" th:with="
+                    w=${selfWindowMap != null ? selfWindowMap.get(sem.id) : null},
+                    open=${selfOpenMap != null and selfOpenMap.get(sem.id) == true},
+                    subAt=${selfSubmittedAtMap != null ? selfSubmittedAtMap.get(sem.id) : null},
+                    done=${subAt != null}">
+
+                  <td>
+                    <div class="fw-bold" th:text="${sem.name}">2025-2026 S1</div>
+                    <div class="mini-muted" th:text="#{common.academicSemester}">Academic semester</div>
+                  </td>
+
+                  <td>
+                    <span th:if="${open}" class="status-pill status-open" th:text="#{status.open}">OPEN</span>
+                    <span th:if="${!open and w == null}" class="status-pill status-notset" th:text="#{status.notset}">NOT SET</span>
+                    <span th:if="${!open and w != null}" class="status-pill status-closed" th:text="#{status.closed}">CLOSED</span>
+                  </td>
+
+                  <td class="mono">
+                    <span th:if="${w == null or w.openAt == null or w.closeAt == null}" class="text-muted">—</span>
+                    <span th:if="${w != null and w.openAt != null and w.closeAt != null}"
+                      th:text="${#temporals.format(w.openAt,'yyyy-MM-dd HH:mm')} + '  →  ' + ${#temporals.format(w.closeAt,'yyyy-MM-dd HH:mm')}">
+                    </span>
+                  </td>
+
+                  <td>
+                    <span th:if="${done}" class="status-pill status-done" th:text="#{status.completed}">COMPLETED</span>
+                    <span th:if="${!done}" class="status-pill status-pending" th:text="#{status.pending}">PENDING</span>
+
+                    <div class="mini-muted mt-1" th:if="${done}">
+                      <span th:text="#{teacher.label.submitted}">Submitted:</span>
+                      <span class="mono" th:text="${#temporals.format(subAt,'yyyy-MM-dd HH:mm')}"></span>
+                    </div>
+                  </td>
+
+                  <td class="text-end">
+                    <a th:if="${open}" class="btn btn-premium btn-sm" th:href="@{/teacher/self(semesterId=${sem.id})}">
+                      <i class="bi bi-pencil-square"></i>
+                      <span th:text="${done} ? #{teacher.btn.edit} : #{teacher.btn.start}">Start</span>
+                    </a>
+
+                    <a th:if="${!open}" class="btn btn-outline-secondary btn-sm"
+                      th:href="@{/teacher/self(semesterId=${sem.id})}">
+                      <i class="bi bi-eye"></i> <span th:text="#{teacher.btn.view}">View</span>
+                    </a>
+                  </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(semesters)}">
+                  <td colspan="5" class="text-center py-5 text-muted" th:text="#{teacher.msg.noSemesters}">
+                    No semesters found for your teaching sections.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-card overflow-hidden">
+        <div
+          class="panel-head d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-2">
+          <div>
+            <h2 class="panel-title" th:text="#{teacher.panel.sections.title}">My Teaching Sections</h2>
+            <p class="panel-subtitle" th:text="#{teacher.panel.sections.subtitle}">List of sections currently assigned to you.</p>
+          </div>
+
+          <div style="max-width:320px; width:100%;">
+            <input id="secSearch" class="form-control" th:placeholder="#{common.search}" placeholder="Search course / room / shift..." />
+          </div>
+        </div>
+
+        <!-- Filter tabs (built by JS) — i18n labels passed via data attributes -->
+        <div id="sem-tabs" class="d-flex align-items-center gap-2 flex-wrap px-4 pt-4 pb-1"
+             th:attr="data-label-filter=#{common.filter},
+                      data-label-all=#{teacher.btn.allSemesters},
+                      data-label-semester=#{teacher.label.assignedSections},
+                      data-label-col-semester=#{teacher.table.semester},
+                      data-label-col-course=#{common.course},
+                      data-label-col-cohort=#{teacher.table.cohortRoom},
+                      data-label-col-shift=#{common.shift},
+                      data-label-col-feedback=#{teacher.table.feedback}">
+          <span class="fw-semibold text-muted me-1" style="font-size:.9rem" th:text="#{common.filter}">Filter:</span>
+        </div>
+
+        <!-- Semester groups inserted here by JS -->
+        <div id="sem-container"></div>
+
+        <!-- Hidden row data rendered by Thymeleaf -->
+        <div id="all-rows" style="display:none">
+          <div th:each="s : ${sections}" class="row-data"
+               th:attr="data-sem=${s.semester.name},
+                        data-enrolled=${sectionEnrolledMap[s.id] ?: 0},
+                        data-feedback=${sectionFeedbackMap[s.id] ?: 0}">
+            <table style="display:none"><tbody>
+              <tr>
+                <td>
+                  <div class="fw-bold" th:text="${s.semester.name}">Semester</div>
+                  <div class="mini-muted" th:text="#{common.academicSemester}">Academic semester</div>
+                </td>
+                <td>
+                  <div class="fw-bold" th:text="${s.course.code + ' — ' + s.course.name}">Course</div>
+                </td>
+
+                <td>
+                  <div class="fw-bold mono" style="font-size:.95rem;"
+                       th:text="${s.cleanSectionLabel}">C34/G79</div>
+                  <div class="mini-muted" style="font-size:.82rem;"
+                       th:text="${'Room ' + (s.room != null ? s.room : '') + (s.building != null ? s.building : '')}">Room 4E</div>
+                </td>
+                <td>
+                  <span class="shift-pill" th:text="${s.shiftTime.label}">Morning</span>
+                </td>
+                <td th:with="enrolled=${sectionEnrolledMap[s.id] ?: 0}, fb=${sectionFeedbackMap[s.id] ?: 0}">
+                  <span class="stat-badge"
+                        th:classappend="${enrolled gt 0 and fb ge enrolled ? 'soft-success' : (fb gt 0 ? 'soft-warning' : 'soft-danger')}"
+                        th:text="${fb} + ' / ' + ${enrolled}">0 / 0</span>
+                  <div th:if="${enrolled gt 0}" style="margin-top:5px;height:5px;background:#e5e7eb;border-radius:3px;min-width:80px;">
+                    <div th:style="${'width:' + (fb * 100 / enrolled) + '%;height:100%;border-radius:3px;background:' + (fb ge enrolled ? '#10b981' : (fb gt 0 ? '#f59e0b' : '#ef4444'))}"></div>
+                  </div>
+                </td>
+              </tr>
+            </tbody></table>
+          </div>
+        </div>
+
+        <div class="px-4 pb-4 helper-text" th:text="#{teacher.tip.search}">
+          Tip: use the search box to quickly find a course, room, or shift assignment.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    const rowDivs   = Array.from(document.querySelectorAll('#all-rows .row-data'));
+    const container = document.getElementById('sem-container');
+    const tabsBar   = document.getElementById('sem-tabs');
+
+    // 1. Collect unique semesters in insertion order
+    const seenSems = [];
+    rowDivs.forEach(d => {
+      const s = d.dataset.sem;
+      if (!seenSems.includes(s)) seenSems.push(s);
+    });
+
+    const i18n = tabsBar.dataset;
+
+    if (seenSems.length === 0) {
+      container.innerHTML = '<div class="text-center py-5 text-muted">' + (i18n.labelAll || 'No sections assigned yet.') + '</div>';
+      return;
+    }
+
+    // 2. Build one group per semester
+    const groups = {};
+    seenSems.forEach(sem => {
+      const rows = rowDivs.filter(d => d.dataset.sem === sem);
+      if (rows.length === 0) return;
+
+      const tbody = document.createElement('tbody');
+      rows.forEach(d => {
+        const tr = d.querySelector('tr');
+        if (tr) tbody.appendChild(tr);
+      });
+
+      const group = document.createElement('div');
+      group.className = 'semester-group';
+      group.dataset.semester = sem;
+      group.innerHTML = `
+        <div class="d-flex align-items-center gap-2 mb-2 mt-3 px-4">
+          <span class="badge bg-primary" style="font-size:.85rem">${sem}</span>
+          <span class="text-muted" style="font-size:.82rem">${i18n.labelSemester || 'sections'} &middot; ${rows.length}</span>
+        </div>
+        <div class="table-wrap">
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead><tr>
+                <th>${i18n.labelColSemester || 'Semester'}</th>
+                <th>${i18n.labelColCourse || 'Course'}</th>
+                <th>${i18n.labelColCohort || 'Cohort / Group · Room'}</th>
+                <th>${i18n.labelColShift || 'Shift'}</th>
+                <th>${i18n.labelColFeedback || 'Feedback'}</th>
+              </tr></thead>
+            </table>
+          </div>
+        </div>`;
+      group.querySelector('table').appendChild(tbody);
+      container.appendChild(group);
+      groups[sem] = group;
+    });
+
+    // 3. Build filter tabs
+    const allBtn = document.createElement('button');
+    allBtn.className = 'btn btn-sm btn-primary semester-tab active';
+    allBtn.dataset.sem = 'all';
+    allBtn.textContent = i18n.labelAll || 'All Semesters';
+    tabsBar.appendChild(allBtn);
+
+    seenSems.forEach(sem => {
+      if (!groups[sem]) return;
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-sm btn-outline-primary semester-tab';
+      btn.dataset.sem = sem;
+      btn.textContent = sem;
+      tabsBar.appendChild(btn);
+    });
+
+    // 4. Filter click handler
+    document.querySelectorAll('.semester-tab').forEach(btn => {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('.semester-tab').forEach(b => {
+          b.classList.remove('active', 'btn-primary');
+          b.classList.add('btn-outline-primary');
+        });
+        this.classList.add('active', 'btn-primary');
+        this.classList.remove('btn-outline-primary');
+        const filter = this.dataset.sem;
+        Object.entries(groups).forEach(([sem, g]) => {
+          g.style.display = (filter === 'all' || sem === filter) ? 'block' : 'none';
+        });
+      });
+    });
+
+    // 5. Search works across all dynamic groups
+    const input = document.getElementById('secSearch');
+    if (input) {
+      input.addEventListener('input', () => {
+        const q = input.value.trim().toLowerCase();
+        container.querySelectorAll('tbody tr').forEach(tr => {
+          const text = (tr.innerText || '').toLowerCase();
+          tr.style.display = (!q || text.includes(q)) ? '' : 'none';
+        });
+      });
+    }
+  })();
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+  function switchLang(lang) {
+    const u = new URL(window.location.href);
+    u.searchParams.set('lang', lang);
+    window.location.href = u.toString();
+  }
+  </script>
+  <script th:if="${anySelfOpen}">
+    document.addEventListener('DOMContentLoaded', function () {
+      var el = document.getElementById('selfToast');
+      if (el) setTimeout(function () { new bootstrap.Toast(el).show(); }, 800);
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,772 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title th:text="#{admin.reports.title}">Admin Reports</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --primary:#2563eb;
+      --primary-dark:#1d4ed8;
+      --success:#16a34a;
+      --warning:#d97706;
+      --danger:#dc2626;
+      --shadow:0 10px 30px rgba(15,23,42,.08);
+      --radius:22px;
+    }
+
+    body{
+      background: var(--bg);
+      color:var(--text);
+      font-family:"Noto Sans Khmer","Segoe UI",system-ui,-apple-system,sans-serif;
+      margin:0;
+    }
+
+    .page-wrap{max-width:1480px;margin:0 auto;}
+
+    .admin-topnav {
+      background: #0f172a;
+      padding: 0 28px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: 0 4px 20px rgba(15,23,42,.35);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; flex: 1; }
+    .nav-brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg,#2563eb,#1d4ed8);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: .85rem;
+      box-shadow: 0 4px 12px rgba(37,99,235,.4);
+    }
+    .nav-brand-text { line-height: 1.2; }
+    .nav-brand-title { font-size: .9rem; font-weight: 700; color: #fff; }
+    .nav-brand-sub { font-size: .7rem; color: #64748b; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .lang-toggle { display: flex; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: 3px; gap: 2px; }
+    .lang-opt { text-decoration: none; font-size: .72rem; font-weight: 700; padding: 4px 11px; border-radius: 999px; color: rgba(255,255,255,.5); transition: .15s; }
+    .lang-opt:hover { color: rgba(255,255,255,.85); }
+    .lang-opt.active { background: #2563eb; color: #fff; }
+    .user-chip { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: 4px 14px 4px 5px; }
+    .user-avatar { width: 27px; height: 27px; border-radius: 50%; background: linear-gradient(135deg,#3b82f6,#2563eb); color: #fff; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 800; }
+    .user-name { font-size: .8rem; font-weight: 600; color: #cbd5e1; }
+    .nav-logout { background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.25); color: #f87171; border-radius: 10px; padding: 6px 14px; font-size: .8rem; font-weight: 600; cursor: pointer; transition: .15s; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+    .nav-logout:hover { background: rgba(239,68,68,.22); color: #fca5a5; }
+
+    .page-hero {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #3b82f6 100%);
+      padding: 28px 28px 36px;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-hero::before { content: ""; position: absolute; right: -80px; top: -80px; width: 300px; height: 300px; border-radius: 50%; background: rgba(255,255,255,.06); }
+    .page-hero::after { content: ""; position: absolute; left: -60px; bottom: -80px; width: 240px; height: 240px; border-radius: 50%; background: rgba(255,255,255,.04); }
+    .page-hero > * { position: relative; z-index: 1; }
+    .page-title{font-size:1.85rem;font-weight:800;letter-spacing:-.02em;margin:0;color:#fff;}
+    .page-subtitle{color:rgba(255,255,255,.72);margin:.35rem 0 0 0;font-size:.93rem;}
+
+    .hero-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:.35rem;
+      background:rgba(255,255,255,.15);
+      color:#fff;
+      border-radius:999px;
+      padding:.45rem .75rem;
+      font-size:.82rem;
+      font-weight:700;
+      border:1px solid rgba(255,255,255,.25);
+    }
+
+    .btn-hero { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.22); color: #fff; border-radius: 12px; padding: 9px 18px; font-size: .87rem; font-weight: 600; text-decoration: none; transition: .15s; }
+    .btn-hero:hover { background: rgba(255,255,255,.22); color: #fff; }
+    .btn-hero-accent { background: #fff; border: none; color: #1d4ed8; font-weight: 700; box-shadow: 0 6px 18px rgba(0,0,0,.18); }
+    .btn-hero-accent:hover { background: #f0f6ff; color: #1d4ed8; transform: translateY(-1px); }
+
+    /* ── Soft pill ── */
+    .soft-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:.35rem;
+      background:#eef4ff;
+      color:var(--primary-dark);
+      border-radius:999px;
+      padding:.45rem .75rem;
+      font-size:.82rem;
+      font-weight:700;
+      border:1px solid rgba(37,99,235,.08);
+    }
+
+    /* ── Card shell ── */
+    .card{
+      border:none !important;
+      border-radius:var(--radius) !important;
+      box-shadow:var(--shadow) !important;
+      overflow:hidden;
+      background:var(--card);
+    }
+
+    /* ── Panel head / body ── */
+    .panel-head{
+      padding:18px 24px 14px;
+      border-bottom:1px solid #e5e7eb;
+      background:linear-gradient(135deg,#ffffff 0%,#f7faff 100%);
+    }
+
+    .panel-title{
+      font-size:1.05rem;
+      font-weight:800;
+      margin:0 0 .15rem 0;
+      color:var(--text);
+    }
+
+    .panel-subtitle{
+      color:var(--muted);
+      font-size:.88rem;
+      margin:0;
+    }
+
+    .panel-body{
+      padding:20px 24px;
+    }
+
+    /* ── KPI / mini-stat cards ── */
+    .kpi-card{
+      background:#fff;
+      border-radius:20px;
+      box-shadow:var(--shadow);
+      padding:1.15rem 1.25rem;
+      height:100%;
+    }
+
+    .kpi-card .label{
+      color:var(--muted);
+      font-size:.86rem;
+      font-weight:700;
+      margin-bottom:.35rem;
+    }
+
+    .kpi-card .value{
+      font-size:1.65rem;
+      font-weight:800;
+      line-height:1.1;
+      color:var(--text);
+    }
+
+    .kpi-card .sub{
+      color:var(--muted);
+      font-size:.8rem;
+      margin-top:.3rem;
+    }
+
+    .mono{font-variant-numeric:tabular-nums;}
+
+    /* ── Floating-row table ── */
+    .table-wrap{
+      border-radius:18px;
+      overflow:auto;
+    }
+
+    .table{
+      margin-bottom:0;
+      border-collapse:separate;
+      border-spacing:0 8px;
+    }
+
+    .table thead th{
+      border:none !important;
+      color:var(--muted);
+      font-size:.78rem;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      font-weight:800;
+      white-space:nowrap;
+      background:transparent !important;
+      padding:10px 12px;
+    }
+
+    .table tbody tr{
+      background:#fff;
+      box-shadow:0 4px 14px rgba(15,23,42,.05);
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+
+    .table tbody tr:hover{
+      transform:translateY(-2px);
+      box-shadow:0 8px 22px rgba(15,23,42,.10);
+    }
+
+    .table tbody td{
+      vertical-align:middle;
+      padding:15px 12px;
+      border-top:1px solid #f1f5f9;
+      border-bottom:1px solid #f1f5f9;
+      font-size:.94rem;
+    }
+
+    .table tbody td:first-child{
+      border-left:1px solid #f1f5f9;
+      border-top-left-radius:14px;
+      border-bottom-left-radius:14px;
+    }
+
+    .table tbody td:last-child{
+      border-right:1px solid #f1f5f9;
+      border-top-right-radius:14px;
+      border-bottom-right-radius:14px;
+    }
+
+    /* ── Badge helpers ── */
+    .badge-soft{
+      border:1px solid rgba(0,0,0,.06);
+      font-weight:700;
+      letter-spacing:.2px;
+      border-radius:999px;
+      padding:.5em .75em;
+    }
+
+    .score{font-weight:800;}
+    .cathead{font-size:.76rem;color:var(--muted);}
+    .nowrap{white-space:nowrap;}
+
+    /* ── Progress bar ── */
+    .progress{
+      height:7px;
+      border-radius:999px;
+      background:#e5e7eb;
+    }
+
+    .progress-bar{
+      border-radius:999px;
+      background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+    }
+
+    /* ── Typography helpers ── */
+    .teacher-name{font-weight:700;}
+
+    .course-code{
+      display:inline-flex;
+      align-items:center;
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:.8rem;
+      font-weight:800;
+      background:#eef2ff;
+      color:#4338ca;
+      margin-bottom:.25rem;
+    }
+
+    .small-muted{
+      color:var(--muted);
+      font-size:.83rem;
+    }
+
+    /* ── Buttons ── */
+    .btn{
+      border-radius:12px;
+      font-weight:700;
+    }
+
+    .btn-premium{
+      background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+      border:none;
+      color:#fff;
+      border-radius:14px;
+      padding:11px 16px;
+      font-weight:700;
+      box-shadow:0 8px 18px rgba(37,99,235,.18);
+    }
+
+    .btn-premium:hover{
+      color:#fff;
+      transform:translateY(-1px);
+    }
+
+    .action-btn { border-radius: 10px; font-size: .78rem; }
+
+    .content-area { background: var(--bg); padding: 28px; min-height: calc(100vh - 58px - 140px); }
+
+    /* ── Form controls ── */
+    .form-label{
+      font-weight:700;
+      color:#374151;
+      font-size:.9rem;
+    }
+
+    .form-control,.form-select{
+      border-radius:14px;
+      min-height:46px;
+      border:1px solid #dbe3ee;
+      box-shadow:none;
+    }
+
+    .form-control:focus,.form-select:focus{
+      border-color:#93c5fd;
+      box-shadow:0 0 0 .2rem rgba(37,99,235,.10);
+    }
+
+    /* ── Empty state ── */
+    .empty-row{
+      color:var(--muted);
+      text-align:center;
+      padding:2rem 1rem;
+    }
+
+    @media (max-width: 992px){
+      .page-title{font-size:1.6rem;}
+      .admin-topnav { padding: 0 16px; }
+      .page-hero { padding: 20px 16px 28px; }
+      .content-area { padding: 16px; }
+      .nav-brand-sub { display: none; }
+      .panel-head{padding:16px 18px 12px;}
+      .panel-body{padding:16px 18px;}
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="admin-topnav">
+    <div class="nav-brand">
+      <div class="nav-brand-icon">
+        <img th:src="@{/images/num_logo.jpg}" alt="NUM Logo" object-fit="cover" style="width: 100%; height: 100%; border-radius: 10px;">
+      </div>
+      <div class="nav-brand-text">
+        <div class="nav-brand-title">NUM Feedback</div>
+        <div class="nav-brand-sub">Admin Portal</div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="lang-toggle">
+        <a href="javascript:void(0)" onclick="switchLang('en')" class="lang-opt" th:classappend="${#locale.language == 'en'} ? ' active'">EN</a>
+        <a href="javascript:void(0)" onclick="switchLang('km')" class="lang-opt" th:classappend="${#locale.language == 'km'} ? ' active'">KH</a>
+      </div>
+      <div class="user-chip">
+        <div class="user-avatar">A</div>
+        <span class="user-name" sec:authentication="name">Admin</span>
+      </div>
+      <form th:action="@{/login?logout}" method="post" style="margin:0;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <button class="nav-logout" type="submit">
+          <i class="bi bi-box-arrow-right"></i> Sign Out
+        </button>
+      </form>
+    </div>
+  </nav>
+
+  <div class="page-hero">
+    <div class="page-wrap d-flex flex-column flex-lg-row justify-content-between align-items-start gap-3">
+      <div>
+        <div class="mb-2">
+          <a href="/admin" class="btn-hero"><i class="bi bi-arrow-left"></i> <span th:text="#{admin.reports.back}">Back to Admin</span></a>
+        </div>
+        <h1 class="page-title"
+          th:text="${isTeacherSelf ? 'Teacher Self-Assessment — Admin Report' : 'Student Feedback — Admin Report'}">Student Feedback — Admin Report</h1>
+        <p class="page-subtitle"
+          th:text="${isTeacherSelf ? 'Per teacher completion and self-rating averages for the selected semester.' : 'Per teacher and subject section with category averages, response rate, and export actions.'}">Per teacher and subject section with category averages, response rate, and export actions.</p>
+
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <span class="hero-pill">
+            <span th:text="#{admin.reports.pill.semester}">Semester:</span>
+            <span th:text="${selectedSemester != null ? selectedSemester.name : '-'}">-</span>
+          </span>
+          <span class="hero-pill">
+            <span th:text="#{admin.reports.pill.kind}">Kind:</span>
+            <span th:text="${kind}">-</span>
+          </span>
+        </div>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <a class="btn-hero btn-hero-accent"
+          th:if="${semesterId != null}"
+          th:href="@{'/admin/reports/export?semesterId=' + ${semesterId} + '&kind=' + ${kind}}">
+          <i class="bi bi-download me-1"></i> <span th:text="#{admin.reports.btn.exportCsv}">Export CSV</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-area">
+    <div class="page-wrap">
+
+      <!-- ══ FILTER CARD — panel-head / panel-body ══ -->
+      <div class="card mt-4">
+        <div class="panel-head">
+          <div class="panel-title"><i class="bi bi-funnel me-2"></i><span th:text="#{admin.reports.filter.title}">Filter &amp; Search</span></div>
+          <p class="panel-subtitle" th:text="#{admin.reports.filter.subtitle}">Select semester and quickly search teacher, course, room, or section.</p>
+        </div>
+        <div class="panel-body">
+          <form class="row g-3 align-items-end" method="get" action="/admin/reports">
+            <div class="col-12 col-md-5 col-lg-4">
+              <label class="form-label" th:text="#{admin.reports.filter.semester}">Semester</label>
+              <select class="form-select" name="semesterId" onchange="this.form.submit()">
+                <option th:each="s : ${semesters}" th:value="${s.id}" th:text="${s.name}"
+                  th:selected="${s.id == semesterId}">
+                </option>
+              </select>
+            </div>
+
+            <div class="col-12 col-md-4 col-lg-3">
+              <label class="form-label">Report Type</label>
+              <select class="form-select" name="kind" onchange="this.form.submit()">
+                <option value="STUDENT_FEEDBACK" th:selected="${kind.name() == 'STUDENT_FEEDBACK'}">Student Feedback</option>
+                <option value="TEACHER_SELF" th:selected="${kind.name() == 'TEACHER_SELF'}">Teacher Self-Assessment</option>
+              </select>
+            </div>
+
+            <div class="col-12 col-md-3 col-lg-2" th:if="${!isTeacherSelf and faculties != null and !faculties.isEmpty()}">
+              <label class="form-label" th:text="#{admin.reports.filter.faculty}">Faculty</label>
+              <select id="facultyFilter" class="form-select">
+                <option value="" th:text="#{admin.reports.filter.faculty.all}">All Faculties</option>
+                <option th:each="f : ${faculties}" th:value="${f}" th:text="${f}"></option>
+              </select>
+            </div>
+
+            <div class="col-12 col-md-4 col-lg-4 ms-auto">
+              <label class="form-label" th:text="#{admin.reports.filter.search}">Search</label>
+              <input id="searchBox" class="form-control" th:placeholder="#{admin.reports.filter.search.placeholder}" placeholder="e.g. vichet, IITE-113, A-201, G1" />
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ══ KPI MINI-STAT CARDS ══ -->
+      <div class="row g-3 mt-2">
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="kpi-card">
+            <div class="label"><i class="bi bi-collection me-1"></i> <span th:text="${isTeacherSelf ? 'Total Teachers' : 'Total Sections'}">Total Sections</span></div>
+            <div class="value mono" th:text="${totalSections}">0</div>
+            <div class="sub" th:text="${isTeacherSelf ? 'Teachers eligible for self-assessment' : 'Active sections this semester'}">Active sections this semester</div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="kpi-card">
+            <div class="label"><i class="bi bi-chat-square-dots me-1"></i> <span th:text="${isTeacherSelf ? 'Total Submissions' : 'Total Responses'}">Total Responses</span></div>
+            <div class="value mono" th:text="${totalResponses}">0</div>
+            <div class="sub" th:text="${isTeacherSelf ? 'Teacher self-assessment forms submitted' : 'Feedback submissions collected'}">Feedback submissions collected</div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="kpi-card">
+            <div class="label"><i class="bi bi-people me-1"></i> <span th:text="${isTeacherSelf ? 'Eligible Teachers' : 'Total Enrolled'}">Total Enrolled</span></div>
+            <div class="value mono" th:text="${totalEnrolled}">0</div>
+            <div class="sub" th:text="${isTeacherSelf ? 'Teachers teaching in this semester' : 'Students across all sections'}">Students across all sections</div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="kpi-card">
+            <div class="label"><i class="bi bi-speedometer me-1"></i> <span th:text="${isTeacherSelf ? 'Overall Completion Rate' : 'Overall Response Rate'}">Overall Response Rate</span></div>
+            <div class="value mono"
+              th:text="${overallResponseRate != null ? #numbers.formatDecimal(overallResponseRate,1,2) + '%' : '-'}">-</div>
+            <div class="sub" th:text="${isTeacherSelf ? 'Submitted teachers ÷ eligible teachers' : 'Responses ÷ enrolled students'}">Responses ÷ enrolled students</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ REPORT TABLE CARD — panel-head / panel-body ══ -->
+      <div class="card mt-4">
+        <div class="panel-head">
+          <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+              <div class="panel-title"><i class="bi bi-table me-2"></i><span th:text="#{admin.reports.table.title}">Report Table</span></div>
+              <p class="panel-subtitle"
+                th:text="${isTeacherSelf ? 'Teacher-level report with completion status and self-rating averages.' : 'Section-level report with category averages and export shortcuts.'}">Section-level report with category averages and export shortcuts.</p>
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <a class="btn btn-outline-success btn-sm"
+                th:if="${semesterId != null}"
+                th:href="@{'/admin/reports/export?semesterId=' + ${semesterId} + '&kind=' + ${kind}}">
+                <i class="bi bi-download me-1"></i> <span th:text="#{admin.reports.btn.exportCsv}">Export CSV</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-body">
+
+          <!-- Pagination controls top -->
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div class="d-flex align-items-center gap-2">
+              <span class="small text-muted fw-semibold" th:text="#{admin.reports.table.rowsPerPage}">Rows per page:</span>
+              <select id="pageSizeSelect" class="form-select form-select-sm" style="width:80px;">
+                <option value="10">10</option>
+                <option value="25" selected>25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+            <div id="pageInfo" class="small text-muted fw-semibold"></div>
+          </div>
+
+          <div class="table-wrap">
+            <table id="reportTable" class="table align-middle">
+              <thead>
+                <tr>
+                  <th th:text="#{admin.reports.table.col.teacher}">Teacher</th>
+                  <th th:text="${isTeacherSelf ? 'Assessment' : 'Course'}">Course</th>
+                  <th th:text="${isTeacherSelf ? 'Context' : 'Section'}">Section</th>
+                  <th class="text-center" th:text="${isTeacherSelf ? 'Submitted' : 'Responses'}">Responses</th>
+                  <th class="text-center" th:text="${isTeacherSelf ? 'Eligible' : 'Enrolled'}">Enrolled</th>
+                  <th class="text-center" th:text="${isTeacherSelf ? 'Completion Rate' : 'Rate'}">Rate</th>
+
+                  <th class="text-center">
+                    <div class="cathead" th:text="${categoryALabel}">ក</div>
+                    <div class="nowrap" th:text="${categoryARange}">Q1–Q10</div>
+                  </th>
+                  <th class="text-center">
+                    <div class="cathead" th:text="${categoryBLabel}">ខ</div>
+                    <div class="nowrap" th:text="${categoryBRange}">Q11–Q13</div>
+                  </th>
+                  <th class="text-center">
+                    <div class="cathead" th:text="${categoryCLabel}">គ</div>
+                    <div class="nowrap" th:text="${categoryCRange}">Q14–Q18</div>
+                  </th>
+                  <th class="text-center">
+                    <div class="cathead" th:text="${categoryDLabel}">ឃ</div>
+                    <div class="nowrap" th:text="${categoryDRange}">Q19–Q21</div>
+                  </th>
+                  <th class="text-center" th:if="${showCategoryE}">
+                    <div class="cathead" th:text="${categoryELabel}">ង</div>
+                    <div class="nowrap" th:text="${categoryERange}">Q22–Q26</div>
+                  </th>
+
+                  <th class="text-center" th:text="#{admin.reports.table.col.overall}">Overall</th>
+                  <th class="text-end" style="min-width:190px;" th:text="#{admin.reports.table.col.actions}">Actions</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr th:each="r : ${rows}" th:attr="data-faculty=${r.faculty}">
+                  <td>
+                    <div class="teacher-name" th:text="${r.teacherUsername}">teacher</div>
+                    <div class="small-muted mt-1" th:if="${isTeacherSelf and r.submittedAtText != null}" th:text="${'Submitted: ' + r.submittedAtText}">Submitted: 2026-03-31 12:00</div>
+                    <div class="small-muted mt-1" th:if="${isTeacherSelf and r.submittedAtText == null}">Not submitted yet</div>
+                  </td>
+
+                  <td>
+                    <div class="course-code" th:if="${r.courseCode != null and !#strings.isEmpty(r.courseCode)}" th:text="${r.courseCode}">CODE</div>
+                    <div class="fw-semibold" th:text="${r.courseName != null and !#strings.isEmpty(r.courseName) ? r.courseName : (isTeacherSelf ? 'Teacher Self-Assessment' : '-')}">Course Name</div>
+                  </td>
+
+                  <td>
+                    <div class="d-flex flex-wrap gap-2 align-items-center" th:if="${!isTeacherSelf}">
+                      <span class="badge text-bg-dark" th:text="${r.shiftTime}">SHIFT</span>
+                      <span class="badge badge-soft text-bg-light"
+                        th:text="${(r.building != null ? r.building : '-') + '-' + (r.room != null ? r.room : '-') }">A-201</span>
+                      <span class="badge badge-soft text-bg-light"
+                        th:text="${r.sectionName != null ? r.sectionName : '-'}">G1</span>
+                    </div>
+                    <div class="small-muted mt-1" th:if="${isTeacherSelf}">Semester-level self-assessment</div>
+                    <div class="small-muted mt-1" th:text="${r.semesterName}">Semester</div>
+                  </td>
+
+                  <td class="text-center fw-semibold mono" th:text="${r.responses}">0</td>
+                  <td class="text-center mono" th:text="${r.enrolled}">0</td>
+
+                  <td class="text-center mono">
+                    <div class="fw-semibold"
+                      th:text="${r.responseRate != null ? #numbers.formatDecimal(r.responseRate,1,2) + '%' : '-'}">-</div>
+                    <div class="progress mt-2" th:if="${r.responseRate != null}">
+                      <div class="progress-bar" role="progressbar"
+                        th:style="'width:' + ${r.responseRate} + '%'"
+                        aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                  </td>
+
+                  <td class="text-center mono"
+                    th:text="${r.avgCatA != null ? #numbers.formatDecimal(r.avgCatA,1,2) : '-'}">-</td>
+                  <td class="text-center mono"
+                    th:text="${r.avgCatB != null ? #numbers.formatDecimal(r.avgCatB,1,2) : '-'}">-</td>
+                  <td class="text-center mono"
+                    th:text="${r.avgCatC != null ? #numbers.formatDecimal(r.avgCatC,1,2) : '-'}">-</td>
+                  <td class="text-center mono"
+                    th:text="${r.avgCatD != null ? #numbers.formatDecimal(r.avgCatD,1,2) : '-'}">-</td>
+                  <td class="text-center mono" th:if="${showCategoryE}"
+                    th:text="${r.avgCatE != null ? #numbers.formatDecimal(r.avgCatE,1,2) : '-'}">-</td>
+
+                  <td class="text-center score mono"
+                    th:text="${r.overallAvg != null ? #numbers.formatDecimal(r.overallAvg,1,2) : '-'}">-</td>
+
+                  <td class="text-end">
+                    <a class="btn btn-sm btn-outline-primary action-btn" th:href="@{'/admin/reports/' + ${r.sectionId} + '?semesterId=' + ${semesterId} + '&kind=' + ${kind}}"
+                      th:text="#{admin.reports.table.btn.view}">View</a>
+
+                    <div class="btn-group ms-1" th:if="${isTeacherSelf}">
+                      <button type="button" class="btn btn-sm btn-outline-danger dropdown-toggle action-btn" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-file-earmark-pdf"></i>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                          <a class="dropdown-item"
+                            th:href="@{'/admin/reports/' + ${r.sectionId} + '/teacher-self/export.pdf?semesterId=' + ${semesterId} + '&lang=en'}">
+                            <i class="bi bi-file-earmark-pdf me-1"></i> English
+                          </a>
+                        </li>
+                        <li>
+                          <a class="dropdown-item"
+                            th:href="@{'/admin/reports/' + ${r.sectionId} + '/teacher-self/export.pdf?semesterId=' + ${semesterId} + '&lang=km'}">
+                            <i class="bi bi-file-earmark-pdf me-1"></i> ភាសាខ្មែរ
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <a class="btn btn-sm btn-outline-danger ms-1 action-btn"
+                      th:if="${!isTeacherSelf}"
+                      th:href="@{'/admin/reports/' + ${r.sectionId} + '/export.pdf'}">
+                      <i class="bi bi-file-earmark-pdf"></i>
+                    </a>
+
+                    <a class="btn btn-sm btn-outline-success ms-1 action-btn"
+                      th:if="${!isTeacherSelf}"
+                      th:href="@{'/admin/reports/section/' + ${r.sectionId} + '/responses/export-pending'}"
+                      th:title="#{admin.reports.table.btn.exportPending}"
+                      title="Export pending only">
+                      <i class="bi bi-download"></i>
+                    </a>
+                  </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(rows)}">
+                  <td th:attr="colspan=${showCategoryE ? 12 : 11}" class="empty-row"><i class="bi bi-inbox me-2"></i><span th:text="#{admin.reports.table.empty}">No data for this semester.</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination nav bottom -->
+          <div class="d-flex justify-content-center mt-3">
+            <ul id="pagination" class="pagination pagination-sm mb-0"></ul>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script th:inline="javascript">
+    var MSG_NO_RESULTS = /*[[#{admin.reports.table.js.noResults}]]*/ 'No results';
+    var MSG_SHOWING    = /*[[#{admin.reports.table.js.showing}]]*/ 'Showing {0}\u2013{1} of {2}';
+  </script>
+
+  <script>
+    function switchLang(lang) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('lang', lang);
+      window.location.href = url.toString();
+    }
+
+    (() => {
+      const searchBox    = document.getElementById('searchBox');
+      const facultyFilter = document.getElementById('facultyFilter');
+      const table        = document.getElementById('reportTable');
+      const pageSizeSel  = document.getElementById('pageSizeSelect');
+      const pageInfo     = document.getElementById('pageInfo');
+      const paginationEl = document.getElementById('pagination');
+
+      if (!table) return;
+
+      const allRows = () => [...table.querySelectorAll('tbody tr:not(.empty-state-row)')];
+      let currentPage = 1;
+
+      function visibleRows() {
+        const q = (searchBox ? searchBox.value : '').toLowerCase().trim();
+        const fac = (facultyFilter ? facultyFilter.value : '').trim();
+        return allRows().filter(tr => {
+          if (q && !tr.innerText.toLowerCase().includes(q)) return false;
+          if (fac && (tr.dataset.faculty || '') !== fac) return false;
+          return true;
+        });
+      }
+
+      function render() {
+        const pageSize = parseInt(pageSizeSel.value, 10);
+        const rows = visibleRows();
+        const total = rows.length;
+        const totalPages = Math.max(1, Math.ceil(total / pageSize));
+        if (currentPage > totalPages) currentPage = totalPages;
+
+        const start = (currentPage - 1) * pageSize;
+        const end   = start + pageSize;
+
+        // Hide all data rows first
+        allRows().forEach(tr => tr.style.display = 'none');
+        // Show only current page slice
+        rows.forEach((tr, i) => { tr.style.display = (i >= start && i < end) ? '' : 'none'; });
+
+        // Info text
+        if (total === 0) {
+          pageInfo.textContent = MSG_NO_RESULTS;
+        } else {
+          pageInfo.textContent = MSG_SHOWING.replace('{0}', start + 1).replace('{1}', Math.min(end, total)).replace('{2}', total);
+        }
+
+        // Build pagination
+        paginationEl.innerHTML = '';
+        const maxBtn = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxBtn / 2));
+        let endPage   = Math.min(totalPages, startPage + maxBtn - 1);
+        if (endPage - startPage + 1 < maxBtn) startPage = Math.max(1, endPage - maxBtn + 1);
+
+        const btn = (label, page, disabled, active) => {
+          const li = document.createElement('li');
+          li.className = `page-item${disabled ? ' disabled' : ''}${active ? ' active' : ''}`;
+          const a = document.createElement('a');
+          a.className = 'page-link';
+          a.href = '#';
+          a.innerHTML = label;
+          a.addEventListener('click', e => {
+            e.preventDefault();
+            if (!disabled) { currentPage = page; render(); }
+          });
+          li.appendChild(a);
+          return li;
+        };
+
+        paginationEl.appendChild(btn('&laquo;', currentPage - 1, currentPage === 1, false));
+        for (let p = startPage; p <= endPage; p++) {
+          paginationEl.appendChild(btn(p, p, false, p === currentPage));
+        }
+        paginationEl.appendChild(btn('&raquo;', currentPage + 1, currentPage === totalPages, false));
+      }
+
+      if (searchBox) {
+        searchBox.addEventListener('input', () => { currentPage = 1; render(); });
+      }
+      if (facultyFilter) {
+        facultyFilter.addEventListener('change', () => { currentPage = 1; render(); });
+      }
+      pageSizeSel.addEventListener('change', () => { currentPage = 1; render(); });
+
+      render();
+    })();
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

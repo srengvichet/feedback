@@ -1,0 +1,583 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Report Detail</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root{
+      --bg1:#f4f7fb;
+      --bg2:#eef3f9;
+      --card:#ffffff;
+      --text:#1f2a37;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --primary:#2563eb;
+      --primary-dark:#1d4ed8;
+      --success:#10b981;
+      --warning:#f59e0b;
+      --danger:#ef4444;
+      --soft-primary:#e8f0ff;
+      --soft-success:#eafaf4;
+      --soft-warning:#fff7e8;
+      --soft-danger:#fef2f2;
+      --soft-dark:#f3f4f6;
+      --shadow:0 10px 30px rgba(15,23,42,.08);
+      --radius:24px;
+    }
+
+    body{
+      background: var(--bg1);
+      color:var(--text);
+      font-family:"Noto Sans Khmer","Segoe UI",Tahoma,Geneva,Verdana,sans-serif;
+      margin:0;
+    }
+
+    .page-wrap{max-width:1450px;margin:0 auto;}
+
+    .teacher-topnav{
+      background:#0f172a;
+      padding:0 28px;
+      height:58px;
+      display:flex;
+      align-items:center;
+      position:sticky;
+      top:0;
+      z-index:200;
+      box-shadow:0 4px 20px rgba(15,23,42,.35);
+    }
+
+    .nav-brand{display:flex;align-items:center;gap:10px;flex:1;}
+    .nav-brand-icon{
+      width:34px;height:34px;border-radius:10px;
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;display:flex;align-items:center;justify-content:center;
+      font-weight:800;font-size:.85rem;
+      box-shadow:0 4px 12px rgba(37,99,235,.4);
+    }
+    .nav-brand-text{line-height:1.2;}
+    .nav-brand-title{font-size:.9rem;font-weight:700;color:#fff;}
+    .nav-brand-sub{font-size:.7rem;color:#64748b;}
+
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .lang-toggle{display:flex;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:3px;gap:2px;}
+    .lang-opt{text-decoration:none;font-size:.72rem;font-weight:700;padding:4px 11px;border-radius:999px;color:rgba(255,255,255,.5);transition:.15s;}
+    .lang-opt:hover{color:rgba(255,255,255,.85);}
+    .lang-opt.active{background:#2563eb;color:#fff;}
+
+    .user-chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:4px 14px 4px 5px;}
+    .user-avatar{width:27px;height:27px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;}
+    .user-name{font-size:.8rem;font-weight:600;color:#cbd5e1;}
+
+    .nav-logout{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:#f87171;border-radius:10px;padding:6px 14px;font-size:.8rem;font-weight:600;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:5px;white-space:nowrap;}
+    .nav-logout:hover{background:rgba(239,68,68,.22);color:#fca5a5;}
+
+    .page-hero{
+      background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 55%,#3b82f6 100%);
+      padding:28px 28px 36px;
+      position:relative;
+      overflow:hidden;
+      margin-bottom:0;
+    }
+
+    .page-hero::before{
+      content:"";
+      position:absolute;
+      right:-80px;
+      top:-80px;
+      width:300px;
+      height:300px;
+      border-radius:50%;
+      background:rgba(255,255,255,.06);
+    }
+
+    .page-hero::after{
+      content:"";
+      position:absolute;
+      left:-60px;
+      bottom:-80px;
+      width:240px;
+      height:240px;
+      border-radius:50%;
+      background:rgba(255,255,255,.04);
+    }
+
+    .page-hero > *{position:relative;z-index:1;}
+    .page-hero .page-title{color:#fff;}
+    .page-hero .page-subtitle{color:rgba(255,255,255,.86);}
+
+    .hero-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:.35rem;
+      background:rgba(255,255,255,.15);
+      color:#fff;
+      border-radius:999px;
+      padding:.45rem .75rem;
+      font-size:.82rem;
+      font-weight:700;
+      border:1px solid rgba(255,255,255,.25);
+    }
+
+    .btn-hero{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.22);color:#fff;border-radius:12px;padding:9px 18px;font-size:.87rem;font-weight:600;text-decoration:none;transition:.15s;}
+    .btn-hero:hover{background:rgba(255,255,255,.22);color:#fff;}
+    .btn-hero-accent{background:#fff;border:none;color:#1d4ed8;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.18);}
+    .btn-hero-accent:hover{background:#f0f6ff;color:#1d4ed8;transform:translateY(-1px);}
+
+    .content-area{
+      background:var(--bg1);
+      padding:28px;
+      min-height:calc(100vh - 58px - 120px);
+    }
+
+    .topbar{
+      background:linear-gradient(135deg,#ffffff 0%,#f7faff 100%);
+      border:1px solid rgba(255,255,255,.75);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:24px 28px;
+      position:relative;
+      overflow:hidden;
+      margin-bottom:1rem;
+    }
+
+    .topbar::after{
+      content:"";
+      position:absolute;
+      right:-60px;
+      top:-60px;
+      width:220px;
+      height:220px;
+      background: radial-gradient(circle, rgba(37,99,235,.18), rgba(37,99,235,.02) 70%);
+      border-radius:50%;
+    }
+
+    .topbar > *{position:relative;z-index:1;}
+
+    .back-link{
+      text-decoration:none;
+      color:var(--muted);
+      font-weight:600;
+      font-size:.95rem;
+    }
+
+    .back-link:hover{color:var(--primary);}
+
+    .page-title{
+      font-size:2rem;
+      font-weight:800;
+      margin:.5rem 0 .25rem;
+      letter-spacing:-.02em;
+    }
+
+    .page-subtitle{
+      color:var(--muted);
+      margin:0;
+      font-size:.98rem;
+    }
+
+    .meta-line{
+      color:var(--muted);
+      font-size:.9rem;
+      margin-top:.35rem;
+    }
+
+    .card{
+      border:none !important;
+      border-radius:var(--radius) !important;
+      box-shadow:var(--shadow) !important;
+      overflow:hidden;
+      background:var(--card);
+    }
+
+    .kpi{ border:0; }
+    .kpi .icon{
+      width:46px;
+      height:46px;
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 4px 10px rgba(15,23,42,.06);
+    }
+
+    .kpi .label{
+      color:var(--muted);
+      font-size:.9rem;
+      font-weight:600;
+      margin-bottom:4px;
+    }
+
+    .kpi .value{
+      font-size:1.65rem;
+      font-weight:800;
+      line-height:1.1;
+    }
+
+    .panel-head{
+      padding:20px 24px 14px;
+      border-bottom:1px solid var(--line);
+      background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);
+    }
+
+    .panel-title{
+      font-size:1.08rem;
+      font-weight:800;
+      margin:0;
+    }
+
+    .panel-subtitle{
+      color:var(--muted);
+      font-size:.92rem;
+      margin:4px 0 0;
+    }
+
+    .panel-body{
+      padding:22px 24px;
+    }
+
+    .mono { font-variant-numeric: tabular-nums; }
+
+    .table-wrap{
+      padding:10px 18px 18px;
+    }
+
+    .table{
+      margin-bottom:0;
+      border-collapse:separate;
+      border-spacing:0 10px;
+    }
+
+    .table thead th{
+      font-size:.84rem;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      font-weight:800;
+      white-space:nowrap;
+      border:none !important;
+      padding:10px 14px;
+      background:transparent !important;
+    }
+
+    .table tbody tr{
+      background:#fff;
+      box-shadow:0 4px 14px rgba(15,23,42,.05);
+    }
+
+    .table tbody td{
+      padding:16px 14px;
+      vertical-align:middle;
+      border-top:1px solid #f1f5f9;
+      border-bottom:1px solid #f1f5f9;
+      font-size:.95rem;
+    }
+
+    .table tbody td:first-child{
+      border-left:1px solid #f1f5f9;
+      border-top-left-radius:14px;
+      border-bottom-left-radius:14px;
+    }
+
+    .table tbody td:last-child{
+      border-right:1px solid #f1f5f9;
+      border-top-right-radius:14px;
+      border-bottom-right-radius:14px;
+    }
+
+    .comment-box {
+      max-height: 360px;
+      overflow:auto;
+    }
+
+    .comment-box .list-group{
+      gap:10px;
+    }
+
+    .comment-box .list-group-item{
+      border:1px solid #eef2f7;
+      border-radius:16px !important;
+      padding:12px 14px;
+      background:#fff;
+      box-shadow:0 3px 10px rgba(15,23,42,.04);
+      margin-bottom:0;
+    }
+
+    .insight-card{
+      border:1px solid #e5eefc;
+      border-radius:18px;
+      background:linear-gradient(180deg,#fbfdff 0%,#f8fbff 100%);
+      padding:14px 16px;
+    }
+
+    .insight-title{
+      font-weight:800;
+      font-size:.92rem;
+      margin-bottom:8px;
+    }
+
+    .insight-card ol{
+      margin-bottom:0;
+      padding-left:1.1rem;
+    }
+
+    .muted-note{
+      color:var(--muted);
+      font-size:.85rem;
+    }
+
+    .badge-soft{
+      border-radius:999px;
+      padding:.45rem .75rem;
+      font-weight:700;
+      border:1px solid rgba(0,0,0,.06);
+    }
+
+    @media (max-width: 992px){
+      .teacher-topnav{padding:0 16px;}
+      .page-hero{padding:20px 16px 28px;}
+      .content-area{padding:16px;}
+      .page-title{font-size:1.6rem}
+      .nav-brand-sub{display:none;}
+      .user-name{display:none;}
+      .nav-logout span{display:none;}
+      .nav-logout{padding:6px 10px;}
+    }
+  </style>
+</head>
+
+<body>
+<nav class="teacher-topnav">
+  <div class="nav-brand">
+    <div class="nav-brand-icon">
+        <img th:src="@{/images/num_logo.jpg}" alt="NUM Logo" object-fit="cover" style="width: 100%; height: 100%; border-radius: 10px;">
+      </div>
+    <div class="nav-brand-text">
+      <div class="nav-brand-title" th:text="#{common.brand}">NUM Feedback</div>
+      <div class="nav-brand-sub" th:text="#{teacher.reports.topnav.subtitle}">Teacher Portal</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="lang-toggle">
+      <a href="javascript:void(0)" onclick="switchLang('en')" class="lang-opt" th:classappend="${#locale.language == 'en'} ? ' active'">EN</a>
+      <a href="javascript:void(0)" onclick="switchLang('kh')" class="lang-opt" th:classappend="${#locale.language == 'kh'} ? ' active'">KH</a>
+    </div>
+    <div class="user-chip">
+      <div class="user-avatar">T</div>
+      <span class="user-name" sec:authentication="name">Teacher</span>
+    </div>
+    <form th:action="@{/login?logout}" method="post" style="margin:0;">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+      <button class="nav-logout" type="submit">
+        <i class="bi bi-box-arrow-right"></i> <span th:text="#{common.signout}">Sign Out</span>
+      </button>
+    </form>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="page-wrap d-flex flex-column flex-lg-row justify-content-between align-items-start gap-3">
+    <div>
+      <div class="mb-2">
+        <a href="/teacher/reports" class="btn-hero"><i class="bi bi-arrow-left"></i> Back</a>
+      </div>
+      <h1 class="page-title">Feedback Report</h1>
+      <div class="page-subtitle">Detailed section performance, rating summary, insights, and comments.</div>
+      <div class="meta-line" style="color:rgba(255,255,255,.76);">
+        <b th:text="${section.semester.name}"></b> ·
+        <span th:text="${section.course.code + ' - ' + section.course.name}"></span> ·
+        <span th:text="${section.shiftTime}"></span>
+      </div>
+      <div class="d-flex flex-wrap gap-2 mt-3">
+        <span class="hero-pill" th:text="${section.semester.name}">Semester</span>
+        <span class="hero-pill" th:text="${section.course.code + ' - ' + section.course.name}">Course</span>
+        <span class="hero-pill" th:text="${section.shiftTime}">Shift</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content-area">
+  <div class="page-wrap">
+
+    <!-- KPI row -->
+    <div class="row g-3 mt-2">
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="card kpi">
+          <div class="card-body d-flex gap-3 align-items-center">
+            <div class="icon bg-primary-subtle text-primary"><i class="bi bi-people fs-4"></i></div>
+            <div>
+              <div class="label">Enrolled</div>
+              <div class="value mono" th:text="${enrolled}">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="card kpi">
+          <div class="card-body d-flex gap-3 align-items-center">
+            <div class="icon bg-success-subtle text-success"><i class="bi bi-check2-circle fs-4"></i></div>
+            <div>
+              <div class="label">Responses</div>
+              <div class="value mono" th:text="${responses}">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="card kpi">
+          <div class="card-body d-flex gap-3 align-items-center">
+            <div class="icon bg-secondary-subtle text-secondary"><i class="bi bi-percent fs-4"></i></div>
+            <div>
+              <div class="label">Response rate</div>
+              <div class="value mono" th:text="${#numbers.formatDecimal(rate,1,0) + '%'}">0%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="card kpi">
+          <div class="card-body d-flex gap-3 align-items-center">
+            <div class="icon bg-warning-subtle text-warning"><i class="bi bi-star fs-4"></i></div>
+            <div>
+              <div class="label">Overall avg</div>
+              <div class="value mono">
+                <span th:if="${overallAvg != null}" th:text="${#numbers.formatDecimal(overallAvg,1,2)}">-</span>
+                <span th:if="${overallAvg == null}" class="text-muted">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3 mt-1">
+      <!-- Rating table -->
+      <div class="col-12 col-lg-7">
+        <div class="card">
+          <div class="panel-head d-flex align-items-center justify-content-between">
+            <div>
+              <h2 class="panel-title"><i class="bi bi-bar-chart-line"></i> Rating summary</h2>
+              <div class="panel-subtitle">Per-question minimum, average, maximum, and number of responses.</div>
+            </div>
+            <span class="small text-muted">Min / Avg / Max</span>
+          </div>
+
+          <div class="table-wrap">
+            <div class="table-responsive">
+              <table class="table align-middle mb-0">
+                <thead>
+                <tr>
+                  <th>Question</th>
+                  <th class="text-end">Min</th>
+                  <th class="text-end">Avg</th>
+                  <th class="text-end">Max</th>
+                  <th class="text-end">N</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="st : ${stats}">
+                  <td th:text="${st.questionText}"></td>
+                  <td class="text-end mono" th:text="${st.minScore != null ? st.minScore : '-'}">-</td>
+                  <td class="text-end mono fw-bold" th:text="${st.avgScore != null ? #numbers.formatDecimal(st.avgScore,1,2) : '-'}">-</td>
+                  <td class="text-end mono" th:text="${st.maxScore != null ? st.maxScore : '-'}">-</td>
+                  <td class="text-end mono" th:text="${st.count}">0</td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(stats)}">
+                  <td colspan="5" class="text-muted text-center py-4">No rating data yet.</td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel-body pt-0">
+            <div class="muted-note">
+              Tip: If you want anonymity, hide results until responses ≥ 5.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Insights + Comments -->
+      <div class="col-12 col-lg-5">
+        <div class="card">
+          <div class="panel-head">
+            <h2 class="panel-title"><i class="bi bi-lightbulb"></i> Quick insights</h2>
+            <div class="panel-subtitle">Top strengths and areas that need improvement.</div>
+          </div>
+
+          <div class="panel-body">
+            <div class="row g-3">
+              <div class="col-12">
+                <div class="insight-card">
+                  <div class="insight-title text-success">Top strengths</div>
+                  <ol class="small" th:if="${!#lists.isEmpty(top3)}">
+                    <li th:each="t : ${top3}">
+                      <span th:text="${t.questionText}"></span>
+                      <span class="text-muted">—</span>
+                      <span class="mono" th:text="${#numbers.formatDecimal(t.avgScore,1,2)}"></span>
+                    </li>
+                  </ol>
+                  <div th:if="${#lists.isEmpty(top3)}" class="text-muted small">No data.</div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="insight-card">
+                  <div class="insight-title text-danger">Needs improvement</div>
+                  <ol class="small" th:if="${!#lists.isEmpty(bottom3)}">
+                    <li th:each="b : ${bottom3}">
+                      <span th:text="${b.questionText}"></span>
+                      <span class="text-muted">—</span>
+                      <span class="mono" th:text="${#numbers.formatDecimal(b.avgScore,1,2)}"></span>
+                    </li>
+                  </ol>
+                  <div th:if="${#lists.isEmpty(bottom3)}" class="text-muted small">No data.</div>
+                </div>
+              </div>
+            </div>
+
+            <hr class="my-4"/>
+
+            <div class="d-flex align-items-center justify-content-between">
+              <h6 class="mb-0"><i class="bi bi-chat-square-dots"></i> Comments</h6>
+              <span class="badge bg-secondary-subtle text-secondary mono badge-soft" th:text="${commentCount}">0</span>
+            </div>
+
+            <div class="mt-3" th:if="${#lists.isEmpty(comments)}">
+              <div class="text-muted">No comments yet.</div>
+            </div>
+
+            <div class="comment-box mt-3" th:if="${!#lists.isEmpty(comments)}">
+              <ul class="list-group">
+                <li class="list-group-item" th:each="c : ${comments}" th:text="${c}"></li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function switchLang(lang) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('lang', lang);
+    window.location.href = url.toString();
+  }
+</script>
+</body>
+</html>

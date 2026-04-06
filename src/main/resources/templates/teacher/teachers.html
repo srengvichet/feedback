@@ -1,0 +1,65 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Teachers</title>
+  <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+</head>
+<body class="p-4">
+
+<a th:href="@{/admin}">&larr; Back</a>
+<h3 class="mt-2">Manage Teachers</h3>
+
+<div th:if="${msg == 'created'}" class="alert alert-success">Teacher created.</div>
+<div th:if="${msg == 'duplicate'}" class="alert alert-warning">Username already exists.</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <form th:action="@{/admin/teachers}" th:object="${form}" method="post" class="row g-2">
+      <div class="col-md-4">
+        <label class="form-label">Username</label>
+        <input th:field="*{username}" class="form-control" placeholder="teacher01">
+        <div class="text-danger" th:errors="*{username}"></div>
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Password</label>
+        <input th:field="*{password}" type="password" class="form-control" placeholder="••••">
+        <div class="text-danger" th:errors="*{password}"></div>
+      </div>
+
+      <div class="col-md-4 d-flex align-items-end">
+        <button class="btn btn-primary w-100">Create Teacher</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <h5>Teacher Accounts</h5>
+    <table class="table table-sm">
+      <thead>
+      <tr>
+        <th>ID</th><th>Username</th><th>Enabled</th><th></th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="t : ${teachers}">
+        <td th:text="${t.id}"></td>
+        <td th:text="${t.username}"></td>
+        <td th:text="${t.enabled}"></td>
+        <td class="text-end">
+          <form th:action="@{'/admin/teachers/' + ${t.id} + '/toggle'}" method="post">
+            <button class="btn btn-outline-secondary btn-sm"
+                    th:text="${t.enabled} ? 'Disable' : 'Enable'"></button>
+          </form>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fontFamilies>
+  <fontFamily name="KhmerOSSiemreap">
+    <normal><![CDATA[fonts/KhmerOSsiemreap.ttf]]></normal>
+    <bold><![CDATA[fonts/KhmerOSsiemreap.ttf]]></bold>
+    <italic><![CDATA[fonts/KhmerOSsiemreap.ttf]]></italic>
+    <boldItalic><![CDATA[fonts/KhmerOSsiemreap.ttf]]></boldItalic>
+    <pdfEncoding><![CDATA[Identity-H]]></pdfEncoding>
+    <pdfEmbedded><![CDATA[true]]></pdfEmbedded>
+  </fontFamily>
+
+  <!-- Alias with spaces to match JRXML fontName="Khmer OS Siemreap" -->
+  <fontFamily name="Khmer OS Siemreap">
+    <normal><![CDATA[fonts/KhmerOSsiemreap.ttf]]></normal>
+    <bold><![CDATA[fonts/KhmerOSsiemreap.ttf]]></bold>
+    <italic><![CDATA[fonts/KhmerOSsiemreap.ttf]]></italic>
+    <boldItalic><![CDATA[fonts/KhmerOSsiemreap.ttf]]></boldItalic>
+    <pdfEncoding><![CDATA[Identity-H]]></pdfEncoding>
+    <pdfEmbedded><![CDATA[true]]></pdfEmbedded>
+  </fontFamily>
+
+  <fontFamily name="KhmerOSMuolLight">
+    <normal><![CDATA[fonts/KhmerOSmuollight.ttf]]></normal>
+    <bold><![CDATA[fonts/KhmerOSmuollight.ttf]]></bold>
+    <italic><![CDATA[fonts/KhmerOSmuollight.ttf]]></italic>
+    <boldItalic><![CDATA[fonts/KhmerOSmuollight.ttf]]></boldItalic>
+    <pdfEncoding><![CDATA[Identity-H]]></pdfEncoding>
+    <pdfEmbedded><![CDATA[true]]></pdfEmbedded>
+  </fontFamily>
+
+  <!-- Alias with spaces to match JRXML fontName="Khmer OS Muol Light" -->
+  <fontFamily name="Khmer OS Muol Light">
+    <normal><![CDATA[fonts/KhmerOSmuollight.ttf]]></normal>
+    <bold><![CDATA[fonts/KhmerOSmuollight.ttf]]></bold>
+    <italic><![CDATA[fonts/KhmerOSmuollight.ttf]]></italic>
+    <boldItalic><![CDATA[fonts/KhmerOSmuollight.ttf]]></boldItalic>
+    <pdfEncoding><![CDATA[Identity-H]]></pdfEncoding>
+    <pdfEmbedded><![CDATA[true]]></pdfEmbedded>
+  </fontFamily>
+
+  <!-- Alias to cover fontName="Khmer OS Content" used in some elements -->
+  <fontFamily name="Khmer OS Content">
+    <normal><![CDATA[fonts/NotoSansKhmer.ttf]]></normal>
+    <bold><![CDATA[fonts/NotoSansKhmer.ttf]]></bold>
+    <italic><![CDATA[fonts/NotoSansKhmer.ttf]]></italic>
+    <boldItalic><![CDATA[fonts/NotoSansKhmer.ttf]]></boldItalic>
+    <pdfEncoding><![CDATA[Identity-H]]></pdfEncoding>
+    <pdfEmbedded><![CDATA[true]]></pdfEmbedded>
+  </fontFamily>
+  <fontFamily name="NotoSansKhmer">
+    <normal><![CDATA[fonts/NotoSansKhmer.ttf]]></normal>
+    <!-- If you don't have a real bold Khmer font file, map bold to the same -->
+    <bold><![CDATA[fonts/NotoSansKhmer.ttf]]></bold>
+    <italic><![CDATA[fonts/NotoSansKhmer.ttf]]></italic>
+    <boldItalic><![CDATA[fonts/NotoSansKhmer.ttf]]></boldItalic>
+    <pdfEncoding><![CDATA[Identity-H]]></pdfEncoding>
+    <pdfEmbedded><![CDATA[true]]></pdfEmbedded>
+  </fontFamily>
+</fontFamilies>

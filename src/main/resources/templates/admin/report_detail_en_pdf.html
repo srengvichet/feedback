@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title th:text="${teacherName}">Section Report</title>
+  <style type="text/css">
+    @page {
+      size: A4;
+      margin: 14mm 12mm 16mm 12mm;
+      @bottom-center {
+        content: "Page " counter(page) " / " counter(pages);
+        font-family: "Segoe UI", Arial, sans-serif;
+        font-size: 9pt;
+        color: #1f3e6b;
+      }
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: 10pt;
+      line-height: 1.7;
+      color: #1b1f24;
+    }
+
+    .sheet {
+      width: 100%;
+    }
+
+    .title-bar {
+      background: #1f3e6b;
+      color: #fff;
+      text-align: center;
+      padding: 8px 12px;
+      font-size: 15pt;
+      font-weight: bold;
+      border-bottom: 3px solid #f0a500;
+      margin-bottom: 10px;
+    }
+
+    .meta {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+      background: #f9fbfd;
+      border: 1px solid #cfd8e3;
+    }
+
+    .meta td {
+      padding: 5px 7px;
+      vertical-align: top;
+      border-bottom: 1px solid #e4eaf1;
+    }
+
+    .meta .label {
+      width: 18%;
+      color: #1f3e6b;
+      font-weight: bold;
+    }
+
+    .stats {
+      margin: 10px 0 12px 0;
+      padding: 7px 9px;
+      border: 1px solid #ccd6e0;
+      background: #f5f7fa;
+      font-size: 9.5pt;
+    }
+
+    .q-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 16px;
+    }
+
+    .q-table th,
+    .q-table td {
+      border: 1px solid #aab7c6;
+      padding: 5px 6px;
+      vertical-align: top;
+    }
+
+    .q-table thead th {
+      background: #1f3e6b;
+      color: #fff;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .group-row td {
+      background: #dce6f1;
+      color: #1f3e6b;
+      font-weight: bold;
+    }
+
+    .no-col {
+      width: 8%;
+      text-align: center;
+    }
+
+    .avg-col {
+      width: 12%;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .text-cell,
+    .text-block {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    .section-banner {
+      background: #2e5e9a;
+      color: #fff;
+      text-align: center;
+      padding: 6px 10px;
+      font-size: 11pt;
+      font-weight: bold;
+      margin: 18px 0 10px 0;
+    }
+
+    .panel {
+      border: 1px solid #afc2d8;
+      margin-bottom: 12px;
+      page-break-inside: avoid;
+    }
+
+    .panel-head {
+      background: #dbe7f4;
+      color: #204a7a;
+      font-size: 10pt;
+      font-weight: bold;
+      padding: 5px 8px;
+      border-bottom: 1px solid #afc2d8;
+    }
+
+    .panel-body {
+      padding: 8px 10px;
+      min-height: 44px;
+    }
+
+    .bullet-list {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .bullet-list li {
+      margin: 0 0 4px 0;
+    }
+
+    .signature {
+      margin-top: 24px;
+      border-top: 1px solid #ccd3db;
+      padding-top: 10px;
+      width: 230px;
+      margin-left: auto;
+      text-align: center;
+    }
+
+    .muted {
+      color: #4b5563;
+    }
+  </style>
+</head>
+<body>
+  <div class="sheet">
+    <div class="title-bar">Teaching Evaluation Result</div>
+
+    <table class="meta">
+      <tr>
+        <td class="label">Teacher</td>
+        <td th:text="${teacherName}">-</td>
+        <td class="label">Course</td>
+        <td th:text="${course}">-</td>
+      </tr>
+      <tr>
+        <td class="label">Class</td>
+        <td th:text="${teachingClass}">-</td>
+        <td class="label">Semester</td>
+        <td th:text="${semesterName}">-</td>
+      </tr>
+      <tr>
+        <td class="label">Cohort</td>
+        <td th:text="${cohort}">-</td>
+        <td class="label">Shift</td>
+        <td th:text="${shiftTime}">-</td>
+      </tr>
+      <tr>
+        <td class="label">Promotion</td>
+        <td th:text="${promotion}">-</td>
+        <td class="label">Room</td>
+        <td th:text="${room}">-</td>
+      </tr>
+    </table>
+
+    <div class="stats">
+      Responses: <strong th:text="${count}">0</strong>
+      &#160;&#160; Enrolled: <strong th:text="${enrolled}">0</strong>
+      &#160;&#160; Not responded: <strong th:text="${notResponded}">0</strong>
+      &#160;&#160; Rate: <strong th:text="${responseRateText}">-</strong>
+      &#160;&#160; Overall avg: <strong th:text="${overallText}">-</strong>
+    </div>
+
+    <table class="q-table">
+      <thead>
+        <tr>
+          <th class="no-col">No.</th>
+          <th>Indicator</th>
+          <th class="avg-col">Average</th>
+        </tr>
+      </thead>
+      <tbody th:each="cat : ${categories}">
+        <tr class="group-row">
+          <td colspan="3">
+            <span th:text="${cat.label}">A.</span>
+            <span th:text="${'   ·   Average: ' + cat.avgText}">·</span>
+          </td>
+        </tr>
+        <tr th:each="q : ${cat.questions}">
+          <td class="no-col" th:text="${q.orderNo}">1</td>
+          <td class="text-cell" th:text="${q.questionText}">Question</td>
+          <td class="avg-col" th:text="${q.avgScore != null ? #numbers.formatDecimal(q.avgScore,1,2) : '-'}">-</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="section-banner">AI Summary of Student Feedback</div>
+
+    <div class="panel">
+      <div class="panel-head">Summary</div>
+      <div class="panel-body text-block" th:text="${aiSummary}">-</div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">Strengths</div>
+      <div class="panel-body">
+        <ul class="bullet-list" th:if="${aiStrengthsLines != null and !#lists.isEmpty(aiStrengthsLines)}">
+          <li th:each="item : ${aiStrengthsLines}" class="text-cell" th:text="${item}">-</li>
+        </ul>
+        <div th:if="${aiStrengthsLines == null or #lists.isEmpty(aiStrengthsLines)}" class="text-block">-</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">Areas for Improvement</div>
+      <div class="panel-body">
+        <ul class="bullet-list" th:if="${aiImprovementsLines != null and !#lists.isEmpty(aiImprovementsLines)}">
+          <li th:each="item : ${aiImprovementsLines}" class="text-cell" th:text="${item}">-</li>
+        </ul>
+        <div th:if="${aiImprovementsLines == null or #lists.isEmpty(aiImprovementsLines)}" class="text-block">-</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">Recommendation</div>
+      <div class="panel-body text-block" th:text="${aiRecommendation}">-</div>
+    </div>
+
+    <div class="signature">
+      <div class="muted" th:text="${generatedAt}">-</div>
+      <div style="margin-top: 14px;">Prepared by</div>
+      <div style="margin-top: 28px;" th:text="${preparedBy}">-</div>
+    </div>
+  </div>
+</body>
+</html>

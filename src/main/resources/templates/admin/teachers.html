@@ -1,0 +1,648 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title th:text="#{admin.teacher.title}">Teacher Management</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --purple: #7c3aed;
+      --soft-primary: #eef4ff;
+      --soft-success: #ecfdf3;
+      --soft-warning: #fff7ed;
+      --shadow: 0 10px 30px rgba(15,23,42,.08);
+      --radius: 22px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI","Noto Sans Khmer",system-ui,-apple-system,sans-serif;
+      margin: 0;
+    }
+    .page-wrap { max-width: 1480px; margin: 0 auto; }
+
+    /* ── Sticky topnav ── */
+    .admin-topnav {
+      background: #0f172a; padding: 0 28px; height: 58px;
+      display: flex; align-items: center; position: sticky; top: 0; z-index: 200;
+      box-shadow: 0 4px 20px rgba(15,23,42,.35);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; flex: 1; }
+    .nav-brand-icon { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg,#2563eb,#1d4ed8); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: .85rem; box-shadow: 0 4px 12px rgba(37,99,235,.4); }
+    .nav-brand-text { line-height: 1.2; }
+    .nav-brand-title { font-size: .9rem; font-weight: 700; color: #fff; }
+    .nav-brand-sub   { font-size: .7rem; color: #64748b; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .lang-toggle { display: flex; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: 3px; gap: 2px; }
+    .lang-opt { text-decoration: none; font-size: .72rem; font-weight: 700; padding: 4px 11px; border-radius: 999px; color: rgba(255,255,255,.5); transition: .15s; }
+    .lang-opt:hover { color: rgba(255,255,255,.85); }
+    .lang-opt.active { background: #2563eb; color: #fff; }
+    .user-chip { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: 4px 14px 4px 5px; }
+    .user-avatar { width: 27px; height: 27px; border-radius: 50%; background: linear-gradient(135deg,#3b82f6,#2563eb); color: #fff; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 800; }
+    .user-name { font-size: .8rem; font-weight: 600; color: #cbd5e1; }
+    .nav-logout { background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.25); color: #f87171; border-radius: 10px; padding: 6px 14px; font-size: .8rem; font-weight: 600; cursor: pointer; transition: .15s; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+    .nav-logout:hover { background: rgba(239,68,68,.22); color: #fca5a5; }
+
+    /* ── Hero ── */
+    .page-hero {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #3b82f6 100%);
+      padding: 28px 28px 36px; position: relative; overflow: hidden;
+    }
+    .page-hero::before { content: ""; position: absolute; right: -80px; top: -80px; width: 300px; height: 300px; border-radius: 50%; background: rgba(255,255,255,.06); }
+    .page-hero::after  { content: ""; position: absolute; left: -60px; bottom: -80px; width: 240px; height: 240px; border-radius: 50%; background: rgba(255,255,255,.04); }
+    .page-hero > * { position: relative; z-index: 1; }
+    .page-title { font-size: 1.85rem; font-weight: 800; color: #fff; margin: 0 0 .3rem; letter-spacing: -.02em; }
+    .page-subtitle { color: rgba(255,255,255,.72); margin: 0; font-size: .93rem; }
+    .hero-pill { display: inline-flex; align-items: center; gap: .35rem; background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); border-radius: 999px; padding: .4rem .85rem; font-size: .8rem; font-weight: 700; }
+    .hero-pill.pink   { background: rgba(244,114,182,.18); border-color: rgba(244,114,182,.35); }
+    .hero-pill.teal   { background: rgba(45,212,191,.18); border-color: rgba(45,212,191,.35); }
+    .hero-pill.amber  { background: rgba(251,191,36,.18); border-color: rgba(251,191,36,.35); }
+
+    /* ── Content area ── */
+    .content-area { background: var(--bg); padding: 28px; }
+
+    /* ── KPI strip ── */
+    .kpi-card {
+      background: #fff; border-radius: 20px; box-shadow: var(--shadow); padding: 1.1rem 1.25rem;
+      height: 100%; display: flex; align-items: center; gap: 1rem;
+    }
+    .kpi-icon { width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+    .kpi-icon.blue  { background: #eef4ff; color: #2563eb; }
+    .kpi-icon.teal  { background: #e0f2fe; color: #0284c7; }
+    .kpi-icon.pink  { background: #fdf2f8; color: #be185d; }
+    .kpi-icon.amber { background: #fff7ed; color: #d97706; }
+    .kpi-label { color: var(--muted); font-size: .84rem; font-weight: 700; margin-bottom: .15rem; }
+    .kpi-value { font-size: 1rem; font-weight: 800; line-height: 1.25; }
+
+    /* ── Cards ── */
+    .card { border: none !important; border-radius: var(--radius) !important; box-shadow: var(--shadow) !important; overflow: hidden; background: var(--card); }
+    .panel-head { padding: 18px 24px 14px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg,#ffffff 0%,#fbfdff 100%); }
+    .panel-title { font-size: 1.05rem; font-weight: 800; margin-bottom: .15rem; }
+    .panel-subtitle { color: var(--muted); font-size: .88rem; margin: 0; }
+    .panel-body { padding: 20px 24px; }
+
+    /* ── Forms ── */
+    .btn { border-radius: 14px; font-weight: 700; }
+    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border: none; box-shadow: 0 8px 18px rgba(37,99,235,.2); }
+    .btn-success { background: linear-gradient(135deg, #16a34a, #15803d); border: none; box-shadow: 0 8px 18px rgba(22,163,74,.18); }
+    .form-label { font-weight: 700; color: #374151; font-size: .9rem; }
+    .form-control, .form-select, .input-group-text { border-radius: 14px; min-height: 46px; border: 1px solid #dbe3ee; box-shadow: none; }
+    .form-control:focus, .form-select:focus { border-color: #93c5fd; box-shadow: 0 0 0 .2rem rgba(37,99,235,.10); }
+    .input-group-text { background: #f8fafc; color: #64748b; font-weight: 700; }
+
+    /* ── Table ── */
+    .table-wrap { border-radius: 18px; overflow: auto; }
+    .table { margin-bottom: 0; border-collapse: separate; border-spacing: 0 8px; }
+    .table thead th { border: none !important; color: var(--muted); font-size: .77rem; text-transform: uppercase; letter-spacing: .05em; font-weight: 800; white-space: nowrap; background: transparent !important; padding: 8px 12px; }
+    .table tbody tr { background: #fff; box-shadow: 0 3px 12px rgba(15,23,42,.05); transition: .15s ease-in-out; }
+    .table tbody tr:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(15,23,42,.09); }
+    .table tbody td { vertical-align: middle; padding: 13px 12px; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; font-size: .92rem; }
+    .table tbody td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 14px; border-bottom-left-radius: 14px; }
+    .table tbody td:last-child  { border-right: 1px solid #f1f5f9; border-top-right-radius: 14px; border-bottom-right-radius: 14px; }
+
+    .avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid #e0e7f0; box-shadow: 0 3px 8px rgba(15,23,42,.08); }
+    .avatar-fallback { width: 44px; height: 44px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem; color: #1d4ed8; background: #eef4ff; border: 2px solid #dbeafe; box-shadow: 0 3px 8px rgba(15,23,42,.08); flex-shrink: 0; }
+    .teacher-name { font-weight: 800; color: var(--text); font-size: .93rem; }
+    .teacher-sub  { color: var(--muted); font-size: .8rem; margin-top: 1px; }
+    .dept-pill { display: inline-flex; align-items: center; border-radius: 999px; padding: 5px 10px; font-size: .78rem; font-weight: 800; background: #eef2ff; color: #4338ca; }
+    .badge-pill { border-radius: 999px; padding: .4rem .75rem; font-weight: 700; }
+    .empty-row  { color: var(--muted); text-align: center; padding: 2.5rem 1rem; }
+
+    /* ── Pagination ── */
+    .pagination .page-link { border-radius: 10px !important; margin: 0 2px; border: none; box-shadow: 0 2px 8px rgba(15,23,42,.06); color: #374151; }
+    .pagination .page-item.active .page-link { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; }
+
+    /* ── Alerts ── */
+    .alert { border: none; border-radius: 16px; box-shadow: 0 6px 20px rgba(15,23,42,.06); }
+
+    .import-card { border-left: 4px solid var(--success) !important; }
+    .create-card { border-left: 4px solid var(--primary) !important; }
+
+    @media (max-width: 992px) {
+      .admin-topnav { padding: 0 16px; }
+      .page-hero { padding: 20px 16px 28px; }
+      .content-area { padding: 16px; }
+      .page-title { font-size: 1.55rem; }
+      .nav-brand-sub { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── Sticky Top Navigation ── -->
+  <nav class="admin-topnav">
+    <div class="nav-brand">
+      <div class="nav-brand-icon">
+        <img th:src="@{/images/num_logo.jpg}" alt="NUM Logo" object-fit="cover" style="width: 100%; height: 100%; border-radius: 10px;">
+      </div>
+      <div class="nav-brand-text">
+        <div class="nav-brand-title" th:text="#{common.brand}">NUM Feedback</div>
+        <div class="nav-brand-sub" th:text="#{admin.brand.subtitle}">Admin Panel</div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="lang-toggle">
+        <a href="javascript:void(0)" onclick="switchLang('en')" class="lang-opt" th:classappend="${#locale.language == 'en'} ? ' active'">EN</a>
+        <a href="javascript:void(0)" onclick="switchLang('kh')" class="lang-opt" th:classappend="${#locale.language == 'kh'} ? ' active'">KH</a>
+      </div>
+      <div class="user-chip">
+        <div class="user-avatar">A</div>
+        <span class="user-name" sec:authentication="name">Admin</span>
+      </div>
+      <form th:action="@{/login?logout}" method="post" style="margin:0;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <button class="nav-logout" type="submit">
+          <i class="bi bi-box-arrow-right"></i> <span th:text="#{common.signout}">Sign Out</span>
+        </button>
+      </form>
+    </div>
+  </nav>
+
+  <!-- ── Page Hero ── -->
+  <div class="page-hero">
+    <div class="page-wrap d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3">
+      <div>
+        <div class="mb-2">
+          <a href="/admin" class="btn-hero" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.22);color:#fff;border-radius:12px;padding:6px 14px;font-size:.8rem;font-weight:600;text-decoration:none;">
+            <i class="bi bi-arrow-left"></i> <span th:text="#{admin.nav.dashboard}">Dashboard</span>
+          </a>
+        </div>
+        <h1 class="page-title" th:text="#{admin.teacher.title}">Teacher Management</h1>
+        <p class="page-subtitle" th:text="#{admin.teacher.subtitle}">Manage teacher accounts, profiles, gender, and department assignments.</p>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <span class="hero-pill">
+            <i class="bi bi-people"></i>
+            <span th:text="#{admin.teacher.pill.total}">Total:</span>
+            <strong th:text="${allCount != null ? allCount : 0}">0</strong>
+          </span>
+          <span class="hero-pill teal">
+            <i class="bi bi-gender-male"></i>
+            <span th:text="#{admin.teacher.pill.male}">Male:</span>
+            <strong th:text="${maleCount != null ? maleCount : 0}">0</strong>
+          </span>
+          <span class="hero-pill pink">
+            <i class="bi bi-gender-female"></i>
+            <span th:text="#{admin.teacher.pill.female}">Female:</span>
+            <strong th:text="${femaleCount != null ? femaleCount : 0}">0</strong>
+          </span>
+          <span class="hero-pill amber">
+            <i class="bi bi-building"></i>
+            <span th:text="#{admin.teacher.pill.depts}">Depts:</span>
+            <strong th:text="${deptCount != null ? deptCount : 0}">0</strong>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Content Area ── -->
+  <div class="content-area">
+    <div class="page-wrap">
+
+      <!-- KPI CARDS -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+          <div class="kpi-card">
+            <div class="kpi-icon blue"><i class="bi bi-people-fill"></i></div>
+            <div>
+              <div class="kpi-label" th:text="#{admin.teacher.kpi.all}">All Teachers</div>
+              <div class="kpi-value" th:text="${allCount != null ? allCount : 0}">0</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="kpi-card">
+            <div class="kpi-icon teal"><i class="bi bi-gender-male"></i></div>
+            <div>
+              <div class="kpi-label" th:text="#{admin.teacher.kpi.male}">Male</div>
+              <div class="kpi-value" th:text="${maleCount != null ? maleCount : 0}">0</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="kpi-card">
+            <div class="kpi-icon pink"><i class="bi bi-gender-female"></i></div>
+            <div>
+              <div class="kpi-label" th:text="#{admin.teacher.kpi.female}">Female</div>
+              <div class="kpi-value" th:text="${femaleCount != null ? femaleCount : 0}">0</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="kpi-card">
+            <div class="kpi-icon amber"><i class="bi bi-building"></i></div>
+            <div>
+              <div class="kpi-label" th:text="#{admin.teacher.kpi.depts}">Departments</div>
+              <div class="kpi-value" th:text="${deptCount != null ? deptCount : 0}">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ALERTS -->
+      <div th:if="${msg != null}" class="mb-3">
+        <div th:if="${msg == 'created'}" class="alert alert-success py-2">
+          <i class="bi bi-check-circle me-2"></i><span th:text="#{admin.teacher.alert.created}">Teacher created successfully.</span>
+        </div>
+        <div th:if="${msg == 'updated'}" class="alert alert-success py-2">
+          <i class="bi bi-check-circle me-2"></i><span th:text="#{admin.teacher.alert.updated}">Teacher updated successfully.</span>
+        </div>
+        <div th:if="${msg == 'duplicate'}" class="alert alert-warning py-2">
+          <i class="bi bi-exclamation-triangle me-2"></i><span th:text="#{admin.teacher.alert.duplicate}">Username already exists.</span>
+        </div>
+        <div th:if="${msg == 'empty_file'}" class="alert alert-warning py-2">
+          <i class="bi bi-exclamation-triangle me-2"></i><span th:text="#{admin.teacher.alert.emptyFile}">Uploaded file is empty.</span>
+        </div>
+        <div th:if="${msg == 'import_failed'}" class="alert alert-danger py-2">
+          <i class="bi bi-x-circle me-2"></i><span th:text="#{admin.teacher.alert.importFailed}">Import failed. Please check the file format.</span>
+        </div>
+        <div th:if="${#strings.startsWith(msg, 'imported_')}" class="alert alert-success py-2">
+          <i class="bi bi-check-circle me-2"></i><span th:text="${msg}"></span>
+        </div>
+      </div>
+      <div th:if="${param.msg != null and param.msg[0] == 'forbidden'}" class="alert alert-danger mb-3 py-2">
+        <i class="bi bi-x-circle me-2"></i><span th:text="#{admin.teacher.alert.forbidden}">Action is not allowed.</span>
+      </div>
+
+      <!-- FILTER + IMPORT ROW -->
+      <div class="row g-3 mb-3">
+
+        <!-- FILTER CARD -->
+        <div class="col-lg-8">
+          <div class="card h-100">
+            <div class="panel-head d-flex justify-content-between align-items-start gap-2">
+              <div>
+                <div class="panel-title" th:text="#{admin.teacher.filter.title}">Search &amp; Filter</div>
+                <p class="panel-subtitle" th:text="#{admin.teacher.filter.subtitle}">Search by username, name, email, phone, department, or status.</p>
+              </div>
+              <a class="btn btn-sm btn-outline-secondary" th:href="@{/admin/teachers}">
+                <i class="bi bi-x-lg"></i> <span th:text="#{admin.teacher.filter.reset}">Reset</span>
+              </a>
+            </div>
+
+            <div class="panel-body">
+              <form method="get" th:action="@{/admin/teachers}">
+                <input type="hidden" name="page" value="1" />
+
+                <div class="row g-2 align-items-end">
+                  <div class="col-md-5">
+                    <label class="form-label" th:text="#{admin.teacher.filter.keyword}">Keyword</label>
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="bi bi-search"></i></span>
+                      <input class="form-control" name="q" th:placeholder="#{admin.teacher.filter.keyword.placeholder}" th:value="${q}">
+                    </div>
+                  </div>
+
+                  <div class="col-md-3">
+                    <label class="form-label" th:text="#{admin.teacher.filter.department}">Department</label>
+                    <input class="form-control" name="department" th:placeholder="#{admin.teacher.create.department.placeholder}" th:value="${filterDepartment}">
+                  </div>
+
+                  <div class="col-md-2">
+                    <label class="form-label" th:text="#{admin.teacher.filter.status}">Status</label>
+                    <select class="form-select" name="enabled">
+                      <option value=""      th:selected="${filterEnabled == null}"                          th:text="#{admin.teacher.filter.status.all}">All</option>
+                      <option value="true"  th:selected="${filterEnabled != null and filterEnabled}"        th:text="#{admin.teacher.filter.status.enabled}">Enabled</option>
+                      <option value="false" th:selected="${filterEnabled != null and !filterEnabled}"       th:text="#{admin.teacher.filter.status.disabled}">Disabled</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-1">
+                    <label class="form-label" th:text="#{admin.teacher.filter.size}">Size</label>
+                    <select class="form-select" name="size">
+                      <option value="10"  th:selected="${size != null and size == 10}">10</option>
+                      <option value="20"  th:selected="${size == null or size == 20}">20</option>
+                      <option value="50"  th:selected="${size != null and size == 50}">50</option>
+                      <option value="100" th:selected="${size != null and size == 100}">100</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-1 d-grid">
+                    <label class="form-label invisible">Go</label>
+                    <button class="btn btn-primary"><i class="bi bi-search"></i></button>
+                  </div>
+                </div>
+              </form>
+
+              <!-- EXPORT ACTIONS -->
+              <div class="d-flex flex-wrap gap-2 mt-3 pt-3 border-top">
+                <span class="text-muted small align-self-center me-1">
+                  <i class="bi bi-download me-1"></i><span th:text="#{admin.teacher.export.label}">Export:</span>
+                </span>
+                <a class="btn btn-sm btn-success" th:href="@{/admin/teachers/export}">
+                  <i class="bi bi-people me-1"></i><span th:text="#{admin.teacher.export.all}">Export All</span>
+                  <span class="badge bg-white text-success ms-1" th:text="${allCount != null ? allCount : 0}">0</span>
+                </a>
+                <a class="btn btn-sm btn-outline-secondary" th:href="@{/admin/teachers/template}">
+                  <i class="bi bi-file-earmark-arrow-down me-1"></i><span th:text="#{admin.teacher.export.template}">CSV Template</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- IMPORT CARD -->
+        <div class="col-lg-4">
+          <div class="card h-100 import-card">
+            <div class="panel-head">
+              <div class="panel-title">
+                <i class="bi bi-upload text-success me-1"></i><span th:text="#{admin.teacher.import.title}">Import Teachers</span>
+              </div>
+              <p class="panel-subtitle" th:text="#{admin.teacher.import.subtitle}">Bulk-create teacher accounts from a CSV file.</p>
+            </div>
+
+            <div class="panel-body d-flex flex-column gap-3">
+              <form method="post" th:action="@{/admin/teachers/import}" enctype="multipart/form-data">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                <label class="form-label" th:text="#{admin.teacher.import.file}">CSV File</label>
+                <input class="form-control" type="file" name="file" accept=".csv,text/csv" required>
+
+                <div class="text-muted mt-2" style="font-size:.8rem;">
+                  <span class="fw-bold" th:text="#{admin.teacher.import.required}">Required:</span> <code>username</code><br>
+                  <span class="fw-bold" th:text="#{admin.teacher.import.optional}">Optional:</span> <code>fullName, gender, department, position, email, phone, password</code><br>
+                  <span class="text-secondary" th:text="#{admin.teacher.import.note}">Default password = username if blank.</span>
+                </div>
+
+                <button class="btn btn-success w-100 mt-3" type="submit">
+                  <i class="bi bi-upload me-1"></i><span th:text="#{admin.teacher.import.btn}">Import CSV</span>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TABLE CARD -->
+      <div class="card">
+        <div class="panel-head d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div>
+            <div class="panel-title" th:text="#{admin.teacher.table.title}">Teacher Accounts</div>
+            <p class="panel-subtitle">
+              <th:block th:if="${totalRows != null}">
+                <span th:text="#{admin.teacher.table.page}">Page</span>
+                <strong th:text="${page}"></strong>
+                <span th:text="#{admin.teacher.table.of}">of</span>
+                <strong th:text="${totalPages}"></strong>
+                &nbsp;·&nbsp;
+                <span th:text="${totalRows}"></span>
+                <span th:text="#{admin.teacher.table.results}">results</span>
+              </th:block>
+              <th:block th:if="${totalRows == null}" th:text="#{admin.teacher.table.browse}">Browse all teacher accounts.</th:block>
+            </p>
+          </div>
+        </div>
+
+        <div class="panel-body">
+          <div class="table-wrap">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th style="width:55px;" th:text="#{admin.teacher.table.col.no}">#</th>
+                  <th th:text="#{admin.teacher.table.col.teacher}">Teacher</th>
+                  <th style="width:85px;" th:text="#{admin.teacher.table.col.gender}">Gender</th>
+                  <th th:text="#{admin.teacher.table.col.dept}">Department &amp; Position</th>
+                  <th th:text="#{admin.teacher.table.col.email}">Email</th>
+                  <th th:text="#{admin.teacher.table.col.phone}">Phone</th>
+                  <th style="width:105px;" th:text="#{admin.teacher.table.col.status}">Status</th>
+                  <th style="width:160px;" th:text="#{admin.teacher.table.col.actions}">Actions</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr th:each="t, stat : ${teachers}">
+                  <td class="text-muted small"
+                      th:text="${((page != null ? page : 1) - 1) * (size != null ? size : 20) + stat.index + 1}">1</td>
+
+                  <td>
+                    <div class="d-flex align-items-center gap-3">
+                      <img class="avatar"
+                           th:if="${t.avatarUrl != null and !#strings.isEmpty(t.avatarUrl)}"
+                           th:src="${t.avatarUrl}" alt="avatar" onerror="this.style.display='none'" />
+                      <div class="avatar-fallback"
+                           th:if="${t.avatarUrl == null or #strings.isEmpty(t.avatarUrl)}">
+                        <span th:text="${#strings.toUpperCase(#strings.substring(t.username,0,1))}">T</span>
+                      </div>
+                      <div>
+                        <div class="teacher-name" th:text="${t.username}">username</div>
+                        <div class="teacher-sub" th:text="${t.fullName != null ? t.fullName : '—'}">Full Name</div>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td>
+                    <span th:if="${t.gender == 'Male'}"   class="badge badge-pill text-bg-info" th:text="#{admin.teacher.gender.male}">Male</span>
+                    <span th:if="${t.gender == 'Female'}" class="badge badge-pill" style="background:#fdf2f8;color:#be185d;" th:text="#{admin.teacher.gender.female}">Female</span>
+                    <span th:if="${t.gender == 'Other'}"  class="badge badge-pill text-bg-secondary" th:text="#{admin.teacher.gender.other}">Other</span>
+                    <span th:if="${t.gender == null or #strings.isEmpty(t.gender)}" class="text-muted">—</span>
+                  </td>
+
+                  <td>
+                    <div>
+                      <span th:if="${t.department != null and !#strings.isEmpty(t.department)}" class="dept-pill" th:text="${t.department}">Dept</span>
+                      <span th:if="${t.department == null or #strings.isEmpty(t.department)}" class="text-muted">—</span>
+                    </div>
+                    <div class="teacher-sub mt-1" th:if="${t.position != null and !#strings.isEmpty(t.position)}" th:text="${t.position}"></div>
+                  </td>
+
+                  <td>
+                    <span th:if="${t.email != null and !#strings.isEmpty(t.email)}" th:text="${t.email}"></span>
+                    <span th:if="${t.email == null or #strings.isEmpty(t.email)}" class="text-muted">—</span>
+                  </td>
+
+                  <td>
+                    <span th:if="${t.phone != null and !#strings.isEmpty(t.phone)}" th:text="${t.phone}"></span>
+                    <span th:if="${t.phone == null or #strings.isEmpty(t.phone)}" class="text-muted">—</span>
+                  </td>
+
+                  <td>
+                    <span class="badge badge-pill"
+                          th:classappend="${t.enabled} ? ' text-bg-success' : ' text-bg-secondary'"
+                          th:text="${t.enabled} ? #{admin.teacher.status.enabled} : #{admin.teacher.status.disabled}">
+                    </span>
+                  </td>
+
+                  <td class="text-nowrap d-flex flex-wrap gap-1">
+                    <a class="btn btn-sm btn-outline-primary" th:href="@{|/admin/teachers/${t.id}/edit|}">
+                      <i class="bi bi-pencil"></i> <span th:text="#{admin.teacher.btn.edit}">Edit</span>
+                    </a>
+                    <form method="post" th:action="@{|/admin/teachers/${t.id}/toggle|}">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                      <button class="btn btn-sm"
+                              th:classappend="${t.enabled} ? ' btn-outline-danger' : ' btn-outline-success'"
+                              th:title="${t.enabled} ? #{admin.teacher.btn.disable.title} : #{admin.teacher.btn.enable.title}">
+                        <i class="bi" th:classappend="${t.enabled} ? ' bi-slash-circle' : ' bi-check-circle'"></i>
+                        <span th:text="${t.enabled} ? #{admin.teacher.btn.disable} : #{admin.teacher.btn.enable}"></span>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+
+                <tr th:if="${teachers == null or #lists.isEmpty(teachers)}">
+                  <td colspan="8" class="empty-row">
+                    <i class="bi bi-inbox display-6 d-block mb-2 opacity-25"></i>
+                    <span th:text="#{admin.teacher.table.empty}">No teachers found.</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- PAGINATION -->
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3"
+               th:if="${totalPages != null and totalPages > 1}">
+            <div class="small text-muted">
+              <span th:text="#{admin.teacher.table.page}">Page</span>
+              <strong th:text="${page}"></strong>
+              <span th:text="#{admin.teacher.table.of}">of</span>
+              <strong th:text="${totalPages}"></strong>
+              &nbsp;·&nbsp;
+              <span th:text="${totalRows}"></span>
+              <span th:text="#{admin.teacher.table.results}">results</span>
+            </div>
+
+            <nav>
+              <ul class="pagination pagination-sm mb-0">
+                <li class="page-item" th:classappend="${page <= 1} ? ' disabled' : ''">
+                  <a class="page-link"
+                     th:href="@{/admin/teachers(page=${page-1},size=${size},q=${q},enabled=${filterEnabled},department=${filterDepartment})}">
+                    <i class="bi bi-chevron-left"></i>
+                  </a>
+                </li>
+                <li class="page-item"
+                    th:each="p : ${#numbers.sequence(((page-2)>1)?(page-2):1,((page+2)<totalPages)?(page+2):totalPages)}"
+                    th:classappend="${p == page} ? ' active' : ''">
+                  <a class="page-link" th:text="${p}"
+                     th:href="@{/admin/teachers(page=${p},size=${size},q=${q},enabled=${filterEnabled},department=${filterDepartment})}"></a>
+                </li>
+                <li class="page-item" th:classappend="${page >= totalPages} ? ' disabled' : ''">
+                  <a class="page-link"
+                     th:href="@{/admin/teachers(page=${page+1},size=${size},q=${q},enabled=${filterEnabled},department=${filterDepartment})}">
+                    <i class="bi bi-chevron-right"></i>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+
+      <!-- CREATE FORM -->
+      <div class="card mt-3 create-card">
+        <div class="panel-head">
+          <div class="panel-title">
+            <i class="bi bi-person-plus text-primary me-1"></i><span th:text="#{admin.teacher.create.title}">Create Teacher Account</span>
+          </div>
+          <p class="panel-subtitle" th:text="#{admin.teacher.create.subtitle}">Manually create a new teacher login and profile record.</p>
+        </div>
+
+        <div class="panel-body">
+          <form method="post" th:action="@{/admin/teachers}" class="row g-3">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+            <div class="col-md-4">
+              <label class="form-label">
+                <span th:text="#{admin.teacher.create.username}">Username</span>
+                <span class="text-danger">*</span>
+              </label>
+              <input class="form-control" name="username" placeholder="e.g. t.sokdara" required
+                     th:value="${form != null ? form.username : ''}">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">
+                <span th:text="#{admin.teacher.create.password}">Password</span>
+                <span class="text-danger">*</span>
+              </label>
+              <input class="form-control" type="password" name="password" required placeholder="••••••••">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label" th:text="#{admin.teacher.create.fullName}">Full Name</label>
+              <input class="form-control" name="fullName" placeholder="e.g. Sreng Vichet"
+                     th:value="${form != null ? form.fullName : ''}">
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label" th:text="#{admin.teacher.create.gender}">Gender</label>
+              <select class="form-select" name="gender">
+                <option value="" th:text="#{admin.teacher.create.gender.select}">— Select —</option>
+                <option value="Male"   th:selected="${form != null and form.gender == 'Male'}"   th:text="#{admin.teacher.gender.male}">Male</option>
+                <option value="Female" th:selected="${form != null and form.gender == 'Female'}" th:text="#{admin.teacher.gender.female}">Female</option>
+                <option value="Other"  th:selected="${form != null and form.gender == 'Other'}"  th:text="#{admin.teacher.gender.other}">Other</option>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label" th:text="#{admin.teacher.create.department}">Department</label>
+              <input class="form-control" name="department" th:placeholder="#{admin.teacher.create.department.placeholder}"
+                     th:value="${form != null ? form.department : ''}">
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label" th:text="#{admin.teacher.create.position}">Position</label>
+              <input class="form-control" name="position" th:placeholder="#{admin.teacher.create.position.placeholder}"
+                     th:value="${form != null ? form.position : ''}">
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label" th:text="#{admin.teacher.create.email}">Email</label>
+              <input class="form-control" type="email" name="email" placeholder="name@num.edu.kh"
+                     th:value="${form != null ? form.email : ''}">
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label" th:text="#{admin.teacher.create.phone}">Phone</label>
+              <input class="form-control" name="phone" placeholder="e.g. 012 345 678"
+                     th:value="${form != null ? form.phone : ''}">
+            </div>
+
+            <div class="col-md-9">
+              <label class="form-label">
+                <span th:text="#{admin.teacher.create.avatarUrl}">Avatar URL</span>
+                <span class="text-muted fw-normal ms-1" th:text="#{admin.teacher.create.optional}">(optional)</span>
+              </label>
+              <input class="form-control" name="avatarUrl" placeholder="https://…"
+                     th:value="${form != null ? form.avatarUrl : ''}">
+            </div>
+
+            <div class="col-12 d-flex align-items-center gap-3">
+              <button class="btn btn-primary px-4">
+                <i class="bi bi-person-plus me-1"></i><span th:text="#{admin.teacher.create.btn}">Create Teacher</span>
+              </button>
+              <span class="text-muted small" th:text="#{admin.teacher.create.hint}">Remind the teacher to change their password after first login.</span>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  function switchLang(lang) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('lang', lang);
+    window.location.href = url.toString();
+  }
+</script>
+</body>
+</html>

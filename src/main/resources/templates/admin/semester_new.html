@@ -1,0 +1,334 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>New Semester</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root{
+      --bg1:#f4f7fb;
+      --bg2:#eef3f9;
+      --card:#ffffff;
+      --text:#1f2a37;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --primary:#2563eb;
+      --primary-dark:#1d4ed8;
+      --success:#10b981;
+      --warning:#f59e0b;
+      --soft-primary:#e8f0ff;
+      --soft-success:#eafaf4;
+      --soft-warning:#fff7e8;
+      --soft-info:#eefafc;
+      --shadow:0 10px 30px rgba(15,23,42,.08);
+    }
+
+    body{
+      background:radial-gradient(circle at top left,#f8fbff 0%,#f4f7fb 35%,#eef3f9 100%);
+      color:var(--text);
+      font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;
+    }
+
+    .page-wrap{
+      max-width:1480px;
+      margin:0 auto;
+    }
+
+    /* Topbar */
+    .topbar{
+      background:linear-gradient(135deg,#fff 0%,#f7faff 100%);
+      border:1px solid rgba(255,255,255,.7);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      padding:24px 28px;
+      position:relative;
+      overflow:hidden;
+    }
+    .topbar::after{
+      content:"";
+      position:absolute;
+      right:-60px;
+      top:-60px;
+      width:220px;
+      height:220px;
+      background:radial-gradient(circle,rgba(37,99,235,.18),rgba(37,99,235,.02) 70%);
+      border-radius:50%;
+    }
+
+    .breadcrumb-link{
+      text-decoration:none;
+      color:var(--muted);
+      font-weight:600;
+      font-size:.95rem;
+      display:inline-flex;
+      align-items:center;
+      gap:.35rem;
+    }
+    .breadcrumb-link:hover{color:var(--primary);}
+
+    .page-title{
+      font-size:2rem;
+      font-weight:800;
+      margin:.5rem 0 .25rem;
+      letter-spacing:-.02em;
+    }
+    .page-subtitle{
+      color:var(--muted);
+      margin:0;
+      font-size:.98rem;
+    }
+
+    /* Soft pill */
+    .soft-pill{
+      background:#eef4ff;
+      color:#1d4ed8;
+      border-radius:999px;
+      padding:.45rem .75rem;
+      font-size:.82rem;
+      font-weight:700;
+      display:inline-flex;
+      align-items:center;
+      gap:.3rem;
+    }
+
+    /* KPI mini-stat cards */
+    .kpi-card{
+      background:#fff;
+      border-radius:20px;
+      box-shadow:var(--shadow);
+      padding:20px;
+      height:100%;
+    }
+    .kpi-card .label{
+      color:var(--muted);
+      font-size:.84rem;
+      font-weight:700;
+      margin-bottom:6px;
+    }
+    .kpi-card .value{
+      font-size:1.6rem;
+      font-weight:800;
+      line-height:1.1;
+      margin-bottom:6px;
+    }
+    .kpi-card .sub{
+      color:var(--muted);
+      font-size:.78rem;
+    }
+
+    /* Cards */
+    .main-card{
+      border:none !important;
+      border-radius:22px !important;
+      box-shadow:var(--shadow) !important;
+      overflow:hidden;
+      background:#fff;
+    }
+
+    /* Panel */
+    .panel-head{
+      padding:18px 24px 14px;
+      border-bottom:1px solid var(--line);
+      background:linear-gradient(180deg,#fff 0%,#fbfdff 100%);
+    }
+    .panel-title{
+      font-size:1.05rem;
+      font-weight:800;
+      margin:0;
+    }
+    .panel-subtitle{
+      color:var(--muted);
+      font-size:.88rem;
+      margin:4px 0 0;
+    }
+    .panel-body{
+      padding:20px 24px;
+    }
+
+    /* Form */
+    .form-label{font-weight:700;color:#374151;}
+    .form-control{
+      border-radius:14px;
+      min-height:46px;
+      border:1px solid #dbe3ee;
+      box-shadow:none;
+    }
+    .form-control:focus{
+      border-color:#93c5fd;
+      box-shadow:0 0 0 .2rem rgba(37,99,235,.10);
+    }
+    .error-text{font-size:.84rem;margin-top:6px;}
+
+    /* Primary button */
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8) !important;
+      border:none !important;
+      color:#fff !important;
+      border-radius:14px;
+      padding:10px 20px;
+      font-weight:700;
+      box-shadow:0 6px 18px rgba(37,99,235,.22);
+    }
+    .btn-primary:hover{
+      background:linear-gradient(135deg,#1d4ed8,#1e40af) !important;
+      transform:translateY(-1px);
+    }
+
+    /* Rule info boxes */
+    .rule-box{
+      border-radius:16px;
+      padding:14px 16px;
+      background:#f0f5ff;
+      border:1px solid #dbeafe;
+      margin-bottom:12px;
+    }
+    .rule-box:last-child{margin-bottom:0;}
+    .rule-box-title{
+      font-weight:800;
+      color:#1d4ed8;
+      margin-bottom:4px;
+      font-size:.95rem;
+    }
+    .rule-box-text{
+      color:var(--muted);
+      font-size:.9rem;
+      margin:0;
+    }
+
+    .helper-note{
+      font-size:.86rem;
+      color:var(--muted);
+      margin-top:10px;
+    }
+
+    @media(max-width:992px){
+      .page-title{font-size:1.6rem}
+      .topbar{padding:20px}
+    }
+  </style>
+</head>
+<body>
+<div class="container-fluid py-4 py-lg-5">
+  <div class="page-wrap">
+
+    <!-- Topbar -->
+    <div class="topbar mb-4">
+      <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3">
+        <div>
+          <a href="/admin/semesters" class="breadcrumb-link">
+            <i class="bi bi-arrow-left"></i> Back to Semesters
+          </a>
+          <h1 class="page-title">Create New Semester</h1>
+          <p class="page-subtitle">Add a new academic semester — evaluation windows are generated automatically from the dates you provide.</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <span class="soft-pill"><i class="bi bi-calendar2-check"></i> Auto Windows</span>
+          <span class="soft-pill"><i class="bi bi-clock-history"></i> Date-Driven</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI Mini-Stat Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-md-4">
+        <div class="kpi-card">
+          <div class="label">Teacher Window</div>
+          <div class="value">Week 8</div>
+          <div class="sub">Auto-open for 7 days</div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="kpi-card">
+          <div class="label">Student Feedback</div>
+          <div class="value">Final 14</div>
+          <div class="sub">Last 14 days of semester</div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="kpi-card">
+          <div class="label">Status</div>
+          <div class="value">Automatic</div>
+          <div class="sub">Windows generated from dates</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Two-column layout -->
+    <div class="row g-4">
+
+      <!-- Left: Form -->
+      <div class="col-12 col-xl-7">
+        <div class="main-card">
+          <div class="panel-head">
+            <h2 class="panel-title">Semester Information</h2>
+            <p class="panel-subtitle">Enter the semester name and official start/end dates used by the NUM feedback system.</p>
+          </div>
+          <div class="panel-body">
+            <form th:action="@{/admin/semesters}" th:object="${form}" method="post" class="row g-3">
+
+              <div class="col-12">
+                <label class="form-label">Semester Name</label>
+                <input class="form-control" th:field="*{name}" placeholder="e.g. 2025-2026 S1">
+                <div class="text-danger error-text" th:errors="*{name}"></div>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label">Start Date</label>
+                <input type="date" class="form-control" th:field="*{startDate}">
+                <div class="text-danger error-text" th:errors="*{startDate}"></div>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label">End Date</label>
+                <input type="date" class="form-control" th:field="*{endDate}">
+                <div class="text-danger error-text" th:errors="*{endDate}"></div>
+              </div>
+
+              <div class="col-12 d-flex flex-column flex-sm-row gap-2 pt-2">
+                <a href="/admin/semesters" class="btn btn-light border px-4" style="border-radius:14px;min-height:46px;display:inline-flex;align-items:center;font-weight:600;">
+                  Cancel
+                </a>
+                <button type="submit" class="btn btn-primary px-4">
+                  <i class="bi bi-calendar-plus me-1"></i> Create + Auto Windows
+                </button>
+              </div>
+
+            </form>
+            <div class="helper-note">
+              Example semester name: <strong>2025-2026 S1</strong> or <strong>2025-2026 / Term 1</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Info Rules -->
+      <div class="col-12 col-xl-5">
+        <div class="main-card h-100">
+          <div class="panel-head">
+            <h2 class="panel-title">Automatic Window Rules</h2>
+            <p class="panel-subtitle">When a semester is created, the system automatically prepares evaluation periods.</p>
+          </div>
+          <div class="panel-body">
+            <div class="rule-box">
+              <div class="rule-box-title"><i class="bi bi-person-check me-1"></i> Teacher Self-Assessment</div>
+              <p class="rule-box-text">Opens during Week 8 of the semester and remains available for 7 days for teacher self-evaluation.</p>
+            </div>
+            <div class="rule-box">
+              <div class="rule-box-title"><i class="bi bi-chat-dots me-1"></i> Student Feedback</div>
+              <p class="rule-box-text">Opens during the last 14 days of the semester to collect course and teaching feedback from students.</p>
+            </div>
+            <div class="rule-box">
+              <div class="rule-box-title"><i class="bi bi-shield-check me-1"></i> Admin Benefit</div>
+              <p class="rule-box-text">Helps QA and administration manage semester-based evaluations consistently without manual scheduling each time.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /row -->
+  </div><!-- /page-wrap -->
+</div><!-- /container-fluid -->
+</body>
+</html>

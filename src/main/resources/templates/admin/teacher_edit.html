@@ -1,0 +1,146 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Edit Teacher</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+<div class="container py-4">
+
+  <a href="/admin/teachers" class="btn btn-link px-0">&larr; Back</a>
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div>
+      <h4 class="mb-0">Edit Teacher</h4>
+      <div class="text-muted small">
+        Update teacher profile details and account status.
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 mt-3">
+    <div class="card-body">
+
+      <!-- Expect model attribute: t (UserAccount) and form (or t directly) -->
+      <form method="post"
+            th:action="@{|/admin/teachers/${t.id}/edit|}"
+            class="row g-3">
+
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+        <!-- Username -->
+        <div class="col-md-4">
+          <label class="form-label">Username</label>
+          <input class="form-control" name="username"
+                 th:value="${form != null ? form.username : t.username}"
+                 required>
+          <div class="form-text">Unique login name.</div>
+        </div>
+
+        <!-- Enabled -->
+        <div class="col-md-4">
+          <label class="form-label">Status</label>
+          <select class="form-select" name="enabled">
+            <option value="true"
+                    th:selected="${(form != null ? form.enabled : t.enabled) == true}">
+              Enabled
+            </option>
+            <option value="false"
+                    th:selected="${(form != null ? form.enabled : t.enabled) == false}">
+              Disabled
+            </option>
+          </select>
+        </div>
+
+        <!-- New Password (optional) -->
+        <div class="col-md-4">
+          <label class="form-label">New Password (optional)</label>
+          <input class="form-control" type="password" name="newPassword" placeholder="Leave blank to keep current password">
+          <div class="form-text">Only updates if filled.</div>
+        </div>
+
+        <hr class="my-1"/>
+
+        <!-- Full name -->
+        <div class="col-md-6">
+          <label class="form-label">Full Name</label>
+          <input class="form-control" name="fullName"
+                 th:value="${form != null ? form.fullName : t.fullName}">
+        </div>
+
+        <!-- Gender -->
+        <div class="col-md-6">
+          <label class="form-label">Gender</label>
+          <select class="form-select" name="gender">
+            <option value="">-- Select --</option>
+            <option value="Male"   th:selected="${(form != null ? form.gender : t.gender) == 'Male'}">Male</option>
+            <option value="Female" th:selected="${(form != null ? form.gender : t.gender) == 'Female'}">Female</option>
+            <option value="Other"  th:selected="${(form != null ? form.gender : t.gender) == 'Other'}">Other</option>
+          </select>
+        </div>
+
+        <!-- Department -->
+        <div class="col-md-6">
+          <label class="form-label">Department</label>
+          <input class="form-control" name="department"
+                 th:value="${form != null ? form.department : t.department}">
+        </div>
+
+        <!-- Position -->
+        <div class="col-md-6">
+          <label class="form-label">Position</label>
+          <input class="form-control" name="position"
+                 th:value="${form != null ? form.position : t.position}">
+        </div>
+
+        <!-- Email -->
+        <div class="col-md-6">
+          <label class="form-label">Email</label>
+          <input class="form-control" type="email" name="email"
+                 th:value="${form != null ? form.email : t.email}">
+        </div>
+
+        <!-- Phone -->
+        <div class="col-md-6">
+          <label class="form-label">Phone</label>
+          <input class="form-control" name="phone"
+                 th:value="${form != null ? form.phone : t.phone}">
+        </div>
+
+        <!-- Avatar URL -->
+        <div class="col-md-6">
+          <label class="form-label">Avatar URL</label>
+          <input class="form-control" name="avatarUrl"
+                 th:value="${form != null ? form.avatarUrl : t.avatarUrl}">
+        </div>
+
+        <!-- Preview -->
+        <div class="col-12" th:if="${(form != null ? form.avatarUrl : t.avatarUrl) != null}">
+          <div class="d-flex align-items-center gap-3">
+            <img th:src="${form != null ? form.avatarUrl : t.avatarUrl}"
+                 alt="avatar"
+                 style="width:64px;height:64px;object-fit:cover;border-radius:12px;"
+                 onerror="this.style.display='none'">
+            <div class="small text-muted">
+              Avatar preview (if URL is valid).
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 d-flex gap-2">
+          <button class="btn btn-primary">Save Changes</button>
+          <a class="btn btn-outline-secondary" href="/admin/teachers">Cancel</a>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

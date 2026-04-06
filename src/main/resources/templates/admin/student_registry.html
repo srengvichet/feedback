@@ -1,0 +1,835 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title th:text="#{admin.registry.title}">Student Registry</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --success: #16a34a;
+      --shadow: 0 10px 30px rgba(15,23,42,.08);
+      --radius: 22px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Noto Sans Khmer", "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
+
+    .page-wrap { max-width: 1480px; margin: 0 auto; }
+
+    /* ── TOPNAV ── */
+    .admin-topnav {
+      background: #0f172a;
+      padding: 0 28px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: 0 4px 20px rgba(15,23,42,.35);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; flex: 1; }
+    .nav-brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg,#2563eb,#1d4ed8);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: .85rem;
+      box-shadow: 0 4px 12px rgba(37,99,235,.4);
+    }
+    .nav-brand-text { line-height: 1.2; }
+    .nav-brand-title { font-size: .9rem; font-weight: 700; color: #fff; }
+    .nav-brand-sub { font-size: .7rem; color: #64748b; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .lang-toggle { display: flex; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: 3px; gap: 2px; }
+    .lang-opt {
+      text-decoration: none;
+      font-size: .72rem;
+      font-weight: 700;
+      padding: 4px 11px;
+      border-radius: 999px;
+      color: rgba(255,255,255,.5);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      transition: .15s;
+    }
+    .lang-opt:hover { color: rgba(255,255,255,.85); }
+    .lang-opt.active { background: #2563eb; color: #fff; }
+    .user-chip { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: 4px 14px 4px 5px; }
+    .user-avatar { width: 27px; height: 27px; border-radius: 50%; background: linear-gradient(135deg,#3b82f6,#2563eb); color: #fff; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 800; }
+    .user-name { font-size: .8rem; font-weight: 600; color: #cbd5e1; }
+    .nav-logout { background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.25); color: #f87171; border-radius: 10px; padding: 6px 14px; font-size: .8rem; font-weight: 600; cursor: pointer; transition: .15s; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+    .nav-logout:hover { background: rgba(239,68,68,.22); color: #fca5a5; }
+
+    /* ── HERO ── */
+    .page-hero {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #3b82f6 100%);
+      padding: 28px 28px 36px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-hero::before { content: ""; position: absolute; right: -80px; top: -80px; width: 300px; height: 300px; border-radius: 50%; background: rgba(255,255,255,.06); }
+    .page-hero::after { content: ""; position: absolute; left: -60px; bottom: -80px; width: 240px; height: 240px; border-radius: 50%; background: rgba(255,255,255,.04); }
+    .page-hero > * { position: relative; z-index: 1; }
+    .hero-back-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      background: rgba(255,255,255,.13);
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 12px;
+      padding: 6px 14px;
+      margin-bottom: .8rem;
+      transition: .15s;
+    }
+    .hero-back-wrap:hover { background: rgba(255,255,255,.22); }
+    .hero-back-wrap .hero-back { margin-bottom: 0; }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      margin-top: .75rem;
+    }
+    .hero-back {
+      color: rgba(255,255,255,.7);
+      text-decoration: none;
+      font-size: .85rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      margin-bottom: .8rem;
+      transition: color .15s;
+    }
+    .hero-back:hover { color: #fff; }
+    .hero-title {
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -.02em;
+      margin: 0 0 .3rem;
+      line-height: 1.2;
+    }
+    .hero-subtitle {
+      color: rgba(255,255,255,.75);
+      font-size: .95rem;
+      margin: 0;
+    }
+    .hero-pills { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 999px;
+      padding: .4rem .85rem;
+      font-size: .82rem;
+      font-weight: 700;
+      color: #fff;
+      text-decoration: none;
+      transition: background .15s;
+    }
+    .hero-pill:hover { background: rgba(255,255,255,.25); color: #fff; }
+
+    /* ── CONTENT AREA ── */
+    .content-area { padding: 1.5rem 1.5rem 3rem; }
+
+    /* ── CARDS ── */
+    .card {
+      border: none !important;
+      border-radius: var(--radius) !important;
+      box-shadow: var(--shadow) !important;
+      overflow: hidden;
+      background: var(--card);
+    }
+    .panel-head {
+      padding: 18px 24px 14px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+    .panel-title { font-size: 1.05rem; font-weight: 800; margin-bottom: .15rem; }
+    .panel-subtitle { color: var(--muted); font-size: .88rem; margin: 0; }
+    .panel-body { padding: 20px 24px; }
+
+    /* ── KPI ── */
+    .mini-stat {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 1rem 1.2rem;
+      height: 100%;
+    }
+    .mini-stat .label { color: var(--muted); font-size: .84rem; font-weight: 700; margin-bottom: .3rem; }
+    .mini-stat .value { font-size: 1.6rem; font-weight: 800; line-height: 1.1; }
+    .mini-stat .sub { color: var(--muted); font-size: .78rem; margin-top: .25rem; }
+
+    /* ── FORMS ── */
+    .btn { border-radius: 14px; font-weight: 700; }
+    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border: none; box-shadow: 0 8px 18px rgba(37,99,235,.18); }
+    .btn-success { background: linear-gradient(135deg, #16a34a, #15803d); border: none; box-shadow: 0 8px 18px rgba(22,163,74,.18); }
+
+    .form-label { font-weight: 700; color: #374151; font-size: .9rem; }
+    .form-control, .form-select, .input-group-text {
+      border-radius: 14px; min-height: 46px;
+      border: 1px solid #dbe3ee; box-shadow: none;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: #93c5fd;
+      box-shadow: 0 0 0 .2rem rgba(37,99,235,.10);
+    }
+    .input-group-text { background: #f8fafc; color: #64748b; font-weight: 700; }
+
+    /* ── TABLE ── */
+    .table-wrap { border-radius: 18px; overflow: auto; }
+    .table { margin-bottom: 0; border-collapse: separate; border-spacing: 0 8px; }
+    .table thead th {
+      border: none !important; color: var(--muted);
+      font-size: .77rem; text-transform: uppercase;
+      letter-spacing: .05em; font-weight: 800;
+      white-space: nowrap; background: transparent !important;
+      padding: 8px 12px;
+    }
+    .table tbody tr {
+      background: #fff;
+      box-shadow: 0 3px 12px rgba(15,23,42,.05);
+      transition: .15s ease-in-out;
+    }
+    .table tbody tr:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(15,23,42,.09); }
+    .table tbody td {
+      vertical-align: middle; padding: 13px 12px;
+      border-top: 1px solid #f1f5f9;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: .9rem;
+    }
+    .table tbody td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 14px; border-bottom-left-radius: 14px; }
+    .table tbody td:last-child  { border-right: 1px solid #f1f5f9; border-top-right-radius: 14px; border-bottom-right-radius: 14px; }
+
+    .student-id { font-weight: 800; color: var(--primary-dark); letter-spacing: .01em; }
+    .name-main  { font-weight: 700; color: var(--text); }
+    .badge-pill { border-radius: 999px; padding: .4rem .7rem; font-weight: 700; }
+    .empty-row  { color: var(--muted); text-align: center; padding: 2.5rem 1rem; }
+    .group-meta-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      border-radius: 999px;
+      padding: 5px 12px;
+      background: #eef4ff;
+      color: #1d4ed8;
+      font-weight: 700;
+      font-size: .78rem;
+    }
+
+    .action-btn { border-radius: 10px; font-size: .78rem; }
+
+    /* ── PAGINATION ── */
+    .pagination .page-link {
+      border-radius: 10px !important; margin: 0 2px;
+      border: none; box-shadow: 0 2px 8px rgba(15,23,42,.06); color: #374151;
+    }
+    .pagination .page-item.active .page-link {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff;
+    }
+
+    /* ── ALERTS ── */
+    .alert { border: none; border-radius: 16px; box-shadow: 0 6px 20px rgba(15,23,42,.06); }
+
+    /* ── IMPORT PANEL ── */
+    .import-card { border-left: 4px solid var(--success) !important; }
+    .shift-badge { font-size: .74rem; background: #f1f5f9; color: #475569; border-radius: 8px; padding: 3px 8px; font-weight: 600; }
+
+    @media (max-width: 992px) {
+      .hero-title { font-size: 1.6rem; }
+      .admin-topnav { padding: 0 16px; }
+      .page-hero { padding: 20px 16px 28px; }
+      .content-area { padding: 1rem 1rem 2rem; }
+      .nav-brand-sub { display: none; }
+      .hero-actions { justify-content: flex-start; margin-top: 1rem; }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ── TOPNAV ── -->
+<nav class="admin-topnav">
+  <div class="nav-brand">
+    <div class="nav-brand-icon">
+        <img th:src="@{/images/num_logo.jpg}" alt="NUM Logo" object-fit="cover" style="width: 100%; height: 100%; border-radius: 10px;">
+      </div>
+    <div class="nav-brand-text">
+      <div class="nav-brand-title">NUM Feedback</div>
+      <div class="nav-brand-sub">Admin Panel</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="lang-toggle">
+      <button class="lang-opt"
+              th:classappend="${#locale.language == 'en'} ? ' active'"
+              onclick="switchLang('en')"
+              th:text="#{admin.registry.lang.en}">EN</button>
+      <button class="lang-opt"
+              th:classappend="${#locale.language == 'km'} ? ' active'"
+              onclick="switchLang('km')"
+              th:text="#{admin.registry.lang.kh}">KH</button>
+    </div>
+    <div class="user-chip">
+      <div class="user-avatar">A</div>
+      <span class="user-name" sec:authentication="name">Admin</span>
+    </div>
+    <form th:action="@{/login?logout}" method="post" style="margin:0;">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+      <button class="nav-logout" type="submit">
+        <i class="bi bi-box-arrow-right"></i>
+        <span th:text="#{common.signout}">Sign Out</span>
+      </button>
+    </form>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="page-hero">
+  <div class="page-wrap d-flex flex-column flex-lg-row justify-content-between align-items-start gap-3">
+    <div>
+      <div class="hero-back-wrap">
+        <a href="/admin" class="hero-back">
+          <i class="bi bi-arrow-left"></i>
+          <span th:text="#{admin.registry.back}">Back to Admin</span>
+        </a>
+      </div>
+      <h1 class="hero-title" th:text="#{admin.registry.title}">Student Registry</h1>
+      <p class="hero-subtitle" th:text="#{admin.registry.subtitle}">Import, search, and manage student login accounts and grouping information.</p>
+
+      <div class="hero-pills">
+        <span class="hero-pill">
+          <i class="bi bi-people"></i>
+          <span th:text="#{admin.registry.pill.total}">Total:</span>
+          <strong th:text="${allCount != null ? allCount : 0}">0</strong>
+        </span>
+        <span class="hero-pill" style="background:rgba(22,163,74,.2);border-color:rgba(134,239,172,.3);">
+          <i class="bi bi-check-circle"></i>
+          <span th:text="#{admin.registry.pill.active}">Active:</span>
+          <strong th:text="${activeCount != null ? activeCount : 0}">0</strong>
+        </span>
+        <span class="hero-pill" style="background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2);">
+          <i class="bi bi-person-check"></i>
+          <span th:text="#{admin.registry.pill.claimed}">Claimed:</span>
+          <strong th:text="${claimedCount != null ? claimedCount : 0}">0</strong>
+        </span>
+      </div>
+    </div>
+    <div class="hero-actions">
+      <a class="hero-pill" th:href="@{/admin/students/registry/template}">
+        <i class="bi bi-file-earmark-arrow-down"></i>
+        <span th:text="#{admin.registry.pill.csv}">CSV Template</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ── CONTENT ── -->
+<div class="content-area">
+  <div class="page-wrap">
+
+  <!-- KPI CARDS -->
+  <div class="row g-3 mb-3">
+    <div class="col-6 col-md-3">
+      <div class="mini-stat">
+        <div class="label"><i class="bi bi-people-fill text-primary me-1"></i><span th:text="#{admin.registry.kpi.all}">All Students</span></div>
+        <div class="value" th:text="${allCount != null ? allCount : 0}">0</div>
+        <div class="sub">Registry records</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="mini-stat">
+        <div class="label"><i class="bi bi-check-circle-fill text-success me-1"></i><span th:text="#{admin.registry.kpi.active}">Active</span></div>
+        <div class="value text-success" th:text="${activeCount != null ? activeCount : 0}">0</div>
+        <div class="sub">Can sign in</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="mini-stat">
+        <div class="label"><i class="bi bi-person-check-fill text-primary me-1"></i><span th:text="#{admin.registry.kpi.claimed}">Claimed</span></div>
+        <div class="value text-primary" th:text="${claimedCount != null ? claimedCount : 0}">0</div>
+        <div class="sub">Linked account</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="mini-stat">
+        <div class="label"><i class="bi bi-funnel-fill text-warning me-1"></i><span th:text="#{admin.registry.kpi.filtered}">Filtered</span></div>
+        <div class="value text-warning" th:text="${totalRows != null ? totalRows : 0}">0</div>
+        <div class="sub">Current view</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALERTS -->
+  <div th:if="${msg != null}" class="mb-3">
+    <div th:if="${msg == 'empty_file'}" class="alert alert-warning py-2">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      <span th:text="#{admin.registry.alert.empty_file}">Uploaded file is empty.</span>
+    </div>
+    <div th:if="${msg == 'import_failed'}" class="alert alert-danger py-2">
+      <i class="bi bi-x-circle me-2"></i>
+      <span th:text="#{admin.registry.alert.import_failed}">Import failed. Please check the file format.</span>
+    </div>
+    <div th:if="${#strings.startsWith(msg, 'imported_')}" class="alert alert-success py-2">
+      <i class="bi bi-check-circle me-2"></i><span th:text="${msg}"></span>
+    </div>
+    <div th:if="${#strings.startsWith(msg, 'imported_') and #strings.contains(msg, '_groupchanged_') and !#strings.contains(msg, '_groupchanged_0_')}"
+         class="alert alert-warning py-2 mt-2">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      <strong th:text="#{admin.registry.alert.group_change}">Group / Cohort change detected.</strong>
+      <span th:utext="#{admin.registry.alert.group_change.detail}"> </span>
+      <a href="/admin/enrollments" class="alert-link ms-2" th:text="#{admin.registry.alert.group_change.link}">Go to Enrollments &rarr;</a>
+    </div>
+    <div th:if="${#strings.startsWith(msg, 'sync_users_')}" class="alert alert-info py-2">
+      <i class="bi bi-arrow-repeat me-2"></i><span th:text="${msg}"></span>
+    </div>
+    <div th:if="${msg == 'password_reset_default'}" class="alert alert-success py-2">
+      <i class="bi bi-key me-2"></i>
+      <span th:text="#{admin.registry.alert.password_reset_default}">Student password was reset to the default login.</span>
+    </div>
+    <div th:if="${msg == 'password_reset_unavailable'}" class="alert alert-warning py-2">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      <span th:text="#{admin.registry.alert.password_reset_unavailable}">Password reset is only available for linked student accounts.</span>
+    </div>
+    <div th:if="${msg != null
+          and msg != 'empty_file' and msg != 'import_failed'
+          and msg != 'password_reset_default' and msg != 'password_reset_unavailable'
+          and !#strings.startsWith(msg,'imported_')
+          and !#strings.startsWith(msg,'sync_users_')}"
+         class="alert alert-info py-2">
+      <i class="bi bi-info-circle me-2"></i><span th:text="${msg}"></span>
+    </div>
+  </div>
+
+  <!-- FILTER + IMPORT ROW -->
+  <div class="row g-3 mb-3">
+
+    <!-- FILTER CARD -->
+    <div class="col-lg-8">
+      <div class="card h-100">
+        <div class="panel-head d-flex justify-content-between align-items-start gap-2">
+          <div>
+            <div class="panel-title" th:text="#{admin.registry.filter.title}">Search &amp; Filter</div>
+            <p class="panel-subtitle" th:text="#{admin.registry.filter.subtitle}">Narrow results by keyword, status, cohort, or group.</p>
+          </div>
+          <a class="btn btn-sm btn-outline-secondary" th:href="@{/admin/students/registry}">
+            <i class="bi bi-x-lg"></i> <span th:text="#{admin.registry.filter.reset}">Reset</span>
+          </a>
+        </div>
+
+        <div class="panel-body">
+          <form method="get" th:action="@{/admin/students/registry}">
+            <input type="hidden" name="page" value="1"/>
+
+            <div class="row g-2 align-items-end">
+
+              <div class="col-md-5">
+                <label class="form-label" th:text="#{admin.registry.filter.keyword}">Keyword</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-search"></i></span>
+                  <input class="form-control" name="q"
+                         th:placeholder="#{admin.registry.filter.keyword.placeholder}"
+                         th:value="${q}">
+                </div>
+              </div>
+
+              <div class="col-md-2" th:if="${faculties != null and !faculties.isEmpty()}">
+                <label class="form-label" th:text="#{admin.registry.filter.faculty}">Faculty</label>
+                <select class="form-select" name="faculty">
+                  <option value="" th:selected="${filterFaculty == null or filterFaculty == ''}"
+                          th:text="#{admin.registry.filter.faculty.all}">All Faculties</option>
+                  <option th:each="f : ${faculties}" th:value="${f}" th:text="${f}"
+                          th:selected="${filterFaculty != null and filterFaculty == f}">
+                  </option>
+                </select>
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label" th:text="#{admin.registry.filter.cohort}">Cohort</label>
+                <select class="form-select" name="cohortNo">
+                  <option value="" th:selected="${filterCohortNo == null}"
+                          th:text="#{admin.registry.filter.cohort.all}">All Cohorts</option>
+                  <option th:each="c : ${cohorts}"
+                          th:value="${c.cohortNo}"
+                          th:text="#{admin.registry.filter.cohort.option(${c.cohortNo})}"
+                          th:selected="${filterCohortNo != null and filterCohortNo == c.cohortNo}">
+                  </option>
+                </select>
+              </div>
+
+              <div class="col-md-2">
+                <label class="form-label" th:text="#{admin.registry.filter.group}">Group No.</label>
+                <input class="form-control" type="number" min="1"
+                       name="groupNo"
+                       th:placeholder="#{admin.registry.filter.group.placeholder}"
+                       th:value="${filterGroupNo}">
+              </div>
+
+              <div class="col-md-2">
+                <label class="form-label" th:text="#{admin.registry.filter.active}">Active</label>
+                <select class="form-select" name="active">
+                  <option value="" th:selected="${filterActive == null}"
+                          th:text="#{admin.registry.filter.active.all}">All</option>
+                  <option value="true"  th:selected="${filterActive != null and filterActive}"
+                          th:text="#{admin.registry.filter.active.yes}">Active</option>
+                  <option value="false" th:selected="${filterActive != null and !filterActive}"
+                          th:text="#{admin.registry.filter.active.no}">Inactive</option>
+                </select>
+              </div>
+
+              <div class="col-md-2">
+                <label class="form-label" th:text="#{admin.registry.filter.claimed}">Claimed</label>
+                <select class="form-select" name="claimed">
+                  <option value="" th:selected="${filterClaimed == null}"
+                          th:text="#{admin.registry.filter.claimed.all}">All</option>
+                  <option value="true"  th:selected="${filterClaimed != null and filterClaimed}"
+                          th:text="#{admin.registry.filter.claimed.yes}">Claimed</option>
+                  <option value="false" th:selected="${filterClaimed != null and !filterClaimed}"
+                          th:text="#{admin.registry.filter.claimed.no}">Unclaimed</option>
+                </select>
+              </div>
+
+              <div class="col-md-2">
+                <label class="form-label" th:text="#{admin.registry.filter.size}">Page Size</label>
+                <select class="form-select" name="size">
+                  <option value="20"  th:selected="${size == 20}">20</option>
+                  <option value="50"  th:selected="${size == 50}">50</option>
+                  <option value="100" th:selected="${size == 100}">100</option>
+                  <option value="200" th:selected="${size == 200}">200</option>
+                  <option value="500" th:selected="${size == 500}">500</option>
+                </select>
+              </div>
+
+              <div class="col-md-2">
+                <label class="form-label" th:text="#{admin.registry.filter.display}">Display</label>
+                <select class="form-select" name="showAll">
+                  <option value="false" th:selected="${showAll == null or !showAll}"
+                          th:text="#{admin.registry.filter.display.paged}">Paged</option>
+                  <option value="true"  th:selected="${showAll}"
+                          th:text="#{admin.registry.filter.display.all}">Show All</option>
+                </select>
+              </div>
+
+              <div class="col-md-2 d-grid">
+                <label class="form-label invisible">Go</label>
+                <button class="btn btn-primary">
+                  <i class="bi bi-search me-1"></i>
+                  <span th:text="#{admin.registry.filter.search}">Search</span>
+                </button>
+              </div>
+
+            </div>
+          </form>
+
+          <!-- EXPORT ACTIONS -->
+          <div class="d-flex flex-wrap gap-2 mt-3 pt-3 border-top">
+            <span class="text-muted small align-self-center me-1">
+              <i class="bi bi-download me-1"></i>
+              <span th:text="#{admin.registry.export.label}">Export:</span>
+            </span>
+            <a class="btn btn-sm btn-outline-success"
+               th:href="@{/admin/students/registry/export(
+                 q=${q}, active=${filterActive}, claimed=${filterClaimed},
+                 cohortNo=${filterCohortNo}, groupNo=${filterGroupNo}
+               )}">
+              <i class="bi bi-funnel me-1"></i>
+              <span th:text="#{admin.registry.export.filtered}">Export Filtered</span>
+              <span class="badge text-bg-success ms-1" th:text="${totalRows}">0</span>
+            </a>
+            <a class="btn btn-sm btn-success" th:href="@{/admin/students/registry/export}">
+              <i class="bi bi-people me-1"></i>
+              <span th:text="#{admin.registry.export.all}">Export All</span>
+              <span class="badge bg-white text-success ms-1" th:text="${allCount}">0</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IMPORT CARD -->
+    <div class="col-lg-4">
+      <div class="card h-100 import-card">
+        <div class="panel-head d-flex justify-content-between align-items-start gap-2">
+          <div>
+            <div class="panel-title">
+              <i class="bi bi-upload text-success me-1"></i>
+              <span th:text="#{admin.registry.import.title}">Import Students</span>
+            </div>
+            <p class="panel-subtitle" th:text="#{admin.registry.import.subtitle}">Upload CSV to bulk-register students.</p>
+          </div>
+          <a class="btn btn-sm btn-outline-success" th:href="@{/admin/students/registry/template}">
+            <i class="bi bi-file-earmark-arrow-down"></i>
+            <span th:text="#{admin.registry.import.template}">Template</span>
+          </a>
+        </div>
+
+        <div class="panel-body d-flex flex-column gap-3">
+          <form method="post"
+                th:action="@{/admin/students/registry/import}"
+                enctype="multipart/form-data">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+            <label class="form-label" th:text="#{admin.registry.import.file}">CSV File</label>
+            <input class="form-control" type="file" name="file" accept=".csv" required>
+
+            <div class="text-muted" style="font-size:.8rem;margin-top:.5rem;">
+              <span class="fw-bold" th:text="#{admin.registry.import.required}">Required:</span> <code>studentLogin</code><br>
+              <span class="fw-bold" th:text="#{admin.registry.import.optional}">Optional:</span>
+              <code>lastNameKh, firstNameKh, firstName, lastName, gender, dateOfBirth, phone, email, remark, cohortNo, groupNo, className, shiftTime</code>
+            </div>
+
+            <button class="btn btn-success w-100 mt-3" type="submit">
+              <i class="bi bi-upload me-1"></i>
+              <span th:text="#{admin.registry.import.submit}">Import CSV</span>
+            </button>
+          </form>
+
+          <div class="border-top pt-3">
+            <div class="text-muted small fw-bold mb-2" th:text="#{admin.registry.import.shift}">ShiftTime values</div>
+            <div class="d-flex flex-wrap gap-1">
+              <span class="shift-badge">MORNING</span>
+              <span class="shift-badge">EARLY_AFTERNOON</span>
+              <span class="shift-badge">AFTERNOON</span>
+              <span class="shift-badge">EVENING</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TABLE CARD -->
+  <div class="card">
+    <div class="panel-head d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <div>
+        <div class="panel-title" th:text="#{admin.registry.table.title}">Registry Records</div>
+        <p class="panel-subtitle"
+           th:if="${totalRows != null and showAll}"
+           th:text="#{admin.registry.table.showing(${totalRows})}">Showing all records</p>
+        <p class="panel-subtitle"
+           th:if="${totalRows != null and !showAll and totalPages != null}"
+           th:text="#{admin.registry.table.paged(${page}, ${totalPages}, ${totalRows})}">Page records</p>
+        <p class="panel-subtitle"
+           th:if="${totalRows == null}"
+           th:text="#{admin.registry.table.browse}">Browse all registered students.</p>
+      </div>
+      <form method="post" th:action="@{/admin/students/registry/sync-users}" class="d-inline">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <button class="btn btn-sm btn-outline-primary">
+          <i class="bi bi-arrow-repeat me-1"></i>
+          <span th:text="#{admin.registry.table.sync}">Sync Users</span>
+        </button>
+      </form>
+    </div>
+
+    <div class="panel-body">
+      <div class="table-wrap">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th style="width:55px;" th:text="#{admin.registry.table.col.no}">#</th>
+              <th th:text="#{admin.registry.table.col.id}">Student ID</th>
+              <th th:text="#{admin.registry.table.col.name.kh}">Khmer Name</th>
+              <th th:text="#{admin.registry.table.col.name.en}">English Name</th>
+              <th style="width:75px;" th:text="#{admin.registry.table.col.gender}">Gender</th>
+              <th th:text="#{admin.registry.table.col.group}">Cohort / Group – Class – Shift</th>
+              <th style="width:95px;" th:text="#{admin.registry.table.col.active}">Active</th>
+              <th style="width:100px;" th:text="#{admin.registry.table.col.claimed}">Claimed</th>
+              <th style="width:210px;" th:text="#{admin.registry.table.col.actions}">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr th:each="r, stat : ${rows}">
+              <td class="text-muted small"
+                  th:text="${((page != null ? page : 1) - 1) * (size != null ? size : 20) + stat.index + 1}">1</td>
+
+              <td>
+                <span class="student-id" th:text="${r.studentLogin}">-</span>
+              </td>
+
+              <td>
+                <div class="name-main"
+                     th:text="${(r.lastNameKh != null ? r.lastNameKh : '') +
+                                (r.lastNameKh != null and r.firstNameKh != null ? ' ' : '') +
+                                (r.firstNameKh != null ? r.firstNameKh : '') ?: '-'}">-</div>
+              </td>
+
+              <td>
+                <div class="name-main"
+                     th:text="${(r.firstName != null ? r.firstName : (r.fullName != null ? r.fullName : '')) +
+                                (r.firstName != null and r.lastName != null ? ' ' : '') +
+                                (r.lastName != null ? r.lastName : '') ?: '-'}">-</div>
+              </td>
+
+              <td>
+                <span th:if="${r.gender != null and !#strings.isEmpty(r.gender)}"
+                      class="badge badge-pill"
+                      th:classappend="${r.gender == 'MALE' or r.gender == 'Male'} ? ' text-bg-info' : ' text-bg-danger'"
+                      th:text="${r.gender == 'MALE' or r.gender == 'Male'} ? #{admin.registry.gender.male} : #{admin.registry.gender.female}">
+                </span>
+                <span th:if="${r.gender == null or #strings.isEmpty(r.gender)}" class="text-muted">—</span>
+              </td>
+
+              <td class="text-nowrap small">
+                <span th:if="${r.cohort != null or r.groupNo != null or r.className != null or r.shiftTime != null}">
+                  <span class="group-meta-pill me-1">
+                    <i class="bi bi-diagram-3"></i>
+                    <span class="fw-bold" th:text="${r.cohort != null ? r.cohort.cohortNo : '?'}"></span><span>/</span><span th:text="${r.groupNo != null ? r.groupNo : '?'}"></span>
+                  </span>
+                  <span class="text-muted mx-1">–</span>
+                  <span th:text="${r.className != null ? r.className : '?'}"></span>
+                  <span class="text-muted mx-1">–</span>
+                  <span class="badge text-bg-light border" style="font-size:.72rem;" th:text="${r.shiftTime != null ? r.shiftTime : '?'}"></span>
+                </span>
+                <span th:if="${r.cohort == null and r.groupNo == null and r.className == null and r.shiftTime == null}" class="text-muted">—</span>
+              </td>
+
+              <td>
+                <span class="badge badge-pill"
+                      th:classappend="${r.active} ? ' text-bg-success' : ' text-bg-secondary'"
+                      th:text="${r.active} ? #{admin.registry.status.active} : #{admin.registry.status.inactive}">
+                </span>
+              </td>
+
+              <td>
+                <span class="badge badge-pill"
+                      th:classappend="${r.claimed} ? ' text-bg-primary' : ' text-bg-light border text-muted'"
+                      th:text="${r.claimed} ? #{admin.registry.claim.claimed} : #{admin.registry.claim.pending}">
+                </span>
+              </td>
+
+              <td class="text-nowrap d-flex flex-wrap gap-1">
+                <a class="btn btn-sm btn-outline-primary action-btn"
+                   th:href="@{/admin/students/registry/{id}/edit(id=${r.id})}">
+                  <i class="bi bi-pencil"></i>
+                  <span th:text="#{admin.registry.btn.edit}">Edit</span>
+                </a>
+
+                <form method="post"
+                      th:action="@{/admin/students/registry/{id}/delete(id=${r.id})}"
+                      class="d-inline"
+                      th:onsubmit="'return confirm(\'' + #{admin.registry.btn.delete.confirm} + '\')'">
+                  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                  <button class="btn btn-sm btn-outline-danger action-btn"><i class="bi bi-trash"></i></button>
+                </form>
+
+                <form method="post"
+                      th:if="${r.user != null}"
+                      th:action="@{/admin/students/registry/{id}/reset-password(id=${r.id})}"
+                      class="d-inline"
+                      th:onsubmit="'return confirm(\'' + #{admin.registry.btn.reset_password.confirm} + '\')'">
+                  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                  <button class="btn btn-sm btn-outline-secondary action-btn" th:title="#{admin.registry.btn.reset_password.title}">
+                    <i class="bi bi-key"></i>
+                  </button>
+                </form>
+
+                <form method="post"
+                      th:if="${r.claimed}"
+                      th:action="@{/admin/students/registry/{id}/reset-claim(id=${r.id})}"
+                      class="d-inline"
+                      th:onsubmit="'return confirm(\'' + #{admin.registry.btn.reset.confirm} + '\')'">
+                  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                  <button class="btn btn-sm btn-outline-warning action-btn" th:title="#{admin.registry.btn.reset.confirm}">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+
+            <tr th:if="${rows == null or #lists.isEmpty(rows)}">
+              <td colspan="9" class="empty-row">
+                <i class="bi bi-inbox display-6 d-block mb-2 opacity-25"></i>
+                <span th:text="#{admin.registry.table.empty}">No registry records found.</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PAGINATION -->
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3"
+           th:if="${!showAll and totalPages != null and totalPages > 1}">
+
+        <div class="small text-muted">
+          <span th:text="#{admin.registry.page.label}">Page</span>
+          <strong th:text="${page}"></strong>
+          <span th:text="#{admin.registry.page.of}">of</span>
+          <strong th:text="${totalPages}"></strong>
+          &nbsp;·&nbsp;
+          <span th:text="${totalRows}"></span>
+          <span th:text="#{admin.registry.page.records}">records</span>
+        </div>
+
+        <nav aria-label="Registry pagination">
+          <ul class="pagination pagination-sm mb-0">
+
+            <li class="page-item" th:classappend="${page <= 1} ? ' disabled' : ''">
+              <a class="page-link"
+                 th:href="@{/admin/students/registry(page=${page-1},size=${size},showAll=${showAll},q=${q},active=${filterActive},claimed=${filterClaimed},cohortNo=${filterCohortNo},groupNo=${filterGroupNo},faculty=${filterFaculty})}">
+                <i class="bi bi-chevron-left"></i>
+              </a>
+            </li>
+
+            <li class="page-item"
+                th:each="p : ${#numbers.sequence(((page-2)>1)?(page-2):1, ((page+2)<totalPages)?(page+2):totalPages)}"
+                th:classappend="${p == page} ? ' active' : ''">
+              <a class="page-link" th:text="${p}"
+                 th:href="@{/admin/students/registry(page=${p},size=${size},showAll=${showAll},q=${q},active=${filterActive},claimed=${filterClaimed},cohortNo=${filterCohortNo},groupNo=${filterGroupNo},faculty=${filterFaculty})}"></a>
+            </li>
+
+            <li class="page-item" th:classappend="${page >= totalPages} ? ' disabled' : ''">
+              <a class="page-link"
+                 th:href="@{/admin/students/registry(page=${page+1},size=${size},showAll=${showAll},q=${q},active=${filterActive},claimed=${filterClaimed},cohortNo=${filterCohortNo},groupNo=${filterGroupNo},faculty=${filterFaculty})}">
+                <i class="bi bi-chevron-right"></i>
+              </a>
+            </li>
+
+          </ul>
+        </nav>
+      </div>
+
+    </div>
+  </div>
+
+  </div><!-- /page-wrap -->
+
+</div><!-- /content-area -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function switchLang(lang) {
+  const url = new URL(window.location.href);
+  url.searchParams.set('lang', lang);
+  window.location.href = url.toString();
+}
+</script>
+</body>
+</html>

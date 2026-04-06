@@ -1,0 +1,763 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title th:text="#{admin.enrollments.title}">Enrollments</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --success: #16a34a;
+      --soft-primary: #eef4ff;
+      --shadow: 0 10px 30px rgba(15,23,42,.08);
+      --radius: 22px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Noto Sans Khmer", "Segoe UI", system-ui, -apple-system, sans-serif;
+      margin: 0;
+    }
+
+    .page-wrap { max-width: 1480px; margin: 0 auto; }
+
+    .admin-topnav {
+      background: #0f172a;
+      padding: 0 28px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: 0 4px 20px rgba(15,23,42,.35);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; flex: 1; }
+    .nav-brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg,#2563eb,#1d4ed8);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: .85rem;
+      box-shadow: 0 4px 12px rgba(37,99,235,.4);
+    }
+    .nav-brand-text { line-height: 1.2; }
+    .nav-brand-title { font-size: .9rem; font-weight: 700; color: #fff; }
+    .nav-brand-sub { font-size: .7rem; color: #64748b; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .lang-toggle { display: flex; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: 3px; gap: 2px; }
+    .lang-opt { text-decoration: none; font-size: .72rem; font-weight: 700; padding: 4px 11px; border-radius: 999px; color: rgba(255,255,255,.5); transition: .15s; }
+    .lang-opt:hover { color: rgba(255,255,255,.85); }
+    .lang-opt.active { background: #2563eb; color: #fff; }
+    .user-chip { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: 4px 14px 4px 5px; }
+    .user-avatar { width: 27px; height: 27px; border-radius: 50%; background: linear-gradient(135deg,#3b82f6,#2563eb); color: #fff; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 800; }
+    .user-name { font-size: .8rem; font-weight: 600; color: #cbd5e1; }
+    .nav-logout { background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.25); color: #f87171; border-radius: 10px; padding: 6px 14px; font-size: .8rem; font-weight: 600; cursor: pointer; transition: .15s; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+    .nav-logout:hover { background: rgba(239,68,68,.22); color: #fca5a5; }
+
+    .page-hero {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #3b82f6 100%);
+      padding: 28px 28px 36px;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-hero::before { content: ""; position: absolute; right: -80px; top: -80px; width: 300px; height: 300px; border-radius: 50%; background: rgba(255,255,255,.06); }
+    .page-hero::after { content: ""; position: absolute; left: -60px; bottom: -80px; width: 240px; height: 240px; border-radius: 50%; background: rgba(255,255,255,.04); }
+    .page-hero > * { position: relative; z-index: 1; }
+    .page-title { font-size: 1.85rem; font-weight: 800; letter-spacing: -.02em; margin: 0; color: #fff; }
+    .page-subtitle { color: rgba(255,255,255,.72); margin: .3rem 0 0; font-size: .93rem; }
+
+    .hero-pill {
+      display: inline-flex; align-items: center; gap: .35rem;
+      background: rgba(255,255,255,.15); color: #fff;
+      border-radius: 999px; padding: .45rem .75rem;
+      font-size: .82rem; font-weight: 700;
+      border: 1px solid rgba(255,255,255,.25);
+    }
+
+    .btn-hero { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.22); color: #fff; border-radius: 12px; padding: 9px 18px; font-size: .87rem; font-weight: 600; text-decoration: none; transition: .15s; }
+    .btn-hero:hover { background: rgba(255,255,255,.22); color: #fff; }
+    .btn-hero-accent { background: #fff; border: none; color: #1d4ed8; font-weight: 700; box-shadow: 0 6px 18px rgba(0,0,0,.18); }
+    .btn-hero-accent:hover { background: #f0f6ff; color: #1d4ed8; transform: translateY(-1px); }
+
+    .soft-pill {
+      display: inline-flex; align-items: center; gap: .35rem;
+      background: var(--soft-primary); color: var(--primary-dark);
+      border-radius: 999px; padding: .45rem .75rem;
+      font-size: .82rem; font-weight: 700;
+      border: 1px solid rgba(37,99,235,.08);
+    }
+
+    /* ── CARDS ── */
+    .card {
+      border: none !important;
+      border-radius: var(--radius) !important;
+      box-shadow: var(--shadow) !important;
+      overflow: hidden; background: var(--card);
+    }
+    .panel-head {
+      padding: 18px 24px 14px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+    .panel-title { font-size: 1.05rem; font-weight: 800; margin-bottom: .15rem; }
+    .panel-subtitle { color: var(--muted); font-size: .88rem; margin: 0; }
+    .panel-body { padding: 20px 24px; }
+
+    /* ── KPI ── */
+    .mini-stat {
+      background: #fff; border-radius: 20px;
+      box-shadow: var(--shadow); padding: 1rem 1.2rem; height: 100%;
+    }
+    .mini-stat .label { color: var(--muted); font-size: .84rem; font-weight: 700; margin-bottom: .3rem; }
+    .mini-stat .value { font-size: 1.6rem; font-weight: 800; line-height: 1.1; }
+
+    /* ── FORMS ── */
+    .btn { border-radius: 14px; font-weight: 700; }
+    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border: none; box-shadow: 0 8px 18px rgba(37,99,235,.18); }
+    .btn-success { background: linear-gradient(135deg, #16a34a, #15803d); border: none; box-shadow: 0 8px 18px rgba(22,163,74,.18); }
+
+    .form-label { font-weight: 700; color: #374151; font-size: .9rem; }
+    .form-control, .form-select, .input-group-text {
+      border-radius: 14px; min-height: 46px;
+      border: 1px solid #dbe3ee; box-shadow: none;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: #93c5fd;
+      box-shadow: 0 0 0 .2rem rgba(37,99,235,.10);
+    }
+    .input-group-text { background: #f8fafc; color: #64748b; font-weight: 700; }
+
+    /* ── PICKER ── */
+    .picker-list {
+      max-height: 300px; overflow-y: auto;
+      border: 1px solid #dbe3ee !important;
+      border-radius: 16px !important;
+      background: #fafbff;
+    }
+    .picker-list .form-check {
+      padding: 7px 12px; border-bottom: 1px solid #f1f5f9;
+      transition: background .1s;
+    }
+    .picker-list .form-check:last-child { border-bottom: none; }
+    .picker-list .form-check:hover { background: #eef4ff; }
+    .picker-list .form-check-input { border-radius: 6px; }
+
+    .chip-area {
+      min-height: 48px;
+      border: 1px solid #dbe3ee;
+      border-radius: 16px;
+      padding: 8px 12px;
+      background: #f8fafc;
+    }
+
+    /* ── STICKY ACTIONS ── */
+    .sticky-actions {
+      position: sticky; bottom: 0; z-index: 10;
+      background: rgba(255,255,255,.96);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid rgba(0,0,0,.06);
+      box-shadow: 0 -6px 20px rgba(15,23,42,.05);
+      border-radius: 0 0 var(--radius) var(--radius);
+      padding: 14px 20px;
+    }
+
+    /* ── TABLE ── */
+    .table-wrap { border-radius: 18px; overflow: auto; }
+    .table { margin-bottom: 0; border-collapse: separate; border-spacing: 0 8px; }
+    .table thead th {
+      border: none !important; color: var(--muted);
+      font-size: .77rem; text-transform: uppercase;
+      letter-spacing: .05em; font-weight: 800;
+      white-space: nowrap; background: transparent !important;
+      padding: 8px 12px;
+    }
+    .table tbody tr {
+      background: #fff; box-shadow: 0 3px 12px rgba(15,23,42,.05);
+      transition: .15s ease-in-out;
+    }
+    .table tbody tr:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(15,23,42,.09); }
+    .table tbody td {
+      vertical-align: middle; padding: 12px 12px;
+      border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9;
+      font-size: .91rem;
+    }
+    .table tbody td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 14px; border-bottom-left-radius: 14px; }
+    .table tbody td:last-child  { border-right: 1px solid #f1f5f9; border-top-right-radius: 14px; border-bottom-right-radius: 14px; }
+
+    .badge-pill { border-radius: 999px; padding: .38rem .7rem; font-weight: 700; }
+    .empty-row  { color: var(--muted); text-align: center; padding: 2.5rem 1rem; }
+
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .82rem; }
+
+    /* ── ALERTS ── */
+    .alert { border: none; border-radius: 16px; box-shadow: 0 6px 20px rgba(15,23,42,.06); }
+
+    /* ── ACCENT BORDERS ── */
+    .card-accent-blue   { border-left: 4px solid var(--primary) !important; }
+    .card-accent-green  { border-left: 4px solid var(--success) !important; }
+    .card-accent-purple { border-left: 4px solid #7c3aed !important; }
+
+    .content-area { background: var(--bg); padding: 28px; min-height: calc(100vh - 58px - 140px); }
+    .action-btn { border-radius: 10px; font-size: .78rem; }
+
+    @media (max-width: 992px) {
+      .admin-topnav { padding: 0 16px; }
+      .page-hero { padding: 20px 16px 28px; }
+      .content-area { padding: 16px; }
+      .page-title { font-size: 1.55rem; }
+      .nav-brand-sub { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+<nav class="admin-topnav">
+  <div class="nav-brand">
+    <div class="nav-brand-icon">
+        <img th:src="@{/images/num_logo.jpg}" alt="NUM Logo" object-fit="cover" style="width: 100%; height: 100%; border-radius: 10px;">
+      </div>
+    <div class="nav-brand-text">
+      <div class="nav-brand-title">NUM Feedback</div>
+      <div class="nav-brand-sub">Admin Portal</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="lang-toggle">
+      <a href="javascript:void(0)" onclick="switchLang('en')" class="lang-opt" th:classappend="${#locale.language == 'en'} ? ' active'">EN</a>
+      <a href="javascript:void(0)" onclick="switchLang('km')" class="lang-opt" th:classappend="${#locale.language == 'km'} ? ' active'">KH</a>
+    </div>
+    <div class="user-chip">
+      <div class="user-avatar">A</div>
+      <span class="user-name" sec:authentication="name">Admin</span>
+    </div>
+    <form th:action="@{/login?logout}" method="post" style="margin:0;">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+      <button class="nav-logout" type="submit">
+        <i class="bi bi-box-arrow-right"></i> Sign Out
+      </button>
+    </form>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="page-wrap d-flex flex-column flex-lg-row justify-content-between align-items-start gap-3">
+    <div>
+      <div class="mb-2">
+        <a href="/admin" class="btn-hero"><i class="bi bi-arrow-left"></i> <span th:text="#{admin.enrollments.back}">Back to Admin</span></a>
+      </div>
+      <h1 class="page-title" th:text="#{admin.enrollments.title}">Enrollments</h1>
+      <p class="page-subtitle" th:text="#{admin.enrollments.subtitle}">Manage single and bulk matrix enrollments — assign students to class sections.</p>
+      <div class="d-flex flex-wrap gap-2 mt-3">
+        <span class="hero-pill">
+          <i class="bi bi-journal-check"></i> <span th:text="#{admin.enrollments.pill.total}">Total Enrollments:</span>
+          <strong th:text="${totalEnrollments != null ? totalEnrollments : 0}">0</strong>
+        </span>
+        <span class="hero-pill" style="background:rgba(22,163,74,.2);border-color:rgba(134,239,172,.3);">
+          <i class="bi bi-people"></i> <span th:text="#{admin.enrollments.pill.enrolled}">Students Enrolled:</span>
+          <strong th:text="${enrolledStudents != null ? enrolledStudents : 0}">0</strong>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content-area">
+  <div class="page-wrap">
+
+    <!-- KPI CARDS -->
+    <div class="row g-3 mb-3">
+      <div class="col-6 col-md-3">
+        <div class="mini-stat">
+          <div class="label"><i class="bi bi-journal-check text-primary me-1"></i><span th:text="#{admin.enrollments.kpi.total}">Total Enrollments</span></div>
+          <div class="value text-primary" th:text="${totalEnrollments != null ? totalEnrollments : 0}">0</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="mini-stat">
+          <div class="label"><i class="bi bi-people-fill text-success me-1"></i><span th:text="#{admin.enrollments.kpi.enrolled}">Students Enrolled</span></div>
+          <div class="value text-success" th:text="${enrolledStudents != null ? enrolledStudents : 0}">0</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="mini-stat">
+          <div class="label"><i class="bi bi-collection text-warning me-1"></i><span th:text="#{admin.enrollments.kpi.sections}">Total Sections</span></div>
+          <div class="value text-warning" th:text="${totalSections != null ? totalSections : 0}">0</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="mini-stat">
+          <div class="label"><i class="bi bi-person-lines-fill text-info me-1"></i><span th:text="#{admin.enrollments.kpi.students}">Total Students</span></div>
+          <div class="value text-info" th:text="${totalStudents != null ? totalStudents : 0}">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERTS -->
+    <div th:if="${msg != null}" class="mb-3">
+      <div th:if="${msg == 'created'}" class="alert alert-success py-2">
+        <i class="bi bi-check-circle me-2"></i><span th:text="#{admin.enrollments.alert.created}">Enrollment created successfully.</span>
+      </div>
+      <div th:if="${msg == 'duplicate'}" class="alert alert-warning py-2">
+        <i class="bi bi-exclamation-triangle me-2"></i><span th:text="#{admin.enrollments.alert.duplicate}">Duplicate enrollment — this student is already enrolled in that section.</span>
+      </div>
+      <div th:if="${msg == 'deleted'}" class="alert alert-success py-2">
+        <i class="bi bi-trash me-2"></i><span th:text="#{admin.enrollments.alert.deleted}">Enrollment deleted.</span>
+      </div>
+      <div th:if="${msg == 'bulk_created'}" class="alert alert-success py-2">
+        <i class="bi bi-check-circle me-2"></i>
+        <span th:text="#{admin.enrollments.alert.bulk.prefix}">Bulk enrollment complete —</span>
+        <strong th:text="${param.created != null ? param.created[0] : 0}"></strong>
+        <span th:text="#{admin.enrollments.alert.bulk.created}">created,</span>
+        <span class="text-muted"><span th:text="${param.dup != null ? param.dup[0] : 0}"></span> <span th:text="#{admin.enrollments.alert.bulk.dup}">duplicates skipped.</span></span>
+      </div>
+    </div>
+
+    <!-- FILTER + SINGLE ENROLL ROW -->
+    <div class="row g-3 mb-3">
+
+      <!-- FILTER -->
+      <div class="col-lg-5">
+        <div class="card h-100 card-accent-blue">
+          <div class="panel-head">
+            <div class="panel-title"><i class="bi bi-funnel text-primary me-1"></i><span th:text="#{admin.enrollments.filter.title}">Filter by Student</span></div>
+            <p class="panel-subtitle" th:text="#{admin.enrollments.filter.subtitle}">View enrollments for a specific student account.</p>
+          </div>
+          <div class="panel-body">
+            <form method="get" th:action="@{/admin/enrollments}" class="d-flex flex-column gap-3">
+              <div>
+                <label class="form-label" th:text="#{admin.enrollments.filter.label}">Student</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-person"></i></span>
+                  <select class="form-select" name="studentId">
+                    <option value="" th:text="#{admin.enrollments.filter.allStudents}">All students</option>
+                    <option th:each="st : ${students}"
+                            th:value="${st.id}"
+                            th:selected="${selectedStudentId != null and selectedStudentId == st.id}"
+                            th:text="${st.username}">
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-primary flex-fill">
+                  <i class="bi bi-search me-1"></i><span th:text="#{admin.enrollments.filter.btn}">Apply Filter</span>
+                </button>
+                <a class="btn btn-outline-secondary" th:href="@{/admin/enrollments}">
+                  <i class="bi bi-x-lg"></i>
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- SINGLE ENROLL -->
+      <div class="col-lg-7">
+        <div class="card h-100 card-accent-green">
+          <div class="panel-head">
+            <div class="panel-title"><i class="bi bi-person-plus text-success me-1"></i><span th:text="#{admin.enrollments.single.title}">Add Single Enrollment</span></div>
+            <p class="panel-subtitle" th:text="#{admin.enrollments.single.subtitle}">Enroll one student into one class section.</p>
+          </div>
+          <div class="panel-body">
+            <form method="post" th:action="@{/admin/enrollments}" class="d-flex flex-column gap-3">
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+              <div class="row g-3">
+                <div class="col-md-7">
+                  <label class="form-label"><span th:text="#{admin.enrollments.single.section}">Section</span> <span class="text-danger">*</span></label>
+                  <select class="form-select" name="sectionId" required>
+                    <option value="" th:text="#{admin.enrollments.single.section.placeholder}">— Select section —</option>
+                    <option th:each="s : ${sections}"
+                            th:value="${s.id}"
+                            th:text="${s.semester.name + ' · ' + s.shiftTime}">
+                    </option>
+                  </select>
+                </div>
+                <div class="col-md-5">
+                  <label class="form-label"><span th:text="#{admin.enrollments.single.student}">Student</span> <span class="text-danger">*</span></label>
+                  <select class="form-select" name="studentId" required>
+                    <option value="" th:text="#{admin.enrollments.single.student.placeholder}">— Select student —</option>
+                    <option th:each="st : ${students}" th:value="${st.id}" th:text="${st.username}"></option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <button class="btn btn-success px-4">
+                  <i class="bi bi-plus-circle me-1"></i><span th:text="#{admin.enrollments.single.btn}">Enroll Student</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BULK MATRIX ENROLLMENT -->
+    <div class="card mb-3 card-accent-purple">
+      <div class="panel-head d-flex justify-content-between align-items-start gap-2">
+        <div>
+          <div class="panel-title"><i class="bi bi-grid-3x3-gap me-1" style="color:#7c3aed;"></i><span th:text="#{admin.enrollments.bulk.title}">Bulk Matrix Enrollment</span></div>
+          <p class="panel-subtitle" th:text="#{admin.enrollments.bulk.subtitle}">Select multiple students and multiple sections — all combinations are enrolled at once.</p>
+        </div>
+        <span class="badge text-bg-light border" style="font-size:.8rem;padding:.5rem .9rem;" th:text="#{admin.enrollments.bulk.badge}">
+          students × sections
+        </span>
+      </div>
+
+      <div class="panel-body">
+        <form id="bulkMatrixForm" method="post" th:action="@{/admin/enrollments/bulk}">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+          <div class="row g-3">
+
+            <!-- STUDENTS PICKER -->
+            <div class="col-lg-6">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="form-label mb-0" th:text="#{admin.enrollments.bulk.students}">Students</label>
+                <span class="text-muted small"><span th:text="#{admin.enrollments.bulk.selected}">Selected:</span> <strong id="studentCount">0</strong></span>
+              </div>
+
+              <div class="input-group mb-2">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input id="studentSearch" class="form-control" th:placeholder="#{admin.enrollments.bulk.search.student}" placeholder="Search student…"
+                       oninput="filterItems('student-item', this.value)" />
+                <button type="button" class="btn btn-outline-secondary action-btn"
+                        onclick="toggleAll('studentIds', true); updateSelectedStudents();" th:text="#{admin.enrollments.bulk.all}">All</button>
+                <button type="button" class="btn btn-outline-secondary action-btn"
+                        onclick="toggleAll('studentIds', false); updateSelectedStudents();" th:text="#{admin.enrollments.bulk.none}">None</button>
+              </div>
+
+              <div class="picker-list">
+                <div th:each="st : ${students}" class="form-check student-item">
+                  <input class="form-check-input student-cb" type="checkbox" name="studentIds"
+                         th:value="${st.id}" th:attr="data-name=${st.username}"
+                         onchange="updateSelectedStudents()" />
+                  <label class="form-check-label d-flex align-items-center gap-2">
+                    <span th:text="${st.username}" class="fw-semibold"></span>
+                    <span class="mono text-muted" th:text="'#' + ${st.id}"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="mt-2">
+                <div class="text-muted small mb-1 fw-bold" th:text="#{admin.enrollments.bulk.selectedStudents}">Selected students</div>
+                <div id="selectedStudents" class="chip-area"></div>
+              </div>
+            </div>
+
+            <!-- SECTIONS PICKER -->
+            <div class="col-lg-6">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="form-label mb-0" th:text="#{admin.enrollments.bulk.sections}">Sections</label>
+                <span class="text-muted small"><span th:text="#{admin.enrollments.bulk.selected}">Selected:</span> <strong id="sectionCount">0</strong></span>
+              </div>
+
+              <div class="input-group mb-2">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input id="sectionSearch" class="form-control" th:placeholder="#{admin.enrollments.bulk.search.section}" placeholder="Search section…"
+                       oninput="filterItems('section-item', this.value)" />
+                <button type="button" class="btn btn-outline-secondary action-btn"
+                        onclick="toggleAll('sectionIds', true); updateSelectedSections();" th:text="#{admin.enrollments.bulk.all}">All</button>
+                <button type="button" class="btn btn-outline-secondary action-btn"
+                        onclick="toggleAll('sectionIds', false); updateSelectedSections();" th:text="#{admin.enrollments.bulk.none}">None</button>
+              </div>
+
+              <div class="picker-list">
+                <div th:each="s : ${sections}" class="form-check section-item">
+                  <input class="form-check-input section-cb" type="checkbox" name="sectionIds"
+                         th:value="${s.id}" th:attr="data-label=${s.displayLabel}"
+                         onchange="updateSelectedSections()" />
+                  <label class="form-check-label" th:text="${s.displayLabel}"></label>
+                </div>
+              </div>
+
+              <div class="mt-2">
+                <div class="text-muted small mb-1 fw-bold" th:text="#{admin.enrollments.bulk.selectedSections}">Selected sections</div>
+                <div id="selectedSections" class="chip-area"></div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- STICKY SUBMIT BAR -->
+          <div class="sticky-actions mt-3">
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+              <div>
+                <span class="text-muted small" th:text="#{admin.enrollments.bulk.totalLabel}">Total enrollments to create:</span>
+                <strong class="fs-5 ms-1"><span id="comboCount">0</span></strong>
+                <span class="text-muted small ms-1" th:text="#{admin.enrollments.bulk.formula}">(students × sections)</span>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-secondary action-btn"
+                        onclick="toggleAll('studentIds', false); toggleAll('sectionIds', false);
+                                 updateSelectedStudents(); updateSelectedSections();">
+                  <i class="bi bi-x-lg me-1"></i><span th:text="#{admin.enrollments.bulk.clearAll}">Clear All</span>
+                </button>
+                <button type="submit" class="btn btn-success px-4 action-btn">
+                  <i class="bi bi-grid-3x3-gap me-1"></i><span th:text="#{admin.enrollments.bulk.enroll}">Bulk Enroll</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+    <!-- ENROLLMENT TABLE -->
+    <div class="card">
+      <div class="panel-head d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+          <div class="panel-title" th:text="#{admin.enrollments.table.title}">Current Enrollments</div>
+          <p class="panel-subtitle">
+            <span th:text="#{admin.enrollments.table.page}">Page</span>
+            <span th:text="${page}">1</span>
+            <span th:text="#{admin.enrollments.table.of}">of</span>
+            <span th:text="${totalPages}">1</span>
+            &nbsp;·&nbsp;
+            <span th:text="${totalRows}">0</span>
+            <span th:text="#{admin.enrollments.table.records}">record(s)</span>
+            <span th:if="${selectedStudentId != null}" th:text="#{admin.enrollments.table.forStudent}">for selected student</span>
+          </p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <form method="get" th:action="@{/admin/enrollments}" class="d-flex align-items-center gap-2">
+            <input type="hidden" name="studentId" th:if="${selectedStudentId != null}" th:value="${selectedStudentId}" />
+            <label class="form-label mb-0 text-muted small fw-bold" th:text="#{admin.enrollments.table.perPage}">Per page</label>
+            <select class="form-select form-select-sm" name="size" style="width:80px;min-height:36px;border-radius:10px;"
+                    onchange="this.form.submit()">
+              <option value="10"  th:selected="${size == 10}">10</option>
+              <option value="20"  th:selected="${size == 20}">20</option>
+              <option value="50"  th:selected="${size == 50}">50</option>
+              <option value="100" th:selected="${size == 100}">100</option>
+            </select>
+          </form>
+          <span class="badge text-bg-light border px-3 py-2">
+            <span th:text="${totalRows}">0</span> <span th:text="#{admin.enrollments.table.total}">total</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="panel-body">
+        <div class="table-wrap">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th style="width:55px;">#</th>
+                <th th:text="#{admin.enrollments.table.col.student}">Student</th>
+                <th th:text="#{admin.enrollments.table.col.semester}">Semester</th>
+                <th th:text="#{admin.enrollments.table.col.course}">Course</th>
+                <th th:text="#{admin.enrollments.table.col.teacher}">Teacher</th>
+                <th th:text="#{admin.enrollments.table.col.shift}">Shift</th>
+                <th style="width:100px;" class="text-end" th:text="#{admin.enrollments.table.col.action}">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="e, stat : ${enrollments}">
+                <td class="text-muted small"
+                    th:text="${(page - 1) * size + stat.index + 1}">1</td>
+
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div style="width:34px;height:34px;border-radius:50%;
+                                background:#eef4ff;color:#1d4ed8;
+                                display:inline-flex;align-items:center;justify-content:center;
+                                font-weight:800;font-size:.82rem;border:2px solid #dbeafe;flex-shrink:0;">
+                      <span th:text="${e.student != null ? #strings.toUpperCase(#strings.substring(e.student.username,0,1)) : '?'}">S</span>
+                    </div>
+                    <span class="fw-bold" th:text="${e.student != null ? e.student.username : '—'}">—</span>
+                  </div>
+                </td>
+
+                <td>
+                  <span class="badge badge-pill text-bg-light border"
+                        th:text="${e.section != null and e.section.semester != null ? e.section.semester.name : '—'}">
+                  </span>
+                </td>
+
+                <td>
+                  <span class="fw-semibold"
+                        th:text="${e.section != null and e.section.course != null ? e.section.course.code : '—'}">
+                  </span>
+                </td>
+
+                <td class="text-muted"
+                    th:text="${e.section != null and e.section.teacher != null ? e.section.teacher.username : '—'}">
+                </td>
+
+                <td>
+                  <span th:if="${e.section != null and e.section.shiftTime != null}"
+                        class="badge badge-pill text-bg-light border small"
+                        th:text="${e.section.shiftTime}">
+                  </span>
+                  <span th:if="${e.section == null or e.section.shiftTime == null}" class="text-muted">—</span>
+                </td>
+
+                <td class="text-end">
+                  <form method="post" th:action="@{/admin/enrollments/{id}/delete(id=${e.id})}"
+                        onsubmit="return confirm(MSG_CONFIRM_REMOVE);">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <button class="btn btn-sm btn-outline-danger action-btn"><i class="bi bi-trash"></i></button>
+                  </form>
+                </td>
+              </tr>
+
+              <tr th:if="${#lists.isEmpty(enrollments)}">
+                <td colspan="7" class="empty-row">
+                  <i class="bi bi-inbox display-6 d-block mb-2 opacity-25"></i>
+                  <span th:text="#{admin.enrollments.table.empty}">No enrollments found.</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- PAGINATION -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3"
+             th:if="${totalPages != null and totalPages > 1}">
+          <div class="small text-muted">
+            <span th:text="#{admin.enrollments.table.page}">Page</span>
+            <strong th:text="${page}"></strong>
+            <span th:text="#{admin.enrollments.table.of}">of</span>
+            <strong th:text="${totalPages}"></strong>
+            &nbsp;·&nbsp; <span th:text="${totalRows}"></span>
+            <span th:text="#{admin.enrollments.table.enrollments}">enrollments</span>
+          </div>
+
+          <nav aria-label="Enrollment pagination">
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item" th:classappend="${page <= 1} ? ' disabled' : ''">
+                <a class="page-link"
+                   th:href="@{/admin/enrollments(page=${page-1},size=${size},studentId=${selectedStudentId})}">
+                  <i class="bi bi-chevron-left"></i>
+                </a>
+              </li>
+
+              <li class="page-item"
+                  th:each="p : ${#numbers.sequence(((page-2)>1)?(page-2):1, ((page+2)<totalPages)?(page+2):totalPages)}"
+                  th:classappend="${p == page} ? ' active' : ''">
+                <a class="page-link" th:text="${p}"
+                   th:href="@{/admin/enrollments(page=${p},size=${size},studentId=${selectedStudentId})}"></a>
+              </li>
+
+              <li class="page-item" th:classappend="${page >= totalPages} ? ' disabled' : ''">
+                <a class="page-link"
+                   th:href="@{/admin/enrollments(page=${page+1},size=${size},studentId=${selectedStudentId})}">
+                  <i class="bi bi-chevron-right"></i>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+  var MSG_NONE_SELECTED  = /*[[#{admin.enrollments.js.noneSelected}]]*/ 'None selected';
+  var MSG_VALIDATION     = /*[[#{admin.enrollments.js.validation}]]*/ 'Please select at least 1 student and 1 section.';
+  var MSG_CONFIRM_BULK   = /*[[#{admin.enrollments.js.confirmBulk}]]*/ 'Create {0} enrollment(s) ({1} students \u00d7 {2} sections)?';
+  var MSG_CONFIRM_REMOVE = /*[[#{admin.enrollments.js.confirmRemove}]]*/ 'Remove this enrollment?';
+</script>
+<script>
+  function switchLang(lang) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('lang', lang);
+    window.location.href = url.toString();
+  }
+
+  function toggleAll(name, checked) {
+    document.querySelectorAll(`input[name="${name}"]`).forEach(cb => cb.checked = checked);
+  }
+
+  function filterItems(itemClass, query) {
+    const q = (query || "").toLowerCase().trim();
+    document.querySelectorAll(`.${itemClass}`).forEach(el => {
+      el.style.display = el.innerText.toLowerCase().includes(q) ? "" : "none";
+    });
+  }
+
+  function updateSelectedStudents() {
+    const box = document.getElementById("selectedStudents");
+    const checked = document.querySelectorAll(".student-cb:checked");
+    box.innerHTML = checked.length
+      ? [...checked].map(cb =>
+          `<span class="badge text-bg-primary me-1 mb-1" style="border-radius:999px;padding:.35rem .7rem;">
+            ${escapeHtml(cb.dataset.name || cb.value)}
+          </span>`).join("")
+      : `<span class="text-muted small">${MSG_NONE_SELECTED}</span>`;
+    document.getElementById("studentCount").innerText = checked.length;
+    updateComboCount();
+  }
+
+  function updateSelectedSections() {
+    const box = document.getElementById("selectedSections");
+    const checked = document.querySelectorAll(".section-cb:checked");
+    box.innerHTML = checked.length
+      ? [...checked].map(cb =>
+          `<span class="badge text-bg-success me-1 mb-1" style="border-radius:999px;padding:.35rem .7rem;">
+            ${escapeHtml(cb.dataset.label || cb.value)}
+          </span>`).join("")
+      : `<span class="text-muted small">${MSG_NONE_SELECTED}</span>`;
+    document.getElementById("sectionCount").innerText = checked.length;
+    updateComboCount();
+  }
+
+  function updateComboCount() {
+    const s = document.querySelectorAll(".student-cb:checked").length;
+    const sec = document.querySelectorAll(".section-cb:checked").length;
+    const el = document.getElementById("comboCount");
+    el.innerText = s * sec;
+    el.style.color = (s * sec) > 0 ? "#16a34a" : "inherit";
+  }
+
+  function escapeHtml(str) {
+    return (str || "")
+      .replaceAll("&", "&amp;").replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+  }
+
+  document.getElementById("bulkMatrixForm").addEventListener("submit", function (e) {
+    const students = document.querySelectorAll(".student-cb:checked").length;
+    const sections = document.querySelectorAll(".section-cb:checked").length;
+    if (students === 0 || sections === 0) {
+      e.preventDefault();
+      alert(MSG_VALIDATION);
+      return;
+    }
+    const total = students * sections;
+    const confirmMsg = MSG_CONFIRM_BULK
+      .replace('{0}', total).replace('{1}', students).replace('{2}', sections);
+    if (!confirm(confirmMsg)) {
+      e.preventDefault();
+    }
+  });
+
+  updateSelectedStudents();
+  updateSelectedSections();
+</script>
+</body>
+</html>

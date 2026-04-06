@@ -1,0 +1,820 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title th:text="#{teacher.self.title}">Teacher Self-Assessment</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg1: #f4f7fb;
+      --card: #ffffff;
+      --text: #1f2a37;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --soft-primary: #e8f0ff;
+      --soft-success: #eafaf4;
+      --soft-warning: #fff7e8;
+      --soft-danger: #fef2f2;
+      --shadow: 0 10px 30px rgba(15, 23, 42, .08);
+      --radius: 24px;
+    }
+
+    body {
+      background: var(--bg1);
+      color: var(--text);
+      font-family: "Segoe UI", "Noto Sans Khmer", Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+    }
+
+    .page-wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .teacher-topnav {
+      background: #0f172a;
+      padding: 0 28px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, .35);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .nav-brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: .85rem;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, .4);
+    }
+
+    .nav-brand-text {
+      line-height: 1.2;
+    }
+
+    .nav-brand-title {
+      font-size: .9rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .nav-brand-sub {
+      font-size: .7rem;
+      color: #64748b;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .lang-toggle {
+      display: flex;
+      background: rgba(255, 255, 255, .08);
+      border: 1px solid rgba(255, 255, 255, .1);
+      border-radius: 999px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .lang-opt {
+      text-decoration: none;
+      font-size: .72rem;
+      font-weight: 700;
+      padding: 4px 11px;
+      border-radius: 999px;
+      color: rgba(255, 255, 255, .5);
+      transition: .15s;
+    }
+
+    .lang-opt:hover {
+      color: rgba(255, 255, 255, .85);
+    }
+
+    .lang-opt.active {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, .07);
+      border: 1px solid rgba(255, 255, 255, .1);
+      border-radius: 999px;
+      padding: 4px 14px 4px 5px;
+    }
+
+    .user-avatar {
+      width: 27px;
+      height: 27px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .72rem;
+      font-weight: 800;
+    }
+
+    .user-name {
+      font-size: .8rem;
+      font-weight: 600;
+      color: #cbd5e1;
+    }
+
+    .nav-logout {
+      background: rgba(239, 68, 68, .12);
+      border: 1px solid rgba(239, 68, 68, .25);
+      color: #f87171;
+      border-radius: 10px;
+      padding: 6px 14px;
+      font-size: .8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: .15s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .nav-logout:hover {
+      background: rgba(239, 68, 68, .22);
+      color: #fca5a5;
+    }
+
+    .page-hero {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #3b82f6 100%);
+      padding: 28px 28px 36px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page-hero::before {
+      content: "";
+      position: absolute;
+      right: -80px;
+      top: -80px;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .06);
+    }
+
+    .page-hero::after {
+      content: "";
+      position: absolute;
+      left: -60px;
+      bottom: -90px;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .04);
+    }
+
+    .page-hero > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .page-title {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: #fff;
+      margin: 0 0 .3rem;
+      letter-spacing: -.02em;
+    }
+
+    .page-subtitle {
+      color: rgba(255, 255, 255, .72);
+      margin: 0;
+      font-size: .93rem;
+      max-width: 720px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-hero {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, .13);
+      border: 1px solid rgba(255, 255, 255, .22);
+      color: #fff;
+      border-radius: 12px;
+      padding: 9px 18px;
+      font-size: .87rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: .15s;
+    }
+
+    .btn-hero:hover {
+      background: rgba(255, 255, 255, .22);
+      color: #fff;
+    }
+
+    .btn-hero-accent {
+      background: #fff;
+      border: none;
+      color: #1d4ed8;
+      font-weight: 700;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, .18);
+    }
+
+    .btn-hero-accent:hover {
+      background: #f0f6ff;
+      color: #1d4ed8;
+      transform: translateY(-1px);
+    }
+
+    .content-area {
+      background: var(--bg1);
+      padding: 28px;
+      min-height: calc(100vh - 58px - 120px);
+    }
+
+    .content-card,
+    .stat-card,
+    .question-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255, 255, 255, .85);
+    }
+
+    .stat-card {
+      padding: 22px;
+      height: 100%;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: .88rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 10px;
+    }
+
+    .stat-badge,
+    .status-pill,
+    .question-type-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: .8rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .soft-primary {
+      background: var(--soft-primary);
+      color: var(--primary-dark);
+    }
+
+    .soft-success {
+      background: var(--soft-success);
+      color: #0f766e;
+    }
+
+    .soft-warning {
+      background: var(--soft-warning);
+      color: #b45309;
+    }
+
+    .soft-danger {
+      background: var(--soft-danger);
+      color: #b91c1c;
+    }
+
+    .panel-head {
+      padding: 20px 24px 14px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+
+    .panel-title {
+      font-size: 1.12rem;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .panel-subtitle {
+      color: var(--muted);
+      font-size: .9rem;
+      margin: 4px 0 0;
+    }
+
+    .panel-body {
+      padding: 22px 24px 24px;
+    }
+
+    .form-label {
+      font-weight: 700;
+      font-size: .88rem;
+      color: var(--text);
+      margin-bottom: .55rem;
+    }
+
+    .form-control,
+    .form-select {
+      border-radius: 14px;
+      min-height: 48px;
+      border: 1px solid #dbe3ee;
+      box-shadow: none;
+      font-size: .94rem;
+    }
+
+    textarea.form-control {
+      min-height: 120px;
+      padding-top: .85rem;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: #93c5fd;
+      box-shadow: 0 0 0 .2rem rgba(37, 99, 235, .10);
+    }
+
+    .btn-premium,
+    .btn-outline-shell {
+      border-radius: 14px;
+      padding: 11px 18px;
+      font-weight: 700;
+      min-height: 46px;
+    }
+
+    .btn-premium {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border: none;
+      color: #fff;
+      box-shadow: 0 6px 18px rgba(37, 99, 235, .22);
+    }
+
+    .btn-premium:hover {
+      background: linear-gradient(135deg, var(--primary-dark), #1e40af);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .btn-outline-shell {
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      color: #334155;
+    }
+
+    .btn-outline-shell:hover {
+      background: #f8fafc;
+      color: #0f172a;
+      border-color: #94a3b8;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .helper-text,
+    .muted {
+      color: var(--muted);
+      font-size: .88rem;
+    }
+
+    .alert-soft-success,
+    .alert-soft-danger,
+    .alert-soft-warning {
+      border-radius: 18px;
+      padding: 14px 18px;
+      border: 1px solid transparent;
+      font-weight: 600;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, .05);
+    }
+
+    .alert-soft-success {
+      background: #ecfdf5;
+      color: #065f46;
+      border-color: #a7f3d0;
+    }
+
+    .alert-soft-danger {
+      background: #fef2f2;
+      color: #b91c1c;
+      border-color: #fecaca;
+    }
+
+    .alert-soft-warning {
+      background: #fff7ed;
+      color: #9a3412;
+      border-color: #fdba74;
+    }
+
+    .question-card {
+      padding: 20px;
+    }
+
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .question-title {
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.55;
+      margin: 0;
+    }
+
+    .question-type-pill {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+      flex-shrink: 0;
+    }
+
+    .question-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px 14px;
+      margin-bottom: 14px;
+    }
+
+    .rating-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .rating-option {
+      min-width: 54px;
+      min-height: 46px;
+      border-radius: 14px;
+      border: 1px solid #bfdbfe;
+      background: #fff;
+      color: #1d4ed8;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: .15s;
+    }
+
+    .rating-option:hover {
+      background: #eff6ff;
+      border-color: #60a5fa;
+      color: #1d4ed8;
+    }
+
+    .btn-check:checked + .rating-option {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 10px 24px rgba(37, 99, 235, .22);
+    }
+
+    .btn-check:disabled + .rating-option,
+    .btn-check[disabled] + .rating-option {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    .empty-state {
+      border: 1px dashed #cbd5e1;
+      border-radius: 18px;
+      padding: 28px;
+      text-align: center;
+      color: var(--muted);
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    }
+
+    @media (max-width: 992px) {
+      .teacher-topnav {
+        padding: 0 16px;
+      }
+
+      .page-hero {
+        padding: 20px 16px 28px;
+      }
+
+      .content-area {
+        padding: 16px;
+      }
+
+      .page-title {
+        font-size: 1.55rem;
+      }
+
+      .nav-brand-sub {
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .question-header {
+        flex-direction: column;
+      }
+
+      .rating-grid {
+        gap: 8px;
+      }
+
+      .rating-option {
+        min-width: 48px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="teacher-topnav">
+    <div class="nav-brand">
+      <div class="nav-brand-icon">
+        <img th:src="@{/images/num_logo.jpg}" alt="NUM Logo" object-fit="cover" style="width: 100%; height: 100%; border-radius: 10px;">
+      </div>
+      <div class="nav-brand-text">
+        <div class="nav-brand-title" th:text="#{common.brand}">NUM Feedback</div>
+        <div class="nav-brand-sub" th:text="#{teacher.brand.subtitle}">Teacher Portal</div>
+      </div>
+    </div>
+
+    <div class="nav-right">
+      <div class="lang-toggle">
+        <a href="javascript:void(0)" onclick="switchLang('en')" class="lang-opt" th:classappend="${#locale.language == 'en'} ? ' active'">EN</a>
+        <a href="javascript:void(0)" onclick="switchLang('kh')" class="lang-opt" th:classappend="${#locale.language == 'kh'} ? ' active'">KH</a>
+      </div>
+
+      <div class="user-chip">
+        <div class="user-avatar">T</div>
+        <span class="user-name" sec:authentication="name">Teacher</span>
+      </div>
+
+      <form th:action="@{/login?logout}" method="post" style="margin:0;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <button class="nav-logout" type="submit">
+          <i class="bi bi-box-arrow-right"></i> <span th:text="#{common.signout}">Sign Out</span>
+        </button>
+      </form>
+    </div>
+  </nav>
+
+  <div class="page-hero">
+    <div class="page-wrap d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3">
+      <div>
+        <div class="mb-2">
+          <a href="/teacher" class="btn-hero" style="font-size:.8rem;padding:6px 14px;">
+            <i class="bi bi-arrow-left"></i> <span th:text="#{teacher.self.back}">Back</span>
+          </a>
+        </div>
+        <h1 class="page-title" th:text="#{teacher.self.title}">Teacher Self-Assessment</h1>
+        <p class="page-subtitle" th:text="#{teacher.self.subtitle}">Complete your self-assessment during the open evaluation window.</p>
+      </div>
+
+      <div class="hero-actions">
+        <a class="btn-hero" href="/teacher">
+          <i class="bi bi-grid-1x2-fill"></i> <span th:text="#{teacher.profile.btn.dashboard}">Dashboard</span>
+        </a>
+        <a class="btn-hero" href="/teacher/profile">
+          <i class="bi bi-person-circle"></i> <span th:text="#{teacher.btn.profile}">My Profile</span>
+        </a>
+        <a class="btn-hero btn-hero-accent" href="/teacher/reports">
+          <i class="bi bi-bar-chart-fill"></i> <span th:text="#{teacher.btn.reports}">Feedback Reports</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-area">
+    <div class="page-wrap">
+
+      <div th:if="${msg == 'saved'}" class="alert-soft-success mb-4">
+        <i class="bi bi-check-circle-fill me-2"></i><span th:text="#{teacher.self.alert.saved}">Submitted successfully.</span>
+      </div>
+      <div th:if="${msg == 'error'}" class="alert-soft-danger mb-4">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i><span th:text="#{teacher.self.alert.error}">Cannot submit (window closed or missing answers).</span>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-lg-7">
+          <div class="content-card h-100 overflow-hidden">
+            <div class="panel-head">
+              <h2 class="panel-title" th:text="#{common.semester}">Semester</h2>
+              <p class="panel-subtitle" th:text="#{teacher.self.tip}">Tip: Ratings use radio buttons. Click a number to select.</p>
+            </div>
+            <div class="panel-body">
+              <form method="get" th:action="@{/teacher/self}" class="row g-3 align-items-end">
+                <div class="col-12 col-md-7">
+                  <label class="form-label" th:text="#{common.semester}">Semester</label>
+                  <select class="form-select" name="semesterId" required>
+                    <option th:each="s : ${semesters}"
+                            th:value="${s.id}"
+                            th:selected="${semester != null and s.id == semester.id}"
+                            th:text="${s.name}">
+                    </option>
+                  </select>
+                </div>
+
+                <div class="col-12 col-md-5 d-grid">
+                  <button class="btn btn-premium" type="submit">
+                    <i class="bi bi-arrow-repeat me-1"></i> <span th:text="#{teacher.self.btn.load}">Load</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-5">
+          <div class="stat-card">
+            <div class="stat-label" th:text="#{teacher.self.title}">Teacher Self-Assessment</div>
+            <div class="stat-value" th:if="${semester != null}" th:text="${semester.name}">2025-2026 S1</div>
+            <div class="stat-value" th:if="${semester == null}" th:text="#{teacher.self.noSemester}">No semester selected.</div>
+            <span th:if="${semester != null}"
+                  class="status-pill"
+                  th:classappend="${open} ? ' soft-success' : ' soft-danger'">
+              <i class="bi" th:classappend="${open} ? ' bi-unlock-fill' : ' bi-lock-fill'"></i>
+              <span th:if="${open}" th:text="#{status.open}">OPEN</span>
+              <span th:unless="${open}" th:text="#{status.closed}">CLOSED</span>
+            </span>
+            <span th:if="${semester == null}" class="stat-badge soft-warning">
+              <i class="bi bi-info-circle"></i> <span th:text="#{teacher.self.noSemester}">No semester selected.</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div th:if="${semester == null}" class="content-card overflow-hidden">
+        <div class="panel-body">
+          <div class="empty-state">
+            <i class="bi bi-calendar2-week" style="font-size:2rem;color:#60a5fa;"></i>
+            <div class="mt-3 fw-bold" th:text="#{teacher.self.noSemester}">No semester selected.</div>
+            <div class="mt-2">Choose a semester above to load your self-assessment form.</div>
+          </div>
+        </div>
+      </div>
+
+      <div th:if="${semester != null}">
+        <div th:if="${!open}" class="alert-soft-warning mb-4">
+          <i class="bi bi-info-circle-fill me-2"></i><span th:text="#{teacher.self.windowClosed}">Self-assessment window is closed for this semester.</span>
+        </div>
+
+        <form method="post" th:action="@{/teacher/self}">
+          <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+          <input type="hidden" name="semesterId" th:value="${semester.id}" />
+
+          <div class="content-card overflow-hidden mb-4">
+            <div class="panel-head d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-2">
+              <div>
+                <h2 class="panel-title" th:text="#{teacher.self.title}">Teacher Self-Assessment</h2>
+                <p class="panel-subtitle">Answer each question below. Saved answers are preselected when available.</p>
+              </div>
+              <span class="stat-badge soft-primary mono">
+                <span th:text="${#lists.size(questions)}">0</span>
+                <span>questions</span>
+              </span>
+            </div>
+
+            <div class="panel-body">
+              <div th:if="${#lists.isEmpty(questions)}" class="empty-state">
+                <i class="bi bi-clipboard-x" style="font-size:2rem;color:#94a3b8;"></i>
+                <div class="mt-3 fw-bold">No self-assessment questions available for this semester.</div>
+              </div>
+
+              <div th:if="${!#lists.isEmpty(questions)}" class="d-flex flex-column gap-3">
+                <div th:each="q : ${questions}" class="question-card">
+                  <div class="question-header">
+                    <h3 class="question-title" th:text="${q.orderNo + '. ' + q.text}">1. Question text</h3>
+                    <span class="question-type-pill" th:text="${q.type.name()}">RATING</span>
+                  </div>
+
+                  <div th:if="${q.type.name() == 'RATING'}">
+                    <div class="question-meta">
+                      <div class="helper-text">
+                        <span th:text="#{teacher.self.scale}">Scale:</span>
+                        <span class="mono" th:text="${q.scaleMin + ' - ' + q.scaleMax}">1 (lowest) → 5 (highest)</span>
+                      </div>
+                      <div class="helper-text" th:if="${answers != null}" th:text="#{teacher.self.savedAnswer}">
+                        Saved answer will auto-select.
+                      </div>
+                    </div>
+
+                    <div class="rating-grid" role="group" aria-label="Rating group">
+                      <th:block th:each="i, stat : ${#numbers.sequence(q.scaleMin, q.scaleMax)}"
+                                th:with="field=${'q_' + q.id}, saved=${answers != null ? answers[field] : null}">
+                        <input class="btn-check"
+                               type="radio"
+                               th:id="${field + '_' + i}"
+                               th:name="${field}"
+                               th:value="${i}"
+                               th:disabled="${!open}"
+                               th:required="${open}"
+                               th:checked="${saved != null and saved.toString() == i.toString()}" />
+
+                        <label class="rating-option"
+                               th:for="${field + '_' + i}"
+                               th:text="${i}">1</label>
+                      </th:block>
+                    </div>
+
+                    <div class="helper-text mt-3" th:text="#{teacher.self.rating.required}">
+                      1 = ពុំយល់ស្របទាល់តែសោះ 2 = ពុំយល់ស្រប 3 = យល់ស្របមធ្យម 4 = យល់ស្រប 5 = យល់ស្របខ្លាំង (Required)
+                    </div>
+                  </div>
+
+                  <div th:if="${q.type.name() == 'TEXT'}">
+                    <textarea class="form-control"
+                              rows="4"
+                              th:name="${'q_' + q.id}"
+                              th:disabled="${!open}"
+                              th:placeholder="#{teacher.self.text.placeholder}" placeholder="Write (optional)"
+                              th:text="${answers != null ? answers['q_' + q.id] : ''}"></textarea>
+                    <div class="helper-text mt-2" th:text="#{teacher.self.text.hint}">Optional comment.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="content-card overflow-hidden">
+            <div class="panel-body d-flex flex-wrap justify-content-between align-items-center gap-3">
+              <div class="helper-text">
+                <i class="bi bi-shield-check me-1"></i>
+                <span th:if="${open}">You can submit while the evaluation window is open.</span>
+                <span th:unless="${open}">This form is view-only because the evaluation window is closed.</span>
+              </div>
+
+              <div class="d-flex flex-wrap gap-2 justify-content-end">
+                <a class="btn btn-outline-shell" href="/teacher">
+                  <i class="bi bi-x-circle me-1"></i> <span th:text="#{teacher.self.btn.cancel}">Cancel</span>
+                </a>
+
+                <button class="btn btn-premium" type="submit" th:disabled="${!open}">
+                  <i class="bi bi-send-check me-1"></i> <span th:text="#{teacher.self.btn.submit}">Submit</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function switchLang(lang) {
+      const u = new URL(window.location.href);
+      u.searchParams.set('lang', lang);
+      window.location.href = u.toString();
+    }
+  </script>
+</body>
+
+</html>

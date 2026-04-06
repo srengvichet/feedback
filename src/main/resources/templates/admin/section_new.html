@@ -1,0 +1,249 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>New Section</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --shadow: 0 10px 30px rgba(15,23,42,.08);
+      --line: #e5e7eb;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+    }
+    body { background: #f1f5f9; }
+    .page-wrap { max-width: 1480px; margin: 0 auto; }
+
+    .topbar {
+      background: linear-gradient(135deg,#fff 0%,#f7faff 100%);
+      border-radius: 24px;
+      padding: 28px 36px;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .topbar::after {
+      content: '';
+      position: absolute;
+      right: -60px;
+      top: -60px;
+      width: 220px;
+      height: 220px;
+      background: rgba(37,99,235,.07);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .topbar .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: .9rem;
+      text-decoration: none;
+      margin-bottom: 10px;
+    }
+    .topbar .back-link:hover { color: var(--primary-dark); }
+    .page-title { font-size: 1.95rem; font-weight: 800; color: #0f172a; margin: 0; }
+    .page-subtitle { color: var(--muted); margin: 4px 0 0; font-size: .97rem; }
+
+    .card {
+      border: none !important;
+      border-radius: 22px !important;
+      box-shadow: var(--shadow) !important;
+      overflow: hidden;
+      background: #fff;
+    }
+    .panel-head {
+      padding: 18px 24px 14px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg,#fff 0%,#fbfdff 100%);
+    }
+    .panel-title { font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0; }
+    .panel-subtitle { color: var(--muted); font-size: .88rem; margin: 2px 0 0; }
+    .panel-body { padding: 20px 24px; }
+
+    .form-label { font-weight: 700; color: #374151; font-size: .9rem; }
+    .form-control, .form-select {
+      border-radius: 14px;
+      min-height: 46px;
+      border: 1px solid #dbe3ee;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+    }
+    .btn { border-radius: 14px; font-weight: 700; }
+    .btn-primary {
+      background: linear-gradient(135deg,#2563eb,#1d4ed8);
+      border: none;
+      box-shadow: 0 4px 14px rgba(37,99,235,.3);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg,#1d4ed8,#1e40af);
+      box-shadow: 0 6px 18px rgba(37,99,235,.4);
+    }
+    .soft-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      background: #eef4ff;
+      color: #1d4ed8;
+      border-radius: 999px;
+      padding: .45rem .75rem;
+      font-size: .82rem;
+      font-weight: 700;
+      border: 1px solid rgba(37,99,235,.08);
+    }
+
+    .autofill-card {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+    .autofill-label {
+      font-weight: 700;
+      color: #374151;
+      font-size: .9rem;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+  </style>
+</head>
+<body>
+<div class="container-fluid py-4 px-3 px-md-4">
+  <div class="page-wrap">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <a href="/admin/teaching" class="back-link">
+        <i class="bi bi-arrow-left"></i> Teaching Schedule
+      </a>
+      <h1 class="page-title">New Class Section</h1>
+      <p class="page-subtitle">Create a new class section linked to a teaching record.</p>
+    </div>
+
+    <!-- Centered card -->
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-8 mx-auto">
+
+        <!-- Auto-fill picker -->
+        <div class="autofill-card">
+          <div class="autofill-label">
+            <i class="bi bi-lightning-charge" style="color:var(--primary);"></i>
+            Auto-fill from existing teaching (optional)
+          </div>
+          <select class="form-select" id="teachingPick">
+            <option value="">-- Select a teaching record to auto-fill --</option>
+            <option th:each="t : ${teachings}"
+                    th:value="${t.id}"
+                    th:attr="data-sem=${t.semester.id},
+                             data-course=${t.course.id},
+                             data-teacher=${t.teacher.id},
+                             data-shift=${t.shiftTime},
+                             data-building=${t.building},
+                             data-room=${t.room}
+                             ">
+              [[${t.semester.name}]] | [[${t.course.code}]] | [[${t.teacher.username}]] | [[${t.shiftTime}]] | [[${t.building}]] [[${t.room}]]]
+            </option>
+          </select>
+          <div class="form-text mt-1">
+            <i class="bi bi-info-circle me-1"></i>Choose a teaching record to auto-fill the section form below.
+          </div>
+        </div>
+
+        <!-- Section form card -->
+        <div class="card">
+          <div class="panel-head">
+            <div class="panel-title">Section Details</div>
+            <div class="panel-subtitle">Fill in the section information or use the auto-fill above.</div>
+          </div>
+          <div class="panel-body">
+            <form method="post" th:action="@{/admin/sections}" class="row g-3">
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+              <div class="col-12 col-md-6">
+                <label class="form-label">Semester</label>
+                <select class="form-select" id="semesterId" name="semesterId" required>
+                  <option th:each="s : ${semesters}" th:value="${s.id}" th:text="${s.name}"></option>
+                </select>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label">Course</label>
+                <select class="form-select" id="courseId" name="courseId" required>
+                  <option th:each="c : ${courses}" th:value="${c.id}" th:text="${c.code + ' - ' + c.name}"></option>
+                </select>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label">Teacher</label>
+                <select class="form-select" id="teacherId" name="teacherId" required>
+                  <option th:each="t : ${teachers}" th:value="${t.id}" th:text="${t.username}"></option>
+                </select>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label">Shift</label>
+                <select class="form-select" id="shiftTime" name="shiftTime" required>
+                  <option th:each="sh : ${shifts}" th:value="${sh}" th:text="${sh}"></option>
+                </select>
+              </div>
+
+              <div class="col-12 col-md-4">
+                <label class="form-label">Building</label>
+                <input class="form-control" id="building" name="building" placeholder="A">
+              </div>
+
+              <div class="col-12 col-md-4">
+                <label class="form-label">Room</label>
+                <input class="form-control" id="room" name="room" placeholder="201">
+              </div>
+
+              <div class="col-12 col-md-4">
+                <label class="form-label">Section Name</label>
+                <input class="form-control" id="sectionName" name="sectionName" placeholder="G1">
+              </div>
+
+              <div class="col-12 pt-2">
+                <button class="btn btn-primary px-5" style="min-height:46px;">
+                  <i class="bi bi-plus-circle me-2"></i>Create Section
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const pick = document.getElementById('teachingPick');
+  pick?.addEventListener('change', () => {
+    const opt = pick.options[pick.selectedIndex];
+    if (!opt || !opt.dataset.sem) return;
+
+    document.getElementById('semesterId').value = opt.dataset.sem;
+    document.getElementById('courseId').value = opt.dataset.course;
+    document.getElementById('teacherId').value = opt.dataset.teacher;
+    document.getElementById('shiftTime').value = opt.dataset.shift;
+
+    document.getElementById('building').value = opt.dataset.building || '';
+    document.getElementById('room').value = opt.dataset.room || '';
+    document.getElementById('sectionName').value = opt.dataset.section || '';
+  });
+</script>
+
+</body>
+</html>

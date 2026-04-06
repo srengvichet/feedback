@@ -1,0 +1,225 @@
+<!-- Created with Jaspersoft Studio version 7.0.3.final using JasperReports Library version 7.0.3-41034ca841d452f3305ba55b9042260aaa1ab5dd  -->
+<jasperReport name="section_report_km" language="java" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="527" leftMargin="34" rightMargin="34" topMargin="36" bottomMargin="36" uuid="c3f6b8d5-0a58-4e55-8bb0-9b5f2a8c7b0d">
+	<property name="com.jaspersoft.studio.report.description" value=""/>
+	<style name="Base" default="true" fontName="NotoSansKhmer" fontSize="10.0" pdfEncoding="Identity-H" pdfEmbedded="true"/>
+	<style name="TableHeader" forecolor="#FFFFFF" backcolor="#1F3E6B" fontName="NotoSansKhmer" fontSize="9.0" bold="true" pdfEncoding="Identity-H" pdfEmbedded="true"/>
+	<style name="CategoryRow" forecolor="#1F3E6B" backcolor="#DCE6F1" fontName="NotoSansKhmer" fontSize="9.0" bold="true" pdfEncoding="Identity-H" pdfEmbedded="true"/>
+	<style name="AiHeader" forecolor="#FFFFFF" backcolor="#2E5E9A" fontName="NotoSansKhmer" fontSize="9.0" bold="true" pdfEncoding="Identity-H" pdfEmbedded="true"/>
+	<parameter name="teacherName" class="java.lang.String"/>
+	<parameter name="teachingClass" class="java.lang.String"/>
+	<parameter name="cohort" class="java.lang.String"/>
+	<parameter name="promotion" class="java.lang.String"/>
+	<parameter name="shiftTime" class="java.lang.String"/>
+	<parameter name="semesterName" class="java.lang.String"/>
+	<parameter name="course" class="java.lang.String"/>
+	<parameter name="room" class="java.lang.String"/>
+	<parameter name="count" class="java.lang.String"/>
+	<parameter name="enrolled" class="java.lang.String"/>
+	<parameter name="responseRateText" class="java.lang.String"/>
+	<parameter name="overallText" class="java.lang.String"/>
+	<parameter name="generatedAt" class="java.lang.String"/>
+	<parameter name="responded" class="java.lang.String">
+		<defaultValueExpression><![CDATA["Responses: " + $P{count} +
+" / Enrolled: " + $P{enrolled} +
+" / Not responded: " + $P{notResponded} +
+" / Rate: " + $P{responseRateText} +
+" / Overall Avg: " + $P{overallText}
+]]></defaultValueExpression>
+	</parameter>
+	<parameter name="notResponded" class="java.lang.String"/>
+	<parameter name="comments" class="java.lang.String"/>
+	<parameter name="aiSummary" class="java.lang.String"/>
+	<parameter name="aiStrengths" class="java.lang.String"/>
+	<parameter name="aiImprovements" class="java.lang.String"/>
+	<parameter name="aiRecommendation" class="java.lang.String"/>
+	<parameter name="khmerDate" class="java.lang.String"/>
+	<field name="categoryLabel" class="java.lang.String"/>
+	<field name="rangeText" class="java.lang.String"/>
+	<field name="categoryAvgText" class="java.lang.String"/>
+	<field name="orderNo" class="java.lang.Integer"/>
+	<field name="questionText" class="java.lang.String"/>
+	<field name="minText" class="java.lang.String"/>
+	<field name="maxText" class="java.lang.String"/>
+	<field name="avgText" class="java.lang.String"/>
+	<group name="CategoryGroup">
+		<expression><![CDATA[$F{categoryLabel}]]></expression>
+		<groupHeader>
+			<band height="20">
+				<element kind="rectangle" uuid="a1b2c3d4-e5f6-7890-abcd-ef1234567890" mode="Opaque" x="0" y="0" width="526" height="20" backcolor="#DCE6F1">
+					<pen lineWidth="0.5" lineColor="#9BB5D5"/>
+				</element>
+				<element kind="textField" uuid="8a768601-d7b3-4340-9b9d-13f60546a788" x="4" y="1" width="470" height="18" style="CategoryRow">
+					<expression><![CDATA[$F{categoryLabel} + "   ·   ពិន្ទុមធ្យម: " + $F{categoryAvgText}]]></expression>
+				</element>
+			</band>
+		</groupHeader>
+	</group>
+	<title height="120">
+		<element kind="rectangle" uuid="b2c3d4e5-f6a7-8901-bcde-f12345678901" mode="Opaque" x="0" y="0" width="526" height="42" backcolor="#1F3E6B">
+			<pen lineWidth="0.0"/>
+		</element>
+		<element kind="staticText" uuid="b17459db-7b48-430e-ab70-e592b6efcf0b" mode="Transparent" x="0" y="4" width="526" height="34" forecolor="#FFFFFF" fontName="NotoSansKhmer" fontSize="17.0" hTextAlign="Center">
+			<text><![CDATA[លទ្ធផលវាយតម្លៃការបង្រៀន]]></text>
+		</element>
+		<element kind="rectangle" uuid="c3d4e5f6-a7b8-9012-cdef-123456789012" mode="Opaque" x="0" y="42" width="526" height="3" backcolor="#F0A500">
+			<pen lineWidth="0.0"/>
+		</element>
+		<element kind="staticText" uuid="d4e5f6a7-b8c9-0123-defa-234567890123" x="0" y="50" width="55" height="18" forecolor="#1F3E6B" fontName="NotoSansKhmer" fontSize="9.0" bold="true" vTextAlign="Middle">
+			<text><![CDATA[លោកគ្រូ ៖]]></text>
+		</element>
+		<element kind="textField" uuid="e5f6a7b8-c9d0-1234-efab-345678901234" x="55" y="50" width="145" height="18" fontSize="9.0" vTextAlign="Middle">
+			<expression><![CDATA[$P{teacherName}]]></expression>
+		</element>
+		<element kind="staticText" uuid="f6a7b8c9-d0e1-2345-fabc-456789012345" x="210" y="50" width="60" height="18" forecolor="#1F3E6B" fontName="NotoSansKhmer" fontSize="9.0" bold="true" vTextAlign="Middle">
+			<text><![CDATA[មុខវិជ្ជា ៖]]></text>
+		</element>
+		<element kind="textField" uuid="a7b8c9d0-e1f2-3456-abcd-567890123456" x="270" y="50" width="256" height="18" fontSize="9.0" vTextAlign="Middle">
+			<expression><![CDATA[$P{course}]]></expression>
+		</element>
+		<element kind="rectangle" uuid="b8c9d0e1-f2a3-4567-bcde-678901234567" mode="Opaque" x="0" y="70" width="526" height="20" backcolor="#F5F7FA">
+			<pen lineWidth="0.5" lineColor="#CCCCCC"/>
+		</element>
+		<element kind="textField" uuid="c9d0e1f2-a3b4-5678-cdef-789012345678" x="4" y="72" width="519" height="16" forecolor="#444444" fontSize="8.5">
+			<expression><![CDATA["ចំនួនឆ្លើយ: " + $P{count} + "   ចុះឈ្មោះ: " + $P{enrolled} + "   មិនបានឆ្លើយ: " + $P{notResponded} + "   ភាគរយ: " + $P{responseRateText} + "   ពិន្ទុមធ្យមសរុប: " + $P{overallText}]]></expression>
+		</element>
+		<element kind="rectangle" uuid="d0e1f2a3-b4c5-6789-defa-890123456789" mode="Opaque" x="0" y="92" width="526" height="22" backcolor="#1F3E6B">
+			<pen lineWidth="0.0"/>
+		</element>
+		<element kind="staticText" uuid="e1f2a3b4-c5d6-7890-efab-901234567890" x="0" y="92" width="29" height="22" hTextAlign="Center" vTextAlign="Middle" style="TableHeader">
+			<text><![CDATA[ល.រ]]></text>
+		</element>
+		<element kind="staticText" uuid="f2a3b4c5-d6e7-8901-fabc-012345678901" x="29" y="92" width="448" height="22" vTextAlign="Middle" style="TableHeader">
+			<paragraph leftIndent="5"/>
+			<text><![CDATA[សូចនាករ]]></text>
+		</element>
+		<element kind="staticText" uuid="a3b4c5d6-e7f8-9012-abcd-123456789012" x="477" y="92" width="49" height="22" hTextAlign="Center" vTextAlign="Middle" style="TableHeader">
+			<text><![CDATA[មធ្យម]]></text>
+		</element>
+	</title>
+	<pageHeader/>
+	<columnHeader/>
+	<detail>
+		<band height="19" splitType="Stretch">
+			<element kind="textField" uuid="eb9b8f2e-7f1a-4d8a-b00f-3957126dddf2" stretchType="ContainerHeight" x="0" y="0" width="29" height="19" fontSize="9.0" textAdjust="StretchHeight" hTextAlign="Center" vTextAlign="Middle">
+				<expression><![CDATA[$F{orderNo}]]></expression>
+				<box>
+					<pen lineWidth="0.5" lineColor="#AAAAAA"/>
+				</box>
+			</element>
+			<element kind="textField" uuid="f015c2e9-8b4b-44c8-a6f0-75e656e35ffe" x="29" y="0" width="448" height="19" fontName="NotoSansKhmer" fontSize="9.0" pdfEncoding="Identity-H" textAdjust="StretchHeight" printRepeatedValues="false" pdfEmbedded="true">
+				<paragraph leftIndent="5"/>
+				<expression><![CDATA[$F{questionText}]]></expression>
+				<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				<box padding="1">
+					<pen lineWidth="0.5" lineColor="#AAAAAA"/>
+				</box>
+			</element>
+			<element kind="textField" uuid="9fa2cf01-0db1-44cd-89df-ab2557281b5a" stretchType="ContainerHeight" x="477" y="0" width="49" height="19" fontSize="9.0" hTextAlign="Center" vTextAlign="Middle">
+				<expression><![CDATA[$F{avgText}]]></expression>
+				<box>
+					<pen lineWidth="0.5" lineColor="#AAAAAA"/>
+				</box>
+			</element>
+			<element kind="line" uuid="b4c5d6e7-f8a9-0123-bcde-234567890123" stretchType="ContainerHeight" x="0" y="0" width="1" height="19" forecolor="#AAAAAA"/>
+			<element kind="line" uuid="c5d6e7f8-a9b0-1234-cdef-345678901234" stretchType="ContainerHeight" x="525" y="0" width="1" height="19" forecolor="#AAAAAA"/>
+		</band>
+	</detail>
+	<columnFooter height="18">
+		<element kind="line" uuid="d6e7f8a9-b0c1-2345-defa-456789012345" x="0" y="0" width="526" height="1" forecolor="#1F3E6B"/>
+		<element kind="textField" uuid="e7f8a9b0-c1d2-3456-efab-567890123456" x="250" y="2" width="100" height="16" fontSize="8.0" evaluationTime="Report" hTextAlign="Left">
+			<expression><![CDATA[" / " + $V{PAGE_NUMBER}]]></expression>
+		</element>
+		<element kind="textField" uuid="f8a9b0c1-d2e3-4567-fabc-678901234567" x="150" y="2" width="100" height="16" fontSize="8.0" hTextAlign="Right">
+			<expression><![CDATA["ទំព័រ " + $V{PAGE_NUMBER}]]></expression>
+		</element>
+	</columnFooter>
+	<pageFooter height="16"/>
+	<lastPageFooter height="16"/>
+	<summary height="410" splitType="Stretch">
+		<element kind="rectangle" uuid="a9b0c1d2-e3f4-5678-abcd-789012345678" mode="Opaque" x="0" y="0" width="526" height="22" backcolor="#1F3E6B">
+			<pen lineWidth="0.0"/>
+		</element>
+		<element kind="staticText" uuid="b0c1d2e3-f4a5-6789-bcde-890123456789" x="0" y="0" width="477" height="22" fontSize="10.0" hTextAlign="Center" vTextAlign="Middle" style="TableHeader">
+			<text><![CDATA[ពិន្ទុមធ្យមសរុប]]></text>
+		</element>
+		<element kind="textField" uuid="c1d2e3f4-a5b6-7890-cdef-901234567890" x="477" y="0" width="49" height="22" fontSize="10.0" hTextAlign="Center" vTextAlign="Middle" style="TableHeader">
+			<expression><![CDATA[$P{overallText}]]></expression>
+		</element>
+		<element kind="rectangle" uuid="d2e3f4a5-b6c7-8901-defa-012345678901" mode="Opaque" x="0" y="30" width="526" height="24" backcolor="#2E5E9A">
+			<pen lineWidth="0.0"/>
+		</element>
+		<element kind="staticText" uuid="e3f4a5b6-c7d8-9012-efab-123456789012" x="0" y="30" width="526" height="24" fontSize="10.0" hTextAlign="Center" vTextAlign="Middle" style="AiHeader">
+			<text><![CDATA[សង្ខេប AI នៃមតិយោបល់និស្សិត  (AI Summary of Student Feedback)]]></text>
+		</element>
+		<element kind="frame" uuid="10000000-0000-0000-0000-000000000001" positionType="Float" x="0" y="60" width="527" height="56">
+			<element kind="rectangle" uuid="10000000-0000-0000-0000-000000000002" mode="Opaque" x="0" y="0" width="526" height="18" backcolor="#E8F0FB">
+				<pen lineWidth="0.5" lineColor="#9BB5D5"/>
+			</element>
+			<element kind="staticText" uuid="10000000-0000-0000-0000-000000000003" x="4" y="0" width="522" height="18" forecolor="#1F3E6B" fontName="NotoSansKhmer" fontSize="9.0" pdfEncoding="Identity-H" pdfEmbedded="true" bold="true" vTextAlign="Middle">
+				<text><![CDATA[សង្ខេបរួម  (Summary)]]></text>
+			</element>
+			<element kind="textField" uuid="10000000-0000-0000-0000-000000000004" positionType="Float" stretchType="ContainerHeight" x="0" y="18" width="526" height="38" fontName="NotoSansKhmer" fontSize="10.0" pdfEncoding="Identity-H" textAdjust="StretchHeight" printRepeatedValues="false" removeLineWhenBlank="true" pdfEmbedded="true" hTextAlign="Left" vTextAlign="Top">
+				<paragraph leftIndent="6" rightIndent="6" spacingBefore="2" spacingAfter="2"/>
+				<expression><![CDATA[$P{aiSummary} != null && !$P{aiSummary}.trim().isEmpty() ? $P{aiSummary} : "-"]]></expression>
+				<box padding="3">
+					<pen lineWidth="0.5" lineColor="#9BB5D5"/>
+				</box>
+			</element>
+		</element>
+		<element kind="frame" uuid="20000000-0000-0000-0000-000000000001" positionType="Float" x="0" y="126" width="527" height="56">
+			<element kind="rectangle" uuid="20000000-0000-0000-0000-000000000002" mode="Opaque" x="0" y="0" width="526" height="18" backcolor="#E8F0FB">
+				<pen lineWidth="0.5" lineColor="#9BB5D5"/>
+			</element>
+			<element kind="staticText" uuid="20000000-0000-0000-0000-000000000003" x="4" y="0" width="522" height="18" forecolor="#1F3E6B" fontName="NotoSansKhmer" fontSize="9.0" pdfEncoding="Identity-H" pdfEmbedded="true" bold="true" vTextAlign="Middle">
+				<text><![CDATA[ចំណុចខ្លាំង  (Strengths)]]></text>
+			</element>
+			<element kind="textField" uuid="20000000-0000-0000-0000-000000000004" positionType="Float" stretchType="ContainerHeight" x="0" y="18" width="526" height="38" fontName="NotoSansKhmer" fontSize="10.0" pdfEncoding="Identity-H" textAdjust="StretchHeight" printRepeatedValues="false" removeLineWhenBlank="true" pdfEmbedded="true" hTextAlign="Left" vTextAlign="Top">
+				<paragraph leftIndent="6" rightIndent="6" spacingBefore="2" spacingAfter="2"/>
+				<expression><![CDATA[$P{aiStrengths} != null && !$P{aiStrengths}.trim().isEmpty() ? $P{aiStrengths} : "-"]]></expression>
+				<box padding="3">
+					<pen lineWidth="0.5" lineColor="#9BB5D5"/>
+				</box>
+			</element>
+		</element>
+		<element kind="frame" uuid="30000000-0000-0000-0000-000000000001" positionType="Float" x="0" y="192" width="527" height="56">
+			<element kind="rectangle" uuid="30000000-0000-0000-0000-000000000002" mode="Opaque" x="0" y="0" width="526" height="18" backcolor="#E8F0FB">
+				<pen lineWidth="0.5" lineColor="#9BB5D5"/>
+			</element>
+			<element kind="staticText" uuid="30000000-0000-0000-0000-000000000003" x="4" y="0" width="522" height="18" forecolor="#1F3E6B" fontName="NotoSansKhmer" fontSize="9.0" pdfEncoding="Identity-H" pdfEmbedded="true" bold="true" vTextAlign="Middle">
+				<text><![CDATA[ចំណុចត្រូវកែលម្អ  (Improvements)]]></text>
+			</element>
+			<element kind="textField" uuid="30000000-0000-0000-0000-000000000004" positionType="Float" stretchType="ContainerHeight" x="0" y="18" width="526" height="38" fontName="NotoSansKhmer" fontSize="10.0" pdfEncoding="Identity-H" textAdjust="StretchHeight" printRepeatedValues="false" removeLineWhenBlank="true" pdfEmbedded="true" hTextAlign="Left" vTextAlign="Top">
+				<paragraph leftIndent="6" rightIndent="6" spacingBefore="2" spacingAfter="2"/>
+				<expression><![CDATA[$P{aiImprovements} != null && !$P{aiImprovements}.trim().isEmpty() ? $P{aiImprovements} : "-"]]></expression>
+				<box padding="3">
+					<pen lineWidth="0.5" lineColor="#9BB5D5"/>
+				</box>
+			</element>
+		</element>
+		<element kind="frame" uuid="40000000-0000-0000-0000-000000000001" positionType="Float" x="0" y="258" width="527" height="56">
+			<element kind="rectangle" uuid="40000000-0000-0000-0000-000000000002" mode="Opaque" x="0" y="0" width="526" height="18" backcolor="#E8F0FB">
+				<pen lineWidth="0.5" lineColor="#9BB5D5"/>
+			</element>
+			<element kind="staticText" uuid="40000000-0000-0000-0000-000000000003" x="4" y="0" width="522" height="18" forecolor="#1F3E6B" fontName="NotoSansKhmer" fontSize="9.0" pdfEncoding="Identity-H" pdfEmbedded="true" bold="true" vTextAlign="Middle">
+				<text><![CDATA[ការផ្តល់យោបល់  (Recommendation)]]></text>
+			</element>
+			<element kind="textField" uuid="40000000-0000-0000-0000-000000000004" positionType="Float" stretchType="ContainerHeight" x="0" y="18" width="526" height="38" fontName="NotoSansKhmer" fontSize="10.0" pdfEncoding="Identity-H" textAdjust="StretchHeight" printRepeatedValues="false" removeLineWhenBlank="true" pdfEmbedded="true" hTextAlign="Left" vTextAlign="Top">
+				<paragraph leftIndent="6" rightIndent="6" spacingBefore="2" spacingAfter="2"/>
+				<expression><![CDATA[$P{aiRecommendation} != null && !$P{aiRecommendation}.trim().isEmpty() ? $P{aiRecommendation} : "-"]]></expression>
+				<box padding="3">
+					<pen lineWidth="0.5" lineColor="#9BB5D5"/>
+				</box>
+			</element>
+		</element>
+		<element kind="line" uuid="d4e5f6a7-b8c9-0123-defa-234567890124" positionType="Float" x="0" y="322" width="526" height="1" forecolor="#CCCCCC"/>
+		<element kind="textField" uuid="e5f6a7b8-c9d0-1234-efab-345678901235" positionType="Float" x="270" y="330" width="256" height="13" fontName="NotoSansKhmer" fontSize="9.0" pdfEncoding="Identity-H" pdfEmbedded="true" hTextAlign="Center">
+			<expression><![CDATA[$P{khmerDate}]]></expression>
+		</element>
+		<element kind="staticText" uuid="f6a7b8c9-d0e1-2345-fabc-456789012346" positionType="Float" x="270" y="343" width="256" height="18" fontName="NotoSansKhmer" fontSize="9.0" pdfEncoding="Identity-H" pdfEmbedded="true" hTextAlign="Center">
+			<text><![CDATA[អ្នករៀបចំ]]></text>
+		</element>
+		<element kind="staticText" uuid="a7b8c9d0-e1f2-3456-abcd-567890123457" positionType="Float" x="270" y="390" width="256" height="18" fontName="NotoSansKhmer" fontSize="9.0" pdfEncoding="Identity-H" pdfEmbedded="true" hTextAlign="Center">
+			<text><![CDATA[សាស្ត្រ.ជំនួយ ស្រេង វិចិត្រ]]></text>
+		</element>
+	</summary>
+</jasperReport>

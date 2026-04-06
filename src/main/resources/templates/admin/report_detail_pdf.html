@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="km">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Section Report PDF</title>
+
+  <style type="text/css">
+    @page {
+      size: A4;
+      margin: 15mm 12mm;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Khmer OS Siemreap", sans-serif;
+      font-size: 12pt;
+      line-height: 1.45;
+    }
+
+
+    /* Ensure Khmer font is used even on bold text (avoid fallback fonts) */
+    b, strong, th, .meta .v, .catavg {
+      font-family: "Khmer OS Siemreap", sans-serif;
+    }
+
+    /* Muol Light is already a display font; keep weight normal to avoid missing bold face */
+    .cathead { font-family: "Khmer OS Muol Light","Khmer OS Siemreap",sans-serif; font-weight: normal; }
+
+    .title {
+      font-family: "Khmer OS Muol Light", "Khmer OS Siemreap", sans-serif;
+      font-size: 14pt;
+      font-weight: normal;
+      margin: 0 0 4mm 0;
+    }
+
+    /* Titles (optional) */
+    h1,
+    h2,
+    .kh-title {
+      font-family: "Khmer OS Siemreap", sans-serif;
+      font-weight: normal;
+      /* important if you did not register a bold font file */
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      vertical-align: top;
+    }
+
+    /* Optional: prevent ugly table splits */
+    tr {
+      page-break-inside: avoid;
+    }
+
+    .meta {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 5mm;
+    }
+
+    .meta td {
+      padding: 2mm 1mm;
+      vertical-align: top;
+    }
+
+    .meta .k {
+      width: 26%;
+      color: #555;
+    }
+
+    .meta .v {
+      width: 74%;
+      font-weight: 700;
+    }
+
+    .summary {
+      border: 1px solid #ddd;
+      padding: 3mm;
+      margin-bottom: 5mm;
+    }
+
+    .cat {
+      margin-top: 6mm;
+      page-break-inside: avoid;
+    }
+
+    .cathead {
+      display: block;
+      font-family: "Khmer OS Muol Light", "Khmer OS Siemreap", sans-serif;
+      font-size: 12pt;
+      font-weight: normal;
+      margin: 0 0 2mm 0;
+    }
+
+    .catavg {
+      font-weight: 700;
+      color: #333;
+      margin-left: 3mm;
+      font-size: 10.5pt;
+    }
+
+    table.q {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    table.q th,
+    table.q td {
+      border: 1px solid #ddd;
+      padding: 2mm;
+      vertical-align: top;
+    }
+
+    table.q th {
+      background: #f3f3f3;
+      font-size: 10pt;
+      text-align: left;
+    }
+
+    .mono {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .right {
+      text-align: right;
+    }
+
+    .footer {
+      margin-top: 6mm;
+      font-size: 9pt;
+      color: #666;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="title">Student Feedback Report (PDF)</div>
+
+  <table class="meta">
+    <tr>
+      <td class="k">Teacher</td>
+      <td class="v" th:text="${header.teacherName}">-</td>
+    </tr>
+    <tr>
+      <td class="k">Teaching class</td>
+      <td class="v" th:text="${header.teachingClass}">-</td>
+    </tr>
+    <tr>
+      <td class="k">Cohort</td>
+      <td class="v" th:text="${header.cohort}">-</td>
+    </tr>
+    <tr>
+      <td class="k">Promotion</td>
+      <td class="v" th:text="${header.promotion}">-</td>
+    </tr>
+    <tr>
+      <td class="k">Shift-time</td>
+      <td class="v" th:text="${header.shiftTime}">-</td>
+    </tr>
+    <tr>
+      <td class="k">Semester</td>
+      <td class="v" th:text="${header.semesterName}">-</td>
+    </tr>
+    <tr>
+      <td class="k">Course</td>
+      <td class="v" th:text="${header.course}">-</td>
+    </tr>
+    <tr>
+      <td class="k">Room</td>
+      <td class="v" th:text="${header.room}">-</td>
+    </tr>
+  </table>
+
+  <div class="summary">
+    <span>Responses: <b class="mono" th:text="${count}">0</b></span>
+    <span> / Enrolled: <b class="mono" th:text="${enrolled}">0</b></span>
+    <span> / Rate: <b class="mono" th:text="${responseRateText}">-</b></span>
+    <span> / Overall Avg: <b class="mono" th:text="${overallText}">-</b></span>
+  </div>
+
+  <div th:each="cat : ${categories}" class="cat">
+    <div class="cathead">
+      Category <span th:text="${cat.label}">ក</span>
+      <span th:text="${cat.rangeText}">(Q1–Q11)</span>
+      <span class="catavg">Avg: <span th:text="${cat.avgText}">-</span></span>
+    </div>
+
+    <table class="q">
+      <thead>
+        <tr>
+          <th style="width:8%;">No</th>
+          <th>Question</th>
+          <th style="width:10%;" class="right">Min</th>
+          <th style="width:10%;" class="right">Max</th>
+          <th style="width:12%;" class="right">Avg</th>
+          <th style="width:10%;" class="right">N</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="q : ${cat.questions}">
+          <td class="mono" th:text="${q.orderNo}">1</td>
+          <td th:text="${q.questionText}">Question text</td>
+          <td class="mono right" th:text="${q.minScore != null ? q.minScore : '-'}">-</td>
+          <td class="mono right" th:text="${q.maxScore != null ? q.maxScore : '-'}">-</td>
+          <td class="mono right" th:text="${q.avgScore != null ? #numbers.formatDecimal(q.avgScore,1,2) : '-'}">-</td>
+          <td class="mono right" th:text="${q.n != null ? q.n : '-'}">-</td>
+        </tr>
+
+        <tr th:if="${#lists.isEmpty(cat.questions)}">
+          <td colspan="6">No questions found in this category.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    Generated at: <span th:text="${generatedAt}">-</span>
+  </div>
+
+</body>
+
+</html>

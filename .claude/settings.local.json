@@ -1,0 +1,44 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cmd.exe /c \"cd /d d:\\\\feedback && mvnw.cmd dependency:resolve\")",
+      "Bash(ipconfig)",
+      "Bash(netsh advfirewall:*)",
+      "Bash(netstat -ano)",
+      "Bash(findstr \"3306\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{time_total}s\" --max-time 10 http://localhost:8080/api/auth/login -X POST -H \"Content-Type: application/json\" -d '{\"\"username\"\":\"\"test\"\",\"\"password\"\":\"\"test\"\"}')",
+      "Bash(powershell -Command \"Get-NetConnectionProfile | Select-Object Name, NetworkCategory, IPv4Connectivity\")",
+      "Bash(powershell -Command \"Get-Process java -ErrorAction SilentlyContinue | Select-Object Id, Path\")",
+      "Bash(powershell -Command \"Start-Process powershell -ArgumentList ''netsh advfirewall firewall add rule name=\"\"Spring Boot \\(Zulu JVM\\)\"\" dir=in action=allow program=\"\"C:\\\\Program Files\\\\Zulu\\\\zulu-21\\\\bin\\\\java.exe\"\" enable=yes profile=public,private,domain protocol=tcp'' -Verb RunAs -Wait\")",
+      "Bash(docker --version)",
+      "Bash(docker-compose --version)",
+      "Bash(docker info:*)",
+      "Bash(xargs ls:*)",
+      "Bash(xargs grep:*)",
+      "Bash(flutter pub:*)",
+      "Bash(flutter build:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(mvn dependency:resolve -q)",
+      "Bash(./mvnw dependency:resolve -q)",
+      "Bash(\"C:/Program Files/Eclipse Adoptium/jdk-21.0.7.6-hotspot/bin/java\" -version)",
+      "Bash(where mvn:*)",
+      "Bash(cmd /c \"where mvn\")",
+      "Bash(cmd /c \"cd d:\\\\feedback && mvnw.cmd dependency:resolve -q 2>&1\")",
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Read(//c/Users/ADMIN/AppData/Local/Temp/claude/d--feedback/9ed93ac8-2991-4906-b91e-ef99b07e9391/tasks/**)",
+      "Bash(done)",
+      "Bash(find C:UsersADMIN -type f -name *.java)",
+      "Bash(find C:UsersADMIN -maxdepth 3 -type d -name *spring* -o -name *backend* -o -name *server*)",
+      "Bash(find C:UsersADMIN -path *src/main/java* -type d)",
+      "Bash(find /d/feedback -type f -name *.html -o -name *.jsp -o -name *.ftl)",
+      "Bash(find C:/Users/ADMIN/num_feedback_app -type f -name *.html -o -name messages*.properties)",
+      "Bash(grep -r \"th:text.*message\\\\|#{message\" /d/feedback/src/main/resources/templates --include=*.html)",
+      "Bash(wc -l /d/feedback/src/main/resources/message*.properties)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\ADMIN\\num_feedback_app\\lib",
+      "C:\\Users\\ADMIN\\num_feedback_app"
+    ]
+  }
+}

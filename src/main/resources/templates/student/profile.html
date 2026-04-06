@@ -1,0 +1,419 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>My Profile – Student</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg1: #f4f7fb;
+      --card: #ffffff;
+      --text: #1f2a37;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --success: #10b981;
+      --shadow: 0 10px 30px rgba(15,23,42,.08);
+      --radius: 22px;
+    }
+
+    body { background: var(--bg1); color: var(--text); font-family: "Segoe UI","Noto Sans Khmer",sans-serif; margin: 0; }
+    .page-wrap { max-width: 860px; margin: 0 auto; }
+
+    /* ── Sticky topnav ── */
+    .student-topnav {
+      background: #0f172a; padding: 0 28px; height: 58px;
+      display: flex; align-items: center; position: sticky; top: 0; z-index: 200;
+      box-shadow: 0 4px 20px rgba(15,23,42,.35);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; flex: 1; }
+    .nav-brand-icon {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: .85rem; box-shadow: 0 4px 12px rgba(37,99,235,.4);
+    }
+    .nav-brand-text { line-height: 1.2; }
+    .nav-brand-title { font-size: .9rem; font-weight: 700; color: #fff; }
+    .nav-brand-sub   { font-size: .7rem; color: #64748b; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .lang-toggle { display: flex; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: 3px; gap: 2px; }
+    .lang-opt { text-decoration: none; font-size: .72rem; font-weight: 700; padding: 4px 11px; border-radius: 999px; color: rgba(255,255,255,.5); transition: .15s; }
+    .lang-opt:hover { color: rgba(255,255,255,.85); }
+    .lang-opt.active { background: #2563eb; color: #fff; }
+    .user-chip { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: 4px 14px 4px 5px; }
+    .user-avatar { width: 27px; height: 27px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); color: #fff; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 800; }
+    .user-name { font-size: .8rem; font-weight: 600; color: #cbd5e1; }
+    .nav-logout { background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.25); color: #f87171; border-radius: 10px; padding: 6px 14px; font-size: .8rem; font-weight: 600; cursor: pointer; transition: .15s; display: flex; align-items: center; gap: 5px; }
+    .nav-logout:hover { background: rgba(239,68,68,.22); color: #fca5a5; }
+
+    /* ── Hero ── */
+    .page-hero { background: linear-gradient(135deg, #064e3b 0%, #059669 55%, #10b981 100%); padding: 28px 28px 36px; position: relative; overflow: hidden; }
+    .page-hero::before { content: ""; position: absolute; right: -80px; top: -80px; width: 260px; height: 260px; border-radius: 50%; background: rgba(255,255,255,.06); }
+    .page-hero > * { position: relative; z-index: 1; }
+    .page-title { font-size: 1.75rem; font-weight: 800; color: #fff; margin: 0 0 .25rem; letter-spacing: -.02em; }
+    .page-subtitle { color: rgba(255,255,255,.72); margin: 0; font-size: .92rem; }
+    .btn-hero { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.22); color: #fff; border-radius: 12px; padding: 9px 18px; font-size: .87rem; font-weight: 600; text-decoration: none; transition: .15s; }
+    .btn-hero:hover { background: rgba(255,255,255,.22); color: #fff; }
+
+    /* ── Content ── */
+    .content-area { background: var(--bg1); padding: 28px; }
+
+    .content-card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,.85); overflow: hidden; }
+    .panel-head { padding: 18px 24px 14px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg,#fff 0%,#fbfdff 100%); }
+    .panel-title { font-size: 1.05rem; font-weight: 800; margin: 0; }
+    .panel-subtitle { color: var(--muted); font-size: .88rem; margin: 4px 0 0; }
+    .panel-body { padding: 24px; }
+
+    /* ── Profile summary card ── */
+    .profile-avatar {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; font-weight: 800; flex-shrink: 0;
+    }
+
+    /* ── Info grid (read-only) ── */
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 600px) { .info-grid { grid-template-columns: 1fr; } }
+
+    .info-field { background: #f8faff; border-radius: 14px; padding: 12px 16px; border: 1px solid #e8eef8; }
+    .info-label { font-size: .75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
+    .info-value { font-size: .95rem; font-weight: 600; color: var(--text); }
+    .info-value.empty { color: #c0c4cc; font-weight: 400; font-style: italic; }
+
+    /* ── Form ── */
+    .form-label { font-weight: 600; font-size: .88rem; color: var(--text); }
+    .form-control, .form-select { border-radius: 14px; min-height: 46px; border: 1px solid #dbe3ee; box-shadow: none; font-size: .93rem; }
+    .form-control:focus, .form-select:focus { border-color: #93c5fd; box-shadow: 0 0 0 .2rem rgba(37,99,235,.10); }
+
+    .btn-save { background: linear-gradient(135deg, #059669, #047857); border: none; color: #fff; border-radius: 14px; padding: 11px 24px; font-weight: 700; box-shadow: 0 6px 18px rgba(5,150,105,.25); transition: .15s; }
+    .btn-save:hover { background: linear-gradient(135deg, #047857, #065f46); color: #fff; transform: translateY(-1px); }
+
+    .alert-soft-success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; border-radius: 14px; padding: 12px 16px; font-weight: 600; font-size: .9rem; }
+    .alert-soft-danger  { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; border-radius: 14px; padding: 12px 16px; font-weight: 600; font-size: .9rem; }
+
+    .gender-pill {
+      display: inline-flex; align-items: center; gap: .35rem;
+      padding: .3rem .8rem; border-radius: 999px; font-size: .8rem; font-weight: 700;
+    }
+    .gender-male   { background: #dbeafe; color: #1d4ed8; }
+    .gender-female { background: #fce7f3; color: #9d174d; }
+
+    @media (max-width: 992px) {
+      .student-topnav { padding: 0 16px; }
+      .page-hero { padding: 20px 16px 28px; }
+      .content-area { padding: 16px; }
+      .nav-brand-sub { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Sticky Top Navigation ── -->
+  <nav class="student-topnav">
+    <div class="nav-brand">
+      <div class="nav-brand-icon">
+        <img th:src="@{/images/num_logo.jpg}" alt="NUM Logo" object-fit="cover" style="width: 100%; height: 100%; border-radius: 10px;">
+      </div>
+      <div class="nav-brand-text">
+        <div class="nav-brand-title">NUM Feedback</div>
+        <div class="nav-brand-sub">Student Portal</div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="lang-toggle">
+        <a href="javascript:void(0)" onclick="switchLang('en')" class="lang-opt" th:classappend="${#locale.language == 'en'} ? ' active'">EN</a>
+        <a href="javascript:void(0)" onclick="switchLang('kh')" class="lang-opt" th:classappend="${#locale.language == 'kh'} ? ' active'">KH</a>
+      </div>
+      <div class="user-chip">
+        <div class="user-avatar">S</div>
+        <span class="user-name" sec:authentication="name">Student</span>
+      </div>
+      <form th:action="@{/login?logout}" method="post" style="margin:0;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <button class="nav-logout" type="submit"><i class="bi bi-box-arrow-right"></i> Logout</button>
+      </form>
+    </div>
+  </nav>
+
+  <!-- ── Page Hero ── -->
+  <div class="page-hero">
+    <div class="page-wrap d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3">
+      <div>
+        <div class="mb-2">
+          <a href="/student" class="btn-hero" style="font-size:.8rem;padding:6px 14px;">
+            <i class="bi bi-arrow-left"></i> Dashboard
+          </a>
+        </div>
+        <h1 class="page-title">My Profile</h1>
+        <p class="page-subtitle">View your student record and manage your account settings.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Content ── -->
+  <div class="content-area">
+    <div class="page-wrap">
+
+      <!-- ── Profile Summary ── -->
+      <div class="content-card mb-4">
+        <div class="panel-body">
+          <div class="d-flex align-items-center gap-4 flex-wrap">
+            <div class="profile-avatar"
+                 th:text="${registry != null && registry.fullName != null && !#strings.isEmpty(registry.fullName)}
+                           ? ${#strings.substring(registry.fullName,0,1).toUpperCase()}
+                           : ${#strings.substring(user.username,0,1).toUpperCase()}">S</div>
+            <div>
+              <div style="font-size:1.35rem;font-weight:800;"
+                   th:text="${registry != null && registry.fullName != null} ? ${registry.fullName} : ${user.username}">Student Name</div>
+              <div th:if="${registry != null && registry.firstNameKh != null}" style="font-size:1rem;color:var(--muted);margin-top:2px;"
+                   th:text="${(registry.lastNameKh ?: '') + ' ' + (registry.firstNameKh ?: '')}"></div>
+              <div class="d-flex align-items-center gap-2 mt-1 flex-wrap">
+                <span style="font-size:.88rem;color:var(--muted);">
+                  <i class="bi bi-person me-1"></i>
+                  <span th:text="${user.username}">username</span>
+                </span>
+                <span class="badge bg-success" style="font-size:.75rem;">STUDENT</span>
+                <span th:if="${registry != null && registry.gender != null}"
+                      class="gender-pill"
+                      th:classappend="${registry.gender == 'MALE'} ? ' gender-male' : ' gender-female'"
+                      th:text="${registry.gender}">MALE</span>
+              </div>
+              <div th:if="${registry != null && registry.className != null}" style="font-size:.88rem;color:var(--muted);margin-top:4px;">
+                <i class="bi bi-mortarboard me-1"></i>
+                <span th:text="${registry.className}"></span>
+                <span th:if="${registry.cohort != null}">&nbsp;·&nbsp; Cohort <span th:text="${registry.cohort.cohortNo}"></span></span>
+                <span th:if="${registry.groupNo != null}">&nbsp;·&nbsp; Group <span th:text="${registry.groupNo}"></span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Student Record (read-only) ── -->
+      <div th:if="${registry != null}" class="content-card mb-4">
+        <div class="panel-head">
+          <h2 class="panel-title"><i class="bi bi-id-card me-2 text-success"></i>Student Record</h2>
+          <p class="panel-subtitle">Information managed by the university administration (read-only).</p>
+        </div>
+        <div class="panel-body">
+          <div class="info-grid">
+
+            <div class="info-field">
+              <div class="info-label"><i class="bi bi-hash me-1"></i>Student ID</div>
+              <div class="info-value" th:text="${registry.studentLogin}">—</div>
+            </div>
+
+            <div class="info-field">
+              <div class="info-label"><i class="bi bi-person me-1"></i>Full Name (EN)</div>
+              <div th:if="${registry.fullName != null && !#strings.isEmpty(registry.fullName)}"
+                   class="info-value" th:text="${registry.fullName}">—</div>
+              <div th:unless="${registry.fullName != null && !#strings.isEmpty(registry.fullName)}"
+                   class="info-value empty">Not provided</div>
+            </div>
+
+            <div class="info-field">
+              <div class="info-label"><i class="bi bi-fonts me-1"></i>First Name (EN)</div>
+              <div th:if="${registry.firstName != null}" class="info-value" th:text="${registry.firstName}">—</div>
+              <div th:unless="${registry.firstName != null}" class="info-value empty">Not provided</div>
+            </div>
+
+            <div class="info-field">
+              <div class="info-label"><i class="bi bi-fonts me-1"></i>Last Name (EN)</div>
+              <div th:if="${registry.lastName != null}" class="info-value" th:text="${registry.lastName}">—</div>
+              <div th:unless="${registry.lastName != null}" class="info-value empty">Not provided</div>
+            </div>
+
+            <div class="info-field">
+              <div class="info-label"><i class="bi bi-fonts me-1"></i>នាមខ្លួន (Khmer First)</div>
+              <div th:if="${registry.firstNameKh != null}" class="info-value" th:text="${registry.firstNameKh}">—</div>
+              <div th:unless="${registry.firstNameKh != null}" class="info-value empty">Not provided</div>
+            </div>
+
+            <div class="info-field">
+              <div class="info-label"><i class="bi bi-fonts me-1"></i>នាមត្រកូល (Khmer Last)</div>
+              <div th:if="${registry.lastNameKh != null}" class="info-value" th:text="${registry.lastNameKh}">—</div>
+              <div th:unless="${registry.lastNameKh != null}" class="info-value empty">Not provided</div>
+            </div>
+
+            <div class="info-field">
+              <div class="info-label"><i class="bi bi-gender-ambiguous me-1"></i>Gender</div>
+              <div th:if="${registry.gender != null}" class="info-value" th:text="${registry.gender}">—</div>
+              <div th:unless="${registry.gender != null}" class="info-value empty">Not provided</div>
+            </div>
+
+            <div class="info-field">
+              <div class="info-label"><i class="bi bi-calendar3 me-1"></i>Date of Birth</div>
+              <div th:if="${registry.dateOfBirth != null}" class="info-value"
+                   th:text="${#temporals.format(registry.dateOfBirth, 'dd MMMM yyyy')}">—</div>
+              <div th:unless="${registry.dateOfBirth != null}" class="info-value empty">Not provided</div>
+            </div>
+
+            <div class="info-field">
+              <div class="info-label"><i class="bi bi-telephone me-1"></i>Phone</div>
+              <div th:if="${registry.phone != null && !#strings.isEmpty(registry.phone)}"
+                   class="info-value" th:text="${registry.phone}">—</div>
+              <div th:unless="${registry.phone != null && !#strings.isEmpty(registry.phone)}"
+                   class="info-value empty">Not provided</div>
+            </div>
+
+            <div class="info-field">
+              <div class="info-label"><i class="bi bi-envelope me-1"></i>Email</div>
+              <div th:if="${registry.email != null && !#strings.isEmpty(registry.email)}"
+                   class="info-value" th:text="${registry.email}">—</div>
+              <div th:unless="${registry.email != null && !#strings.isEmpty(registry.email)}"
+                   class="info-value empty">Not provided</div>
+            </div>
+
+            <div class="info-field">
+              <div class="info-label"><i class="bi bi-mortarboard me-1"></i>Class</div>
+              <div th:if="${registry.className != null}" class="info-value" th:text="${registry.className}">—</div>
+              <div th:unless="${registry.className != null}" class="info-value empty">Not provided</div>
+            </div>
+
+            <div class="info-field">
+              <div class="info-label"><i class="bi bi-people me-1"></i>Cohort / Group</div>
+              <div class="info-value">
+                <span th:if="${registry.cohort != null}" th:text="'Cohort ' + ${registry.cohort.cohortNo}">—</span>
+                <span th:if="${registry.groupNo != null}" th:text="' / Group ' + ${registry.groupNo}"></span>
+                <span th:if="${registry.cohort == null && registry.groupNo == null}" class="empty">Not provided</span>
+              </div>
+            </div>
+
+            <div class="info-field">
+              <div class="info-label"><i class="bi bi-clock me-1"></i>Shift</div>
+              <div th:if="${registry.shiftTime != null}" class="info-value" th:text="${registry.shiftTime}">—</div>
+              <div th:unless="${registry.shiftTime != null}" class="info-value empty">Not provided</div>
+            </div>
+
+            <div class="info-field">
+              <div class="info-label"><i class="bi bi-check-circle me-1"></i>Account Status</div>
+              <div class="info-value">
+                <span th:if="${registry.claimed}" class="badge bg-success">Activated</span>
+                <span th:unless="${registry.claimed}" class="badge bg-warning text-dark">Not yet activated</span>
+                <span th:if="${registry.claimedAt != null}" class="text-muted" style="font-size:.8rem;margin-left:6px;"
+                      th:text="${#temporals.format(registry.claimedAt, 'dd MMM yyyy')}"></span>
+              </div>
+            </div>
+
+            <div class="info-field" th:if="${registry.remark != null && !#strings.isEmpty(registry.remark)}">
+              <div class="info-label"><i class="bi bi-chat-left-text me-1"></i>Remark (សំគាល់)</div>
+              <div class="info-value" th:text="${registry.remark}">—</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Account Settings (editable) ── -->
+      <div class="content-card mb-4">
+        <div class="panel-head">
+          <h2 class="panel-title"><i class="bi bi-person-gear me-2 text-success"></i>Account Settings</h2>
+          <p class="panel-subtitle">Update your display name and contact information.</p>
+        </div>
+        <div class="panel-body">
+
+          <div th:if="${successInfo}" class="alert-soft-success mb-4">
+            <i class="bi bi-check-circle me-2"></i><span th:text="${successInfo}"></span>
+          </div>
+
+          <form th:action="@{/student/profile/info}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Full Name (Display)</label>
+                <input type="text" name="fullName" class="form-control"
+                       th:value="${user.fullName}" placeholder="e.g. Chan Dara"/>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Gender</label>
+                <select name="gender" class="form-select">
+                  <option value="">— Select —</option>
+                  <option value="MALE"   th:selected="${user.gender == 'MALE'}">Male</option>
+                  <option value="FEMALE" th:selected="${user.gender == 'FEMALE'}">Female</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control"
+                       th:value="${user.email}" placeholder="e.g. student@num.edu.kh"/>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Phone</label>
+                <input type="text" name="phone" class="form-control"
+                       th:value="${user.phone}" placeholder="e.g. 012 345 678"/>
+              </div>
+            </div>
+            <div class="mt-4">
+              <button type="submit" class="btn-save">
+                <i class="bi bi-save me-1"></i> Save Changes
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ── Change Password ── -->
+      <div class="content-card mb-4">
+        <div class="panel-head">
+          <h2 class="panel-title"><i class="bi bi-shield-lock-fill me-2 text-success"></i>Change Password</h2>
+          <p class="panel-subtitle">Choose a strong password you don't use elsewhere.</p>
+        </div>
+        <div class="panel-body">
+
+          <div th:if="${successPassword}" class="alert-soft-success mb-4">
+            <i class="bi bi-check-circle me-2"></i><span th:text="${successPassword}"></span>
+          </div>
+          <div th:if="${errorPassword}" class="alert-soft-danger mb-4">
+            <i class="bi bi-exclamation-circle me-2"></i><span th:text="${errorPassword}"></span>
+          </div>
+
+          <form th:action="@{/student/profile/password}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Current Password</label>
+                <input type="password" name="currentPassword" class="form-control"
+                       placeholder="Enter current password" required/>
+              </div>
+            </div>
+            <div class="row g-3 mt-0">
+              <div class="col-md-6">
+                <label class="form-label">New Password</label>
+                <input type="password" name="newPassword" class="form-control"
+                       placeholder="At least 6 characters" required/>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Confirm New Password</label>
+                <input type="password" name="confirmPassword" class="form-control"
+                       placeholder="Repeat new password" required/>
+              </div>
+            </div>
+            <div class="mt-4">
+              <button type="submit" class="btn-save">
+                <i class="bi bi-key me-1"></i> Change Password
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div><!-- /page-wrap -->
+  </div><!-- /content-area -->
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function switchLang(lang) {
+      const u = new URL(window.location.href);
+      u.searchParams.set('lang', lang);
+      window.location.href = u.toString();
+    }
+  </script>
+</body>
+</html>

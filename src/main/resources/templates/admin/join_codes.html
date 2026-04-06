@@ -1,0 +1,928 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title th:text="#{admin.jc.title}">Class Join Codes</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --success: #16a34a;
+      --shadow: 0 10px 30px rgba(15,23,42,.08);
+      --radius: 20px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Noto Sans Khmer", "Segoe UI", system-ui, -apple-system, sans-serif;
+      margin: 0;
+    }
+
+    .page-wrap { max-width: 1480px; margin: 0 auto; }
+
+    /* ── TOPNAV ── */
+    .admin-topnav {
+      background: #0f172a;
+      padding: 0 28px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: 0 4px 20px rgba(15,23,42,.35);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; flex: 1; }
+    .nav-brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg,#2563eb,#1d4ed8);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: .85rem;
+      box-shadow: 0 4px 12px rgba(37,99,235,.4);
+    }
+    .nav-brand-text { line-height: 1.2; }
+    .nav-brand-title { font-size: .9rem; font-weight: 700; color: #fff; }
+    .nav-brand-sub { font-size: .7rem; color: #64748b; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .lang-toggle { display: flex; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: 3px; gap: 2px; }
+    .lang-opt {
+      padding: 4px 11px;
+      border-radius: 999px;
+      font-size: .72rem;
+      font-weight: 700;
+      color: rgba(255,255,255,.5);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      transition: .15s;
+    }
+    .lang-opt:hover { color: rgba(255,255,255,.85); }
+    .lang-opt.active { background: #2563eb; color: #fff; }
+    .user-chip { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: 4px 14px 4px 5px; }
+    .user-avatar { width: 27px; height: 27px; border-radius: 50%; background: linear-gradient(135deg,#3b82f6,#2563eb); color: #fff; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 800; }
+    .user-name { font-size: .8rem; font-weight: 600; color: #cbd5e1; }
+    .nav-logout { background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.25); color: #f87171; border-radius: 10px; padding: 6px 14px; font-size: .8rem; font-weight: 600; cursor: pointer; transition: .15s; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+    .nav-logout:hover { background: rgba(239,68,68,.22); color: #fca5a5; }
+
+    /* ── HERO ── */
+    .page-hero {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #3b82f6 100%);
+      padding: 28px 28px 36px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-hero::before { content: ""; position: absolute; right: -80px; top: -80px; width: 300px; height: 300px; border-radius: 50%; background: rgba(255,255,255,.06); }
+    .page-hero::after { content: ""; position: absolute; left: -60px; bottom: -80px; width: 240px; height: 240px; border-radius: 50%; background: rgba(255,255,255,.04); }
+    .page-hero > * { position: relative; z-index: 1; }
+    .hero-back-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      background: rgba(255,255,255,.13);
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 12px;
+      padding: 6px 14px;
+      margin-bottom: .8rem;
+      transition: .15s;
+    }
+    .hero-back-wrap:hover { background: rgba(255,255,255,.22); }
+    .hero-back-wrap .hero-back { margin-bottom: 0; }
+    .hero-back {
+      color: rgba(255,255,255,.7);
+      text-decoration: none;
+      font-size: .85rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      margin-bottom: .8rem;
+      transition: color .15s;
+    }
+    .hero-back:hover { color: #fff; }
+    .hero-title {
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -.02em;
+      margin: 0 0 .3rem;
+      line-height: 1.2;
+    }
+    .hero-subtitle {
+      color: rgba(255,255,255,.75);
+      font-size: .95rem;
+      margin: 0;
+    }
+    .hero-pills { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 999px;
+      padding: .4rem .85rem;
+      font-size: .82rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .btn-hero { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.22); color: #fff; border-radius: 12px; padding: 9px 18px; font-size: .87rem; font-weight: 600; text-decoration: none; transition: .15s; }
+    .btn-hero:hover { background: rgba(255,255,255,.22); color: #fff; }
+    .btn-hero-accent { background: #fff; border: none; color: #1d4ed8; font-weight: 700; box-shadow: 0 6px 18px rgba(0,0,0,.18); }
+    .btn-hero-accent:hover { background: #f0f6ff; color: #1d4ed8; transform: translateY(-1px); }
+
+    /* ── CONTENT AREA ── */
+    .content-area { padding: 28px; min-height: calc(100vh - 58px - 140px); }
+
+    .mini-stat { background: #fff; border-radius: 20px; box-shadow: var(--shadow); padding: 1rem 1.2rem; height: 100%; }
+    .mini-stat .label { color: var(--muted); font-size: .84rem; font-weight: 700; margin-bottom: .3rem; }
+    .mini-stat .value { font-size: 1.6rem; font-weight: 800; line-height: 1.1; }
+    .mini-stat .sub { color: var(--muted); font-size: .78rem; margin-top: .25rem; }
+
+    /* ── CARD BASE ── */
+    .card {
+      border: none !important;
+      border-radius: 22px !important;
+      box-shadow: var(--shadow) !important;
+      overflow: hidden;
+      background: #fff;
+    }
+    .panel-head {
+      padding: 18px 24px 14px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #fff 0%, #fbfdff 100%);
+    }
+    .panel-title { font-size: 1.05rem; font-weight: 800; margin: 0 0 .1rem 0; line-height: 1.3; }
+    .panel-subtitle { color: var(--muted); font-size: .88rem; margin: 0; }
+    .panel-body { padding: 20px 24px; }
+
+    /* ── FORM ── */
+    .form-label { font-weight: 700; color: #374151; margin-bottom: .45rem; }
+    .form-control, .form-select {
+      min-height: 46px;
+      border-radius: 14px;
+      border: 1px solid #dbe3ee;
+      box-shadow: none;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: #93c5fd;
+      box-shadow: 0 0 0 .2rem rgba(37,99,235,.10);
+    }
+
+    /* ── BUTTONS ── */
+    .btn { border-radius: 14px; font-weight: 700; }
+    .btn-primary { background: linear-gradient(135deg, #2563eb, #1d4ed8); border: none; box-shadow: 0 8px 18px rgba(37,99,235,.18); }
+    .btn-success { background: linear-gradient(135deg, #16a34a, #15803d); border: none; box-shadow: 0 8px 20px rgba(22,163,74,.18); }
+    .btn-outline-primary, .btn-outline-secondary, .btn-light { border-width: 1px; border-radius: 12px; }
+
+    /* ── TABLE ── */
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .qr-thumb img { border-radius: 14px; box-shadow: 0 6px 14px rgba(15,23,42,.08); }
+    .table-wrap { border-radius: 18px; overflow: auto; }
+    .table { margin-bottom: 0; border-collapse: separate; border-spacing: 0 8px; }
+    .table thead th { border: none !important; color: var(--muted); font-size: .77rem; text-transform: uppercase; letter-spacing: .05em; font-weight: 800; white-space: nowrap; background: transparent !important; padding: 8px 14px; }
+    .table tbody tr { background: #fff; box-shadow: 0 3px 12px rgba(15,23,42,.05); transition: .15s ease-in-out; }
+    .table tbody tr:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(15,23,42,.09); }
+    .table tbody td { vertical-align: middle; padding: 14px 14px; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; font-size: .92rem; }
+    .table tbody td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 14px; border-bottom-left-radius: 14px; }
+    .table tbody td:last-child  { border-right: 1px solid #f1f5f9; border-top-right-radius: 14px; border-bottom-right-radius: 14px; }
+    .table-hover tbody tr:hover { background: #fff; }
+    .badge-soft {
+      border: 1px solid rgba(0,0,0,.08);
+      font-weight: 700;
+      letter-spacing: .2px;
+      border-radius: 999px;
+      padding: .45rem .6rem;
+    }
+    .target-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      border-radius: 999px;
+      padding: 5px 12px;
+      background: #eef4ff;
+      color: #1d4ed8;
+      font-weight: 700;
+      font-size: .78rem;
+    }
+    .action-btn { border-radius: 10px; font-size: .78rem; }
+
+    /* ── MISC ── */
+    .alert { border-radius: 16px; border: none; }
+    .table-responsive { border-radius: 18px; }
+    .modal-content { border: none; border-radius: 20px; box-shadow: var(--shadow); }
+    .card-accent-green { border-left: 4px solid #16a34a !important; border-radius: 22px !important; }
+
+    @media (max-width: 992px) {
+      .admin-topnav { padding: 0 16px; }
+      .hero-title { font-size: 1.6rem; }
+      .page-hero { padding: 20px 16px 28px; }
+      .content-area { padding: 16px; }
+      .nav-brand-sub { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ── TOPNAV ── -->
+<nav class="admin-topnav">
+  <div class="nav-brand">
+    <div class="nav-brand-icon">
+        <img th:src="@{/images/num_logo.jpg}" alt="NUM Logo" object-fit="cover" style="width: 100%; height: 100%; border-radius: 10px;">
+      </div>
+    <div class="nav-brand-text">
+      <div class="nav-brand-title">NUM Feedback</div>
+      <div class="nav-brand-sub">Admin Panel</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="lang-toggle">
+      <button class="lang-opt"
+              th:classappend="${#locale.language == 'en'} ? ' active'"
+              onclick="switchLang('en')"
+              th:text="#{admin.jc.lang.en}">EN</button>
+      <button class="lang-opt"
+              th:classappend="${#locale.language == 'km'} ? ' active'"
+              onclick="switchLang('km')"
+              th:text="#{admin.jc.lang.kh}">KH</button>
+    </div>
+    <div class="user-chip">
+      <div class="user-avatar">A</div>
+      <span class="user-name" sec:authentication="name">Admin</span>
+    </div>
+    <form th:action="@{/login?logout}" method="post" style="margin:0;">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+      <button class="nav-logout" type="submit">
+        <i class="bi bi-box-arrow-right"></i>
+        <span th:text="#{common.signout}">Sign Out</span>
+      </button>
+    </form>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="page-hero">
+  <div class="page-wrap d-flex flex-column flex-lg-row justify-content-between align-items-start gap-3">
+    <div>
+      <div class="hero-back-wrap">
+        <a href="/admin" class="hero-back">
+          <i class="bi bi-arrow-left"></i>
+          <span th:text="#{admin.jc.back}">Back to Admin</span>
+        </a>
+      </div>
+      <h1 class="hero-title" th:text="#{admin.jc.title}">Class Join Codes</h1>
+      <p class="hero-subtitle" th:text="#{admin.jc.subtitle}">Generate secure join links and QR codes so students can join by themselves.</p>
+      <div class="hero-pills">
+        <span class="hero-pill">
+          <i class="bi bi-person-check-fill"></i>
+          <span th:text="#{admin.jc.pill.selfservice}">Self-service student access</span>
+        </span>
+      </div>
+    </div>
+    <div>
+      <a class="btn-hero btn-hero-accent" href="#genForm">
+        <i class="bi bi-plus-lg"></i> Generate Join Code
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ── CONTENT ── -->
+<div class="content-area">
+  <div class="page-wrap">
+
+  <!-- VERSION MARKER -->
+  <!-- JOIN_CODES_TEMPLATE_VERSION = 2026-02-14-1 -->
+
+  <!-- Alerts -->
+  <div th:if="${msg == 'generated'}" class="alert alert-success shadow-sm mb-3">
+    <i class="bi bi-check-circle-fill me-2"></i>
+    <span th:text="#{admin.jc.alert.generated}">Join code generated.</span>
+  </div>
+  <div th:if="${msg == 'closed'}" class="alert alert-warning shadow-sm mb-3">
+    <i class="bi bi-lock-fill me-2"></i>
+    <span th:text="#{admin.jc.alert.closed}">Join code closed.</span>
+  </div>
+  <div th:if="${msg == 'no_schedule'}" class="alert alert-danger shadow-sm mb-3">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    <span th:text="#{admin.jc.alert.no_schedule}">No TeachingSchedule found for this selection. Please create teaching schedule first.</span>
+  </div>
+  <div th:if="${msg == 'bad_subject'}" class="alert alert-danger shadow-sm mb-3">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    <span th:text="#{admin.jc.alert.bad_subject}">Selected subject is invalid (does not match this schedule).</span>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="row g-3 mb-3">
+    <div class="col-6 col-lg-4">
+      <div class="mini-stat">
+        <div class="label">Total Join Codes</div>
+        <div class="value text-primary" th:text="${#lists.size(joinCodes)}">0</div>
+        <div class="sub">Generated records</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-4">
+      <div class="mini-stat">
+        <div class="label">Semester</div>
+        <div class="value" style="font-size:1.1rem;" th:text="${semesterId != null ? 'Loaded' : 'Select'}">Select</div>
+        <div class="sub">Context for generation</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-4">
+      <div class="mini-stat">
+        <div class="label">Mode</div>
+        <div class="value" style="font-size:1.1rem;">Self-service</div>
+        <div class="sub">QR and link based joining</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generate card -->
+  <div class="card card-accent-green mt-3">
+    <div class="panel-head">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-calendar3 text-success"></i>
+        <div>
+          <div class="panel-title" th:text="#{admin.jc.gen.title}">Semester &amp; Generate</div>
+          <div class="panel-subtitle" th:text="#{admin.jc.gen.subtitle}">Select a semester, configure cohort/group/shift, then generate a join code.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-body">
+      <!-- LOAD SEMESTER -->
+      <form method="get" th:action="@{/admin/join-codes}" class="row g-2 mb-3">
+        <div class="col-md-4">
+          <label class="form-label" th:text="#{admin.jc.gen.sem.label}">Semester</label>
+          <select class="form-select" name="semesterId" id="semesterId" required>
+            <option value="" th:text="#{admin.jc.gen.sem.placeholder}">-- Select --</option>
+            <option th:each="s: ${semesters}"
+                    th:value="${s.id}"
+                    th:text="${s.name}"
+                    th:selected="${semesterId != null and semesterId == s.id}">
+            </option>
+          </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+          <button class="btn btn-outline-primary w-100" type="submit">
+            <i class="bi bi-arrow-right-circle"></i>
+            <span th:text="#{admin.jc.gen.load}">Load</span>
+          </button>
+        </div>
+      </form>
+
+      <hr class="my-3" />
+
+      <!-- GENERATE -->
+      <form method="post" th:action="@{/admin/join-codes/generate}" class="row g-2" id="genForm">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <input type="hidden" name="semesterId" id="semesterIdHidden" th:value="${semesterId}" />
+
+        <div class="col-md-3">
+          <label class="form-label" th:text="#{admin.jc.gen.cohort}">Cohort</label>
+          <select class="form-select" name="cohortId" id="cohortId" required></select>
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label" th:text="#{admin.jc.gen.group}">Group</label>
+          <select class="form-select" name="groupNo" id="groupNo" required></select>
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label" th:text="#{admin.jc.gen.shift}">Shift</label>
+          <select class="form-select" name="shiftTime" id="shiftTime" required></select>
+        </div>
+
+        <div class="col-md-5">
+          <label class="form-label" th:text="#{admin.jc.gen.subject}">Subject (optional)</label>
+          <select class="form-select" name="scheduleId" id="scheduleId">
+            <!-- populated by JS -->
+          </select>
+          <div class="form-text" th:text="#{admin.jc.gen.subject.hint}">Leave blank to generate for all subjects.</div>
+        </div>
+
+        <div class="col-md-3 d-flex align-items-end">
+          <button class="btn btn-success w-100" id="btnGenerate" type="submit" disabled>
+            <i class="bi bi-qr-code me-1"></i>
+            <span id="btnGenerateLabel"></span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Subjects preview table -->
+      <div class="mt-4">
+        <div class="panel-title mb-2" style="font-size:.95rem;">
+          <i class="bi bi-table me-1 text-muted"></i>
+          <span th:text="#{admin.jc.gen.preview.title}">Subjects in this schedule (preview)</span>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered mb-0">
+            <thead class="table-light">
+              <tr>
+                <th style="width:80px;" th:text="#{admin.jc.gen.preview.col.no}">No</th>
+                <th style="width:120px;" th:text="#{admin.jc.gen.preview.col.weekday}">Weekday</th>
+                <th th:text="#{admin.jc.gen.preview.col.course}">Course</th>
+                <th style="width:220px;" th:text="#{admin.jc.gen.preview.col.teacher}">Teacher</th>
+              </tr>
+            </thead>
+            <tbody id="subjectsBody">
+              <!-- populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Existing codes card -->
+  <div class="card mt-3">
+    <div class="panel-head">
+      <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
+        <div>
+          <div class="panel-title" th:text="#{admin.jc.list.title}">Join Codes</div>
+          <div class="panel-subtitle" th:text="#{admin.jc.list.subtitle}">Click a QR to preview and copy the join link.</div>
+        </div>
+        <input id="codeSearch"
+               type="search"
+               class="form-control"
+               th:placeholder="#{admin.jc.list.search}"
+               style="min-width:260px;max-width:340px;min-height:38px;">
+      </div>
+    </div>
+
+    <div class="panel-body" style="padding:0;">
+      <div class="table-wrap">
+      <div class="table-responsive">
+        <table class="table align-middle table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th style="width:140px;padding-left:24px;" th:text="#{admin.jc.list.col.code}">Code</th>
+              <th style="width:220px;" th:text="#{admin.jc.list.col.target}">Target</th>
+              <th th:text="#{admin.jc.list.col.subject}">Subject</th>
+              <th style="width:170px;" th:text="#{admin.jc.list.col.expires}">Expires</th>
+              <th style="width:210px;" th:text="#{admin.jc.list.col.join}">Join</th>
+              <th style="width:90px;" th:text="#{admin.jc.list.col.qr}">QR</th>
+              <th style="width:70px;padding-right:24px;" class="text-end" th:text="#{admin.jc.list.col.menu}">Menu</th>
+            </tr>
+          </thead>
+
+          <tbody id="codesBody">
+
+            <tr th:if="${#lists.isEmpty(joinCodes)}">
+              <td colspan="7" class="text-muted" style="padding:24px;">
+                <i class="bi bi-inbox me-2"></i>
+                <span th:text="#{admin.jc.list.empty}">No codes yet.</span>
+              </td>
+            </tr>
+
+            <tr th:each="jc : ${joinCodes}">
+              <!-- Code + status -->
+              <td style="padding-left:24px;">
+                <div class="fw-semibold mono" th:text="${jc.code}"></div>
+                <span class="badge badge-soft"
+                      th:classappend="${jc.active} ? ' text-bg-success' : ' text-bg-secondary'"
+                      th:text="${jc.active} ? #{admin.jc.list.status.active} : #{admin.jc.list.status.closed}"></span>
+              </td>
+
+              <!-- Target -->
+              <td>
+                <div class="small">
+                  <span class="target-pill me-1">
+                    <i class="bi bi-diagram-3"></i>
+                    <span th:text="#{admin.jc.list.cohort}">Cohort:</span>
+                    <span th:text="${jc.cohort != null ? jc.cohort.cohortNo : '-'}"></span>
+                    <span>/</span>
+                    <span th:text="${jc.groupNo != null ? jc.groupNo : '-'}"></span>
+                  </span>
+                </div>
+                <div class="small text-muted">
+                  <span th:text="#{admin.jc.list.shift}">Shift:</span>
+                  <span class="fw-semibold" th:text="${jc.shiftTime}"></span>
+                </div>
+              </td>
+
+              <!-- Subject -->
+              <td>
+                <div class="fw-semibold"
+                     th:text="${jc.scheduleId != null
+                       ? (subjectLabelByScheduleId[jc.scheduleId] != null ? subjectLabelByScheduleId[jc.scheduleId] : ('Schedule #' + jc.scheduleId))
+                       : #messages.msg('admin.jc.list.subject.all')}">
+                </div>
+                <div class="text-muted small" th:if="${jc.scheduleId == null}"
+                     th:text="#{admin.jc.list.subject.all.desc}">
+                  Students will join all subjects for this cohort/group/shift.
+                </div>
+              </td>
+
+              <!-- Expires -->
+              <td>
+                <div th:text="${#temporals.format(jc.expiresAt, 'yyyy-MM-dd HH:mm')}"></div>
+                <div class="text-muted small" th:if="${!jc.active}"
+                     th:text="#{admin.jc.list.manually.closed}">Manually closed</div>
+              </td>
+
+              <!-- Join -->
+              <td>
+                <div class="d-flex gap-1 flex-wrap">
+                  <a class="btn btn-sm btn-outline-primary action-btn"
+                     th:href="@{/student/join/{code}(code=${jc.code})}"
+                     target="_blank">
+                    <i class="bi bi-box-arrow-up-right"></i>
+                    <span th:text="#{admin.jc.list.btn.open}">Open</span>
+                  </a>
+
+                    <button class="btn btn-sm btn-outline-secondary btn-copy action-btn"
+                          type="button"
+                          th:attr="data-path=@{/student/join/{code}(code=${jc.code})}">
+                    <i class="bi bi-clipboard"></i>
+                    <span th:text="#{admin.jc.list.btn.copy}">Copy</span>
+                  </button>
+                </div>
+
+                <div class="small text-muted mt-1 mono"
+                     th:text="@{/student/join/{code}(code=${jc.code})}">
+                </div>
+              </td>
+
+              <!-- QR thumb -->
+              <td>
+                <button class="btn btn-sm btn-light border p-1 qr-thumb btn-qr action-btn"
+                        type="button"
+                        th:attr="
+                          data-qr=@{/admin/join-codes/{id}/qr(id=${jc.id})},
+                          data-code=${jc.code},
+                          data-path=@{/student/join/{code}(code=${jc.code})}">
+                  <img th:src="@{/admin/join-codes/{id}/qr(id=${jc.id})}"
+                       alt="QR"
+                       style="width:72px;height:72px;">
+                </button>
+              </td>
+
+              <!-- Menu -->
+              <td class="text-end" style="padding-right:24px;">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle action-btn"
+                          type="button"
+                          data-bs-toggle="dropdown"
+                          aria-expanded="false">
+                    &#x22EF;
+                  </button>
+
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                      <a class="dropdown-item"
+                         th:href="@{/student/join/{code}(code=${jc.code})}"
+                         target="_blank">
+                        <i class="bi bi-box-arrow-up-right me-2"></i>
+                        <span th:text="#{admin.jc.list.menu.open}">Open join page</span>
+                      </a>
+                    </li>
+
+                    <li>
+                      <button class="dropdown-item btn-copy"
+                              type="button"
+                              th:attr="data-path=@{/student/join/{code}(code=${jc.code})}">
+                        <i class="bi bi-clipboard me-2"></i>
+                        <span th:text="#{admin.jc.list.menu.copy}">Copy join link</span>
+                      </button>
+                    </li>
+
+                    <li><hr class="dropdown-divider"></li>
+
+                    <li>
+                      <form method="post"
+                            th:action="@{/admin/join-codes/{id}/close(id=${jc.id})}"
+                            th:if="${jc.active}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <input type="hidden" name="semesterId" th:value="${semesterId}" />
+                        <button class="dropdown-item text-danger" type="submit">
+                          <i class="bi bi-x-circle me-2"></i>
+                          <span th:text="#{admin.jc.list.menu.close}">Close code</span>
+                        </button>
+                      </form>
+
+                      <span class="dropdown-item text-muted" th:if="${!jc.active}">
+                        <i class="bi bi-lock me-2"></i>
+                        <span th:text="#{admin.jc.list.menu.already.closed}">Already closed</span>
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /page-wrap -->
+</div><!-- /content-area -->
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- QR Modal -->
+<div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header" style="border-bottom:1px solid #e5e7eb;background:linear-gradient(180deg,#fff 0%,#fbfdff 100%);">
+        <div>
+          <div class="fw-bold" style="font-size:1.05rem;" th:text="#{admin.jc.modal.title}">Join QR</div>
+          <div class="text-muted small" id="qrModalCode"></div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body text-center" style="padding:24px;">
+        <img id="qrModalImg" alt="QR" style="width:240px;height:240px;border-radius:12px;box-shadow:0 6px 18px rgba(15,23,42,.10);">
+        <div class="mt-3">
+          <a id="qrModalLink" class="d-block small mono" target="_blank"></a>
+        </div>
+        <div class="mt-2">
+          <button id="qrModalCopy" type="button" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-clipboard me-1"></i>
+            <span id="qrModalCopyLabel" th:text="#{admin.jc.modal.copy}">Copy link</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Translated labels for JS -->
+<script th:inline="javascript">
+  const labelSelectPlaceholder = /*[[#{admin.jc.gen.sem.placeholder}]]*/ '-- Select --';
+  const labelSubjectAll        = /*[[#{admin.jc.gen.subject.all}]]*/ 'All subjects (Join whole class)';
+  const labelBtnWhole          = /*[[#{admin.jc.gen.btn.whole}]]*/ 'Generate QR (Join whole class)';
+  const labelBtnSubject        = /*[[#{admin.jc.gen.btn.subject}]]*/ 'Generate QR (Join this subject)';
+  const labelPreviewHint       = /*[[#{admin.jc.gen.preview.hint}]]*/ 'Select Cohort → Group → Shift to preview subjects.';
+  const labelPreviewLoading    = /*[[#{admin.jc.gen.preview.loading}]]*/ 'Loading subjects…';
+  const labelPreviewEmpty      = /*[[#{admin.jc.gen.preview.empty}]]*/ 'No subjects found for this selection.';
+  const labelModalCodePrefix   = /*[[#{admin.jc.modal.code.prefix}]]*/ 'Code:';
+  const labelModalCopy         = /*[[#{admin.jc.modal.copy}]]*/ 'Copy link';
+  const labelModalCopied       = /*[[#{admin.jc.modal.copied}]]*/ 'Copied';
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+
+    const semesterId = document.getElementById('semesterIdHidden')?.value || '';
+
+    const cohortSel  = document.getElementById('cohortId');
+    const groupSel   = document.getElementById('groupNo');
+    const shiftSel   = document.getElementById('shiftTime');
+    const subjectSel = document.getElementById('scheduleId');
+
+    const subjectsBody    = document.getElementById('subjectsBody');
+    const btnGenerate     = document.getElementById('btnGenerate');
+    const btnGenerateLabel = document.getElementById('btnGenerateLabel');
+
+    if (!cohortSel || !groupSel || !shiftSel || !subjectSel || !btnGenerate) {
+      console.error("Join-codes: missing required form elements in DOM.");
+      return;
+    }
+
+    function opt(value, text) {
+      const o = document.createElement('option');
+      o.value = value;
+      o.textContent = text;
+      return o;
+    }
+
+    function resetSelect(sel) {
+      sel.innerHTML = '';
+      sel.appendChild(opt('', labelSelectPlaceholder));
+      sel.value = '';
+    }
+
+    function resetSubjectSelect() {
+      subjectSel.innerHTML = '';
+      subjectSel.appendChild(opt('', labelSubjectAll));
+      subjectSel.value = '';
+    }
+
+    function setGenerateLabel() {
+      const label = subjectSel.value ? labelBtnSubject : labelBtnWhole;
+      if (btnGenerateLabel) btnGenerateLabel.textContent = label;
+    }
+
+    function setPreviewHtml(html) {
+      if (subjectsBody) subjectsBody.innerHTML = html;
+    }
+
+    function resetPreview(msg) {
+      btnGenerate.disabled = true;
+      setPreviewHtml(`<tr><td colspan="4" class="text-muted">${msg}</td></tr>`);
+    }
+
+    async function loadCohorts() {
+      resetSelect(cohortSel);
+      resetSelect(groupSel);
+      resetSelect(shiftSel);
+      resetSubjectSelect();
+      setGenerateLabel();
+      resetPreview(labelPreviewHint);
+
+      if (!semesterId) return;
+
+      const res  = await fetch(`/admin/join-codes/api/cohorts?semesterId=${encodeURIComponent(semesterId)}`);
+      const data = await res.json();
+      data.forEach(x => cohortSel.appendChild(opt(x.id, x.label)));
+    }
+
+    async function loadGroups() {
+      resetSelect(groupSel);
+      resetSelect(shiftSel);
+      resetSubjectSelect();
+      setGenerateLabel();
+      resetPreview(labelPreviewHint);
+
+      const cohortId = cohortSel.value;
+      if (!semesterId || !cohortId) return;
+
+      const res  = await fetch(`/admin/join-codes/api/groups?semesterId=${encodeURIComponent(semesterId)}&cohortId=${encodeURIComponent(cohortId)}`);
+      const data = await res.json();
+      data.forEach(g => groupSel.appendChild(opt(g, g)));
+    }
+
+    async function loadShifts() {
+      resetSelect(shiftSel);
+      resetSubjectSelect();
+      setGenerateLabel();
+      resetPreview(labelPreviewHint);
+
+      const cohortId = cohortSel.value;
+      const groupNo  = groupSel.value;
+      if (!semesterId || !cohortId || !groupNo) return;
+
+      const res  = await fetch(`/admin/join-codes/api/shifts?semesterId=${encodeURIComponent(semesterId)}&cohortId=${encodeURIComponent(cohortId)}&groupNo=${encodeURIComponent(groupNo)}`);
+      const data = await res.json();
+      data.forEach(s => shiftSel.appendChild(opt(s, s)));
+    }
+
+    async function loadSubjects() {
+      resetSubjectSelect();
+      setGenerateLabel();
+      btnGenerate.disabled = true;
+
+      const cohortId  = cohortSel.value;
+      const groupNo   = groupSel.value;
+      const shiftTime = shiftSel.value;
+      if (!semesterId || !cohortId || !groupNo || !shiftTime) return;
+
+      setPreviewHtml(`<tr><td colspan="4" class="text-muted">${labelPreviewLoading}</td></tr>`);
+
+      const url = `/admin/join-codes/api/subjects?semesterId=${encodeURIComponent(semesterId)}`
+        + `&cohortId=${encodeURIComponent(cohortId)}`
+        + `&groupNo=${encodeURIComponent(groupNo)}`
+        + `&shiftTime=${encodeURIComponent(shiftTime)}`;
+
+      const rows = await fetch(url).then(r => r.json());
+
+      if (!Array.isArray(rows) || rows.length === 0) {
+        setPreviewHtml(`<tr><td colspan="4" class="text-muted">${labelPreviewEmpty}</td></tr>`);
+        return;
+      }
+
+      rows.forEach(x => {
+        const label = `#${x.subjectNo ?? '-'} | ${x.weekday ?? '-'} | ${x.course ?? '-'} | ${x.teacher ?? '-'}`;
+        subjectSel.appendChild(opt(x.scheduleId, label));
+      });
+
+      if (subjectsBody) {
+        subjectsBody.innerHTML = '';
+        rows.forEach(r => {
+          subjectsBody.insertAdjacentHTML('beforeend', `
+            <tr>
+              <td class="text-center fw-semibold">${r.subjectNo ?? '-'}</td>
+              <td>${r.weekday ?? '-'}</td>
+              <td>${r.course ?? '-'}</td>
+              <td>${r.teacher ?? '-'}</td>
+            </tr>
+          `);
+        });
+      }
+
+      btnGenerate.disabled = false;
+      setGenerateLabel();
+    }
+
+    cohortSel.addEventListener('change', loadGroups);
+    groupSel.addEventListener('change', loadShifts);
+    shiftSel.addEventListener('change', loadSubjects);
+    subjectSel.addEventListener('change', setGenerateLabel);
+
+    // Init button label and preview hint
+    setGenerateLabel();
+    resetPreview(labelPreviewHint);
+
+    if (semesterId) loadCohorts();
+  });
+</script>
+
+<script>
+  // Copy helper
+  function copyPathToClipboard(path) {
+    return navigator.clipboard.writeText(window.location.origin + path);
+  }
+
+  // Copy buttons
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.btn-copy');
+    if (!btn) return;
+
+    const path = btn.getAttribute('data-path');
+    if (!path) return;
+
+    try {
+      await copyPathToClipboard(path);
+      const spanOrBtn = btn.querySelector('span') || btn;
+      const old = spanOrBtn.textContent;
+      spanOrBtn.textContent = labelModalCopied;
+      setTimeout(() => spanOrBtn.textContent = old, 900);
+    } catch (err) {
+      alert('Copy failed. Please copy manually:\n' + (window.location.origin + path));
+    }
+  });
+
+  // Search filter
+  document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('codeSearch');
+    const body  = document.getElementById('codesBody');
+    if (!input || !body) return;
+
+    input.addEventListener('input', () => {
+      const q = input.value.trim().toLowerCase();
+      body.querySelectorAll('tr').forEach(tr => {
+        const text = tr.innerText ? tr.innerText.toLowerCase() : '';
+        tr.style.display = (!q || text.includes(q)) ? '' : 'none';
+      });
+    });
+  });
+
+  // QR modal
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn-qr');
+    if (!btn) return;
+
+    const qrSrc = btn.getAttribute('data-qr');
+    const code  = btn.getAttribute('data-code');
+    const path  = btn.getAttribute('data-path');
+
+    const img     = document.getElementById('qrModalImg');
+    const codeEl  = document.getElementById('qrModalCode');
+    const link    = document.getElementById('qrModalLink');
+    const copyBtn = document.getElementById('qrModalCopy');
+    const copyLbl = document.getElementById('qrModalCopyLabel');
+
+    img.src = qrSrc;
+    codeEl.textContent = labelModalCodePrefix + ' ' + code;
+
+    const full = window.location.origin + path;
+    link.href = full;
+    link.textContent = full;
+
+    copyBtn.onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(full);
+        if (copyLbl) copyLbl.textContent = labelModalCopied;
+        setTimeout(() => { if (copyLbl) copyLbl.textContent = labelModalCopy; }, 900);
+      } catch (err) {
+        alert('Copy failed. Please copy manually:\n' + full);
+      }
+    };
+
+    new bootstrap.Modal(document.getElementById('qrModal')).show();
+  });
+
+  function switchLang(lang) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('lang', lang);
+    window.location.href = url.toString();
+  }
+</script>
+
+</body>
+</html>

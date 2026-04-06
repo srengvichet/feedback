@@ -1,0 +1,692 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title th:text="#{admin.windows.title}">Evaluation Windows</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --primary:#2563eb;
+      --primary-dark:#1d4ed8;
+      --success:#16a34a;
+      --warning:#d97706;
+      --danger:#dc2626;
+      --shadow:0 10px 30px rgba(15,23,42,.08);
+      --radius:22px;
+    }
+    body{
+      background: var(--bg);
+      color:var(--text);
+      font-family:"Noto Sans Khmer","Segoe UI",system-ui,-apple-system,sans-serif;
+      margin: 0;
+    }
+    .page-wrap{max-width:1480px;margin:0 auto;}
+
+    .admin-topnav {
+      background: #0f172a;
+      padding: 0 28px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: 0 4px 20px rgba(15,23,42,.35);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; flex: 1; }
+    .nav-brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg,#2563eb,#1d4ed8);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: .85rem;
+      box-shadow: 0 4px 12px rgba(37,99,235,.4);
+    }
+    .nav-brand-text { line-height: 1.2; }
+    .nav-brand-title { font-size: .9rem; font-weight: 700; color: #fff; }
+    .nav-brand-sub { font-size: .7rem; color: #64748b; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .lang-toggle { display: flex; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: 3px; gap: 2px; }
+    .lang-opt { text-decoration: none; font-size: .72rem; font-weight: 700; padding: 4px 11px; border-radius: 999px; color: rgba(255,255,255,.5); transition: .15s; }
+    .lang-opt:hover { color: rgba(255,255,255,.85); }
+    .lang-opt.active { background: #2563eb; color: #fff; }
+    .user-chip { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: 4px 14px 4px 5px; }
+    .user-avatar { width: 27px; height: 27px; border-radius: 50%; background: linear-gradient(135deg,#3b82f6,#2563eb); color: #fff; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 800; }
+    .user-name { font-size: .8rem; font-weight: 600; color: #cbd5e1; }
+    .nav-logout { background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.25); color: #f87171; border-radius: 10px; padding: 6px 14px; font-size: .8rem; font-weight: 600; cursor: pointer; transition: .15s; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+    .nav-logout:hover { background: rgba(239,68,68,.22); color: #fca5a5; }
+
+    .page-hero {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #3b82f6 100%);
+      padding: 28px 28px 36px;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-hero::before { content: ""; position: absolute; right: -80px; top: -80px; width: 300px; height: 300px; border-radius: 50%; background: rgba(255,255,255,.06); }
+    .page-hero::after { content: ""; position: absolute; left: -60px; bottom: -80px; width: 240px; height: 240px; border-radius: 50%; background: rgba(255,255,255,.04); }
+    .page-hero > * { position: relative; z-index: 1; }
+    .page-title{font-size:1.85rem;font-weight:800;letter-spacing:-.02em;margin:0;color:#fff;}
+    .page-subtitle{color:rgba(255,255,255,.72);margin:.35rem 0 0 0;font-size:.93rem;}
+
+    .hero-pill{
+      display:inline-flex;align-items:center;gap:.35rem;
+      background:rgba(255,255,255,.15);color:#fff;
+      border-radius:999px;padding:.45rem .8rem;font-size:.82rem;font-weight:700;
+      border:1px solid rgba(255,255,255,.25);
+    }
+
+    .btn-hero { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.22); color: #fff; border-radius: 12px; padding: 9px 18px; font-size: .87rem; font-weight: 600; text-decoration: none; transition: .15s; }
+    .btn-hero:hover { background: rgba(255,255,255,.22); color: #fff; }
+    .btn-hero-accent { background: #fff; border: none; color: #1d4ed8; font-weight: 700; box-shadow: 0 6px 18px rgba(0,0,0,.18); }
+    .btn-hero-accent:hover { background: #f0f6ff; color: #1d4ed8; transform: translateY(-1px); }
+
+    /* Card base */
+    .card{
+      border:none !important;
+      border-radius:var(--radius) !important;
+      box-shadow:var(--shadow) !important;
+      overflow:hidden;
+      background:#fff;
+    }
+
+    /* Panel head / panel body */
+    .panel-head{
+      padding:18px 24px 14px;
+      border-bottom:1px solid #e5e7eb;
+      background:linear-gradient(180deg,#fff 0%,#fbfdff 100%);
+    }
+    .panel-title{font-size:1.05rem;font-weight:800;margin:0 0 .1rem 0;line-height:1.3;}
+    .panel-subtitle{color:var(--muted);font-size:.88rem;margin:0;}
+    .panel-body{padding:20px 24px;}
+
+    /* KPI Strip */
+    .kpi-card{
+      background:#fff;
+      border-radius:20px;
+      box-shadow:var(--shadow);
+      padding:1.1rem 1.25rem;
+      height:100%;
+      display:flex;align-items:center;gap:1rem;
+    }
+    .kpi-icon{
+      width:52px;height:52px;border-radius:16px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.5rem;flex-shrink:0;
+    }
+    .kpi-icon.blue  {background:#eef4ff;color:#2563eb;}
+    .kpi-icon.green {background:#ecfdf3;color:#16a34a;}
+    .kpi-icon.amber {background:#fff7ed;color:#d97706;}
+    .kpi-label{color:var(--muted);font-size:.84rem;font-weight:700;margin-bottom:.15rem;}
+    .kpi-value{font-size:1rem;font-weight:800;line-height:1.25;}
+    .kpi-sub{color:var(--muted);font-size:.78rem;margin-top:.2rem;}
+
+    /* Soft pill */
+    .soft-pill{
+      display:inline-flex;align-items:center;gap:.35rem;
+      background:#eef4ff;color:#1d4ed8;
+      border-radius:999px;padding:.45rem .8rem;font-size:.82rem;font-weight:700;
+      border:1px solid rgba(37,99,235,.09);
+    }
+
+    /* Buttons */
+    .btn{border-radius:14px;font-weight:700;}
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      border:none;
+      box-shadow:0 8px 18px rgba(37,99,235,.2);
+    }
+    .btn-success{
+      background:linear-gradient(135deg,#16a34a,#15803d);
+      border:none;
+      box-shadow:0 8px 18px rgba(22,163,74,.18);
+    }
+    .btn-outline-secondary,.btn-outline-primary,.btn-outline-danger,.btn-outline-warning,.btn-light{
+      border-radius:12px;
+    }
+
+    /* Table */
+    .table-wrap { border-radius: 18px; overflow: auto; }
+    .table { margin-bottom: 0; border-collapse: separate; border-spacing: 0 8px; }
+    .table thead th{border:none !important;color:var(--muted);font-size:.77rem;text-transform:uppercase;letter-spacing:.05em;font-weight:800;white-space:nowrap;background:transparent !important;padding:8px 14px;}
+    .table tbody tr{background:#fff;box-shadow:0 3px 12px rgba(15,23,42,.05);transition:.15s ease-in-out;}
+    .table tbody tr:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(15,23,42,.09);}
+    .table tbody td{vertical-align:middle;padding:14px 14px;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;font-size:.92rem;}
+    .table tbody td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 14px; border-bottom-left-radius: 14px; }
+    .table tbody td:last-child  { border-right: 1px solid #f1f5f9; border-top-right-radius: 14px; border-bottom-right-radius: 14px; }
+
+    /* Badge */
+    .badge-soft{
+      border:1px solid rgba(0,0,0,.06);
+      font-weight:700;
+      letter-spacing:.2px;
+      border-radius:999px;
+      padding:.5em .75em;
+    }
+
+    /* Form inputs */
+    .form-control,.form-select{
+      border-radius:14px;
+      min-height:46px;
+      border:1px solid #dbe3ee;
+    }
+    .form-control:focus,.form-select:focus{
+      border-color:#93c5fd;
+      box-shadow:0 0 0 .2rem rgba(37,99,235,.10);
+    }
+
+    /* Alerts */
+    .alert{border-radius:16px;}
+
+    /* Misc */
+    .toolbar-note,.text-muted.small{color:var(--muted)!important;}
+    .table-responsive{border-radius:18px;}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;}
+    .card-hover:hover{transform:translateY(-1px);box-shadow:0 .75rem 1.5rem rgba(0,0,0,.08) !important;}
+    .qa-bar{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;}
+    .qa-open{min-width:260px;}
+    .qa-open .input-group-text{background:rgba(0,0,0,.03);border-right:0;}
+    .qa-icon{width:40px;display:inline-flex;align-items:center;justify-content:center;}
+    .chip-wrap{min-height:44px;}
+    .picker-list{max-height:320px;overflow-y:auto;}
+    .sticky-actions{
+      position:sticky;bottom:0;z-index:10;
+      background:rgba(248,249,250,.95);
+      backdrop-filter:blur(6px);
+      border-top:1px solid rgba(0,0,0,.08);
+    }
+
+    .content-area { background: var(--bg); padding: 28px; min-height: calc(100vh - 58px - 140px); }
+
+    .action-btn { border-radius: 10px; font-size: .78rem; }
+
+    @media (max-width: 992px) {
+      .admin-topnav { padding: 0 16px; }
+      .page-hero { padding: 20px 16px 28px; }
+      .content-area { padding: 16px; }
+      .page-title { font-size: 1.55rem; }
+      .nav-brand-sub { display: none; }
+    }
+  </style>
+
+</head>
+
+<body>
+  <nav class="admin-topnav">
+    <div class="nav-brand">
+      <div class="nav-brand-icon">
+        <img th:src="@{/images/num_logo.jpg}" alt="NUM Logo" object-fit="cover" style="width: 100%; height: 100%; border-radius: 10px;">
+      </div>
+      <div class="nav-brand-text">
+        <div class="nav-brand-title">NUM Feedback</div>
+        <div class="nav-brand-sub">Admin Portal</div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="lang-toggle">
+        <a href="javascript:void(0)" onclick="switchLang('en')" class="lang-opt" th:classappend="${#locale.language == 'en'} ? ' active'">EN</a>
+        <a href="javascript:void(0)" onclick="switchLang('km')" class="lang-opt" th:classappend="${#locale.language == 'km'} ? ' active'">KH</a>
+      </div>
+      <div class="user-chip">
+        <div class="user-avatar">A</div>
+        <span class="user-name" sec:authentication="name">Admin</span>
+      </div>
+      <form th:action="@{/login?logout}" method="post" style="margin:0;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <button class="nav-logout" type="submit">
+          <i class="bi bi-box-arrow-right"></i> Sign Out
+        </button>
+      </form>
+    </div>
+  </nav>
+
+  <div class="page-hero">
+    <div class="page-wrap d-flex flex-column flex-lg-row justify-content-between align-items-start gap-3">
+      <div>
+        <div class="mb-2">
+          <a href="/admin" class="btn-hero"><i class="bi bi-arrow-left"></i> <span th:text="#{admin.windows.back}">Back</span></a>
+        </div>
+        <h1 class="page-title" th:text="#{admin.windows.title}">Evaluation Windows</h1>
+        <p class="page-subtitle" th:text="#{admin.windows.subtitle}">Control when teachers and students are allowed to submit evaluations.</p>
+        <div class="d-flex gap-2 align-items-center flex-wrap mt-3">
+          <span class="hero-pill mono"><span th:text="#{admin.windows.kpi.now}">Now:</span> <span th:text="${#temporals.format(now, 'yyyy-MM-dd HH:mm')}">2026-03-06 00:00</span></span>
+          <span class="hero-pill"><i class="bi bi-window-stack"></i> <span th:text="${#lists.size(kinds)}">0</span> Kinds</span>
+        </div>
+      </div>
+      <a class="btn-hero btn-hero-accent" href="/admin/questions"><i class="bi bi-list-check"></i> <span th:text="#{admin.windows.btn.questions}">Questions</span></a>
+    </div>
+  </div>
+
+  <div class="content-area">
+    <div class="page-wrap">
+
+      <!-- KPI Strip -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-4">
+          <div class="kpi-card">
+            <div class="kpi-icon blue"><i class="bi bi-clock"></i></div>
+            <div>
+              <div class="kpi-label" th:text="#{admin.windows.kpi.time}">Current Time</div>
+              <div class="kpi-value mono" th:text="${#temporals.format(now, 'yyyy-MM-dd HH:mm')}">2026-03-06 00:00</div>
+              <div class="kpi-sub" th:text="#{admin.windows.kpi.time.sub}">Cambodia local time</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-4">
+          <div class="kpi-card">
+            <div class="kpi-icon green"><i class="bi bi-window-stack"></i></div>
+            <div>
+              <div class="kpi-label" th:text="#{admin.windows.kpi.types}">Window Types</div>
+              <div class="kpi-value" th:text="${#lists.size(kinds)}">0</div>
+              <div class="kpi-sub" th:text="#{admin.windows.kpi.types.sub}">Evaluation kinds configured</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-4">
+          <div class="kpi-card">
+            <div class="kpi-icon amber"><i class="bi bi-toggles"></i></div>
+            <div>
+              <div class="kpi-label" th:text="#{admin.windows.kpi.mode}">Control Mode</div>
+              <div class="kpi-value" th:text="#{admin.windows.kpi.mode.value}">Manual</div>
+              <div class="kpi-sub" th:text="#{admin.windows.kpi.mode.sub}">Open now, close now, or set exact dates</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alerts -->
+      <div th:if="${msg == 'openNow'}" class="alert alert-success border-0 shadow-sm mb-3">
+        <i class="bi bi-check-circle-fill me-2"></i><span th:text="#{admin.windows.alert.opened}">Window opened successfully.</span>
+      </div>
+      <div th:if="${msg == 'closed'}" class="alert alert-warning border-0 shadow-sm mb-3">
+        <i class="bi bi-lock-fill me-2"></i><span th:text="#{admin.windows.alert.closed}">Window closed successfully.</span>
+      </div>
+      <div th:if="${msg == 'saved'}" class="alert alert-success border-0 shadow-sm mb-3">
+        <i class="bi bi-check-circle-fill me-2"></i><span th:text="#{admin.windows.alert.saved}">Window saved successfully.</span>
+      </div>
+      <div th:if="${msg == 'defaults'}" class="alert alert-info border-0 shadow-sm mb-3">
+        <i class="bi bi-magic me-2"></i><span th:text="#{admin.windows.alert.defaults}">Default windows created (Week 8 + last 14 days).</span>
+      </div>
+      <div th:if="${msg == 'badRange'}" class="alert alert-danger border-0 shadow-sm mb-3">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i><span th:text="#{admin.windows.alert.badRange}">Invalid date range. Open time must be before close time.</span>
+      </div>
+
+      <!-- Semester selector card -->
+      <div class="card card-hover mb-3">
+        <div class="panel-head">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-calendar3 text-primary"></i>
+            <div>
+              <div class="panel-title" th:text="#{admin.windows.semester.title}">Semester</div>
+              <div class="panel-subtitle" th:text="#{admin.windows.semester.subtitle}">Select a semester to manage its evaluation windows.</div>
+            </div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="row g-2 align-items-end">
+            <div class="col-12 col-md-4">
+              <label class="form-label fw-bold" th:text="#{admin.windows.semester.label}">Active Semester</label>
+              <form method="get" th:action="@{/admin/windows}">
+                <select class="form-select" name="semesterId" onchange="this.form.submit()">
+                  <option th:each="s : ${semesters}" th:value="${s.id}"
+                    th:selected="${semesterId != null and semesterId == s.id}"
+                    th:text="${s.name + ' (ID: ' + s.id + ')'}">
+                  </option>
+                </select>
+              </form>
+            </div>
+
+            <div class="col-12 col-md-8 d-flex flex-wrap gap-2 justify-content-md-end">
+              <form method="post" th:action="@{/admin/windows/defaults}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <input type="hidden" name="semesterId" th:value="${semesterId}" />
+                <button class="btn btn-outline-primary" type="submit">
+                  <i class="bi bi-magic"></i> <span th:text="#{admin.windows.semester.btn.defaults}">Create Defaults</span>
+                </button>
+              </form>
+
+              <a class="btn btn-outline-secondary" th:href="@{/admin/windows(semesterId=${semesterId})}">
+                <i class="bi bi-arrow-clockwise"></i> <span th:text="#{admin.windows.semester.btn.refresh}">Refresh</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="mt-3 small text-muted">
+            <i class="bi bi-info-circle me-1"></i>
+            <span th:text="#{admin.windows.semester.tip}">Tip: "Open Now" sets open time to current Cambodia time and closes after N days. "Edit" lets you set exact open/close timestamps.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Windows table card -->
+      <div class="card card-hover">
+        <div class="panel-head">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div>
+              <div class="panel-title" th:text="#{admin.windows.table.title}">Evaluation Windows</div>
+              <div class="panel-subtitle" th:text="#{admin.windows.table.subtitle}">Review status, schedule, and quick actions by evaluation kind.</div>
+            </div>
+            <input id="winSearch" class="form-control" style="max-width:320px;min-height:38px;" th:placeholder="#{admin.windows.table.search}" placeholder="Search kind..." />
+          </div>
+        </div>
+        <div class="panel-body" style="padding:0;">
+          <div class="table-wrap">
+          <div class="table-responsive">
+            <table class="table align-middle table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th style="width:220px;padding-left:24px;" th:text="#{admin.windows.table.col.kind}">Kind</th>
+                  <th style="width:140px;" th:text="#{admin.windows.table.col.status}">Status</th>
+                  <th th:text="#{admin.windows.table.col.openAt}">Open At</th>
+                  <th th:text="#{admin.windows.table.col.closeAt}">Close At</th>
+                  <th style="width:350px;" th:text="#{admin.windows.table.col.actions}">Quick Actions</th>
+                  <th style="width:70px;padding-right:24px;" class="text-end" th:text="#{admin.windows.table.col.edit}">Edit</th>
+                </tr>
+              </thead>
+
+              <tbody id="winBody">
+                <tr th:each="k : ${kinds}" th:with="w=${windowMap != null ? windowMap.get(k) : null},
+                           isOpen=${w != null and w.openAt != null and w.closeAt != null
+                                    and !now.isBefore(w.openAt) and !now.isAfter(w.closeAt)}">
+
+                  <td style="padding-left:24px;">
+                    <div class="kind-pill d-inline-flex align-items-center gap-2">
+                      <i class="bi bi-window text-primary"></i>
+                      <div>
+                        <div class="fw-semibold" th:text="${k.name()}"></div>
+                        <span class="text-muted small" th:if="${k.name() == 'TEACHER_SELF'}"     th:text="#{admin.windows.table.kind.teacherSelf}">Teacher self-assessment</span>
+                        <span class="text-muted small" th:if="${k.name() == 'STUDENT_FEEDBACK'}" th:text="#{admin.windows.table.kind.studentFeedback}">Student feedback</span>
+                        <span class="text-muted small" th:if="${k.name() != 'TEACHER_SELF' and k.name() != 'STUDENT_FEEDBACK'}" th:text="#{admin.windows.table.kind.other}">Evaluation window</span>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td>
+                    <span th:if="${w == null}" class="badge text-bg-secondary badge-soft" th:text="#{admin.windows.table.status.notSet}">NOT SET</span>
+                    <span th:if="${w != null and now.isBefore(w.openAt)}" class="badge text-bg-warning badge-soft" th:text="#{admin.windows.table.status.notYet}">NOT YET</span>
+                    <span th:if="${w != null and !now.isBefore(w.openAt) and !now.isAfter(w.closeAt)}" class="badge text-bg-success badge-soft" th:text="#{admin.windows.table.status.open}">OPEN</span>
+                    <span th:if="${w != null and now.isAfter(w.closeAt)}" class="badge text-bg-danger badge-soft" th:text="#{admin.windows.table.status.closed}">CLOSED</span>
+                  </td>
+
+                  <td class="mono">
+                    <span th:if="${w == null or w.openAt == null}" class="text-muted">—</span>
+                    <span th:if="${w != null and w.openAt != null}" th:text="${#temporals.format(w.openAt, 'yyyy-MM-dd HH:mm')}"></span>
+                  </td>
+
+                  <td class="mono">
+                    <span th:if="${w == null or w.closeAt == null}" class="text-muted">—</span>
+                    <span th:if="${w != null and w.closeAt != null}" th:text="${#temporals.format(w.closeAt, 'yyyy-MM-dd HH:mm')}"></span>
+                  </td>
+
+                  <td>
+                    <div class="qa-bar">
+                      <form method="post" th:action="@{/admin/windows/open-now}" class="qa-open">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <input type="hidden" name="semesterId" th:value="${semesterId}" />
+                        <input type="hidden" name="kind" th:value="${k}" />
+                        <div class="input-group input-group-sm">
+                          <span class="input-group-text" th:title="#{admin.windows.table.btn.daysTooltip}" title="Set close date after N days">
+                            <i class="bi bi-clock"></i>
+                          </span>
+                          <select name="days" class="form-select" style="min-height:unset;">
+                            <option value="1"  th:text="#{admin.windows.table.days.1}">1 day</option>
+                            <option value="7"  th:text="#{admin.windows.table.days.7}" selected>7 days</option>
+                            <option value="14" th:text="#{admin.windows.table.days.14}">14 days</option>
+                            <option value="30" th:text="#{admin.windows.table.days.30}">30 days</option>
+                          </select>
+                          <button class="btn btn-success action-btn" type="submit">
+                            <i class="bi bi-unlock-fill"></i>
+                            <span th:if="${isOpen}"    th:text="#{admin.windows.table.btn.extend}">Extend</span>
+                            <span th:unless="${isOpen}" th:text="#{admin.windows.table.btn.open}">Open</span>
+                          </button>
+                        </div>
+                      </form>
+
+                      <form method="post" th:action="@{/admin/windows/close-now}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <input type="hidden" name="semesterId" th:value="${semesterId}" />
+                        <input type="hidden" name="kind" th:value="${k}" />
+                        <button class="btn btn-outline-danger btn-sm qa-icon action-btn" type="submit"
+                          th:disabled="${w == null or !isOpen}" onclick="return confirm(MSG_CONFIRM_CLOSE)"
+                          data-bs-toggle="tooltip" th:attr="data-bs-title=#{admin.windows.table.btn.closeTooltip}">
+                          <i class="bi bi-lock-fill"></i>
+                        </button>
+                      </form>
+                    </div>
+                    <div class="small text-muted mt-1" th:if="${w == null}" th:text="#{admin.windows.table.notSet}">
+                      Not set yet — clicking Open will create it.
+                    </div>
+                  </td>
+
+                  <td class="text-end" style="padding-right:24px;">
+                    <button type="button" class="btn btn-sm btn-primary btn-edit action-btn" data-bs-toggle="modal"
+                      data-bs-target="#editModal"
+                      th:attr="data-kind=${k},
+                                   data-open=${w != null and w.openAt != null ? #temporals.format(w.openAt,'yyyy-MM-dd''T''HH:mm') : ''},
+                                   data-close=${w != null and w.closeAt != null ? #temporals.format(w.closeAt,'yyyy-MM-dd''T''HH:mm') : ''}">
+                      <i class="bi bi-pencil-square"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ COHORT / GROUP OVERRIDES ══ -->
+      <div class="card mt-4" th:if="${semesterId != null}">
+        <div class="card-header fw-bold d-flex align-items-center gap-2">
+          <i class="bi bi-people-fill text-primary"></i>
+          <span th:text="#{admin.windows.override.title}">Cohort / Group Overrides</span>
+          <span class="text-muted fw-normal small ms-2" th:text="#{admin.windows.override.subtitle}">Open feedback for specific cohorts or groups independently of the global window</span>
+        </div>
+        <div class="card-body">
+
+          <!-- existing overrides table -->
+          <div th:each="k : ${kinds}" class="mb-4">
+            <div class="fw-semibold mb-2" th:text="${k}">KIND</div>
+
+            <table class="table table-sm align-middle mb-2"
+                   th:if="${overrideMap != null and overrideMap.get(k) != null and !overrideMap.get(k).isEmpty()}">
+              <thead class="table-light">
+                <tr>
+                  <th th:text="#{admin.windows.override.col.cohort}">Cohort</th>
+                  <th th:text="#{admin.windows.override.col.group}">Group</th>
+                  <th th:text="#{admin.windows.override.col.openAt}">Open At</th>
+                  <th th:text="#{admin.windows.override.col.closeAt}">Close At</th>
+                  <th th:text="#{admin.windows.override.col.status}">Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="ov : ${overrideMap.get(k)}">
+                  <td th:text="${'Cohort ' + ov.cohort.cohortNo + (ov.cohort.label != null ? ' – ' + ov.cohort.label : '')}">-</td>
+                  <td>
+                    <span th:if="${ov.groupNo != null}" th:text="${'G' + ov.groupNo}">G1</span>
+                    <span th:if="${ov.groupNo == null}" class="text-muted" th:text="#{admin.windows.override.allGroups}">All groups</span>
+                  </td>
+                  <td class="mono small" th:text="${#temporals.format(ov.openAt, 'yyyy-MM-dd HH:mm')}">-</td>
+                  <td class="mono small" th:text="${#temporals.format(ov.closeAt, 'yyyy-MM-dd HH:mm')}">-</td>
+                  <td>
+                    <span th:if="${now.isBefore(ov.openAt)}" class="badge text-bg-warning" th:text="#{admin.windows.table.status.notYet}">NOT YET</span>
+                    <span th:if="${!now.isBefore(ov.openAt) and !now.isAfter(ov.closeAt)}" class="badge text-bg-success" th:text="#{admin.windows.table.status.open}">OPEN</span>
+                    <span th:if="${now.isAfter(ov.closeAt)}" class="badge text-bg-secondary" th:text="#{admin.windows.table.status.closed}">CLOSED</span>
+                  </td>
+                  <td>
+                    <form method="post" th:action="@{/admin/windows/close-cohort}" style="display:inline">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                      <input type="hidden" name="overrideId" th:value="${ov.id}" />
+                      <input type="hidden" name="semesterId" th:value="${semesterId}" />
+                          <button class="btn btn-outline-danger btn-sm action-btn"
+                              onclick="return confirm(MSG_CONFIRM_REMOVE)"
+                              th:title="#{admin.windows.override.btn.removeTitle}">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div th:if="${overrideMap == null or overrideMap.get(k) == null or overrideMap.get(k).isEmpty()}"
+                 class="text-muted small mb-2"><span th:text="#{admin.windows.override.empty}">No overrides set for</span> <span th:text="${k}">KIND</span>.</div>
+
+            <!-- Add override form -->
+            <form method="post" th:action="@{/admin/windows/open-cohort}"
+                  class="row g-2 align-items-end border rounded p-3 bg-light">
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+              <input type="hidden" name="semesterId" th:value="${semesterId}" />
+              <input type="hidden" name="kind" th:value="${k}" />
+
+              <div class="col-md-3">
+                <label class="form-label form-label-sm mb-1" th:text="#{admin.windows.override.form.cohort}">Cohort</label>
+                <select name="cohortId" class="form-select form-select-sm" required>
+                  <option value="" th:text="#{admin.windows.override.form.cohortSelect}">— select cohort —</option>
+                  <option th:each="c : ${cohorts}" th:value="${c.id}"
+                          th:text="${'Cohort ' + c.cohortNo + (c.label != null ? ' – ' + c.label : '')}">
+                  </option>
+                </select>
+              </div>
+
+              <div class="col-md-2">
+                <label class="form-label form-label-sm mb-1"><span th:text="#{admin.windows.override.form.group}">Group No</span> <span class="text-muted" th:text="#{admin.windows.override.form.groupOptional}">(optional)</span></label>
+                <input type="number" name="groupNo" class="form-control form-control-sm"
+                       min="1" th:placeholder="#{admin.windows.override.form.groupPlaceholder}" placeholder="e.g. 1 — leave blank for all groups">
+              </div>
+
+              <div class="col-md-2">
+                <label class="form-label form-label-sm mb-1" th:text="#{admin.windows.override.form.duration}">Duration</label>
+                <select name="days" class="form-select form-select-sm">
+                  <option value="1"  th:text="#{admin.windows.table.days.1}">1 day</option>
+                  <option value="7"  th:text="#{admin.windows.table.days.7}" selected>7 days</option>
+                  <option value="14" th:text="#{admin.windows.table.days.14}">14 days</option>
+                  <option value="30" th:text="#{admin.windows.table.days.30}">30 days</option>
+                </select>
+              </div>
+
+              <div class="col-md-2">
+                <button class="btn btn-success btn-sm w-100 action-btn" type="submit">
+                  <i class="bi bi-unlock-fill me-1"></i><span th:text="#{admin.windows.override.btn.open}">Open for Cohort/Group</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="border:none;border-radius:20px;box-shadow:0 10px 30px rgba(15,23,42,.12);">
+        <div class="modal-header" style="border-bottom:1px solid #e5e7eb;background:linear-gradient(180deg,#fff 0%,#fbfdff 100%);border-radius:20px 20px 0 0;">
+          <div>
+            <div class="fw-bold" style="font-size:1.05rem;" th:text="#{admin.windows.modal.title}">Edit Window</div>
+            <div class="text-muted small" id="editKindLabel"></div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <form method="post" th:action="@{/admin/windows/save}">
+          <div class="modal-body" style="padding:20px 24px;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <input type="hidden" name="semesterId" th:value="${semesterId}" />
+            <input type="hidden" name="kind" id="editKind" />
+
+            <div class="mb-3">
+              <label class="form-label fw-bold" th:text="#{admin.windows.modal.openAt}">Open At</label>
+              <input type="datetime-local" class="form-control" name="openAt" id="editOpenAt" required>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label fw-bold" th:text="#{admin.windows.modal.closeAt}">Close At</label>
+              <input type="datetime-local" class="form-control" name="closeAt" id="editCloseAt" required>
+            </div>
+
+            <div class="small text-muted mt-2">
+              <i class="bi bi-info-circle me-1"></i><span th:text="#{admin.windows.modal.note}">Times are stored as LocalDateTime. Use Cambodia local time.</span>
+            </div>
+          </div>
+
+          <div class="modal-footer" style="border-top:1px solid #e5e7eb;">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" th:text="#{admin.windows.modal.btn.cancel}">Cancel</button>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-save"></i> <span th:text="#{admin.windows.modal.btn.save}">Save</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script th:inline="javascript">
+    var MSG_CONFIRM_CLOSE  = /*[[#{admin.windows.js.confirmClose}]]*/  'Close this window now?';
+    var MSG_CONFIRM_REMOVE = /*[[#{admin.windows.js.confirmRemove}]]*/ 'Remove this override?';
+  </script>
+  <script>
+    function switchLang(lang) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('lang', lang);
+      window.location.href = url.toString();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const input = document.getElementById('winSearch');
+      const body = document.getElementById('winBody');
+      if (!input || !body) return;
+      input.addEventListener('input', () => {
+        const q = input.value.trim().toLowerCase();
+        body.querySelectorAll('tr').forEach(tr => {
+          const text = (tr.innerText || '').toLowerCase();
+          tr.style.display = (!q || text.includes(q)) ? '' : 'none';
+        });
+      });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
+    });
+
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn-edit');
+      if (!btn) return;
+
+      const kind = btn.getAttribute('data-kind') || '';
+      const openAt = btn.getAttribute('data-open') || '';
+      const closeAt = btn.getAttribute('data-close') || '';
+
+      document.getElementById('editKind').value = kind;
+      document.getElementById('editKindLabel').textContent = kind;
+
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      const toLocalInput = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+
+      document.getElementById('editOpenAt').value = openAt || toLocalInput(now);
+      const plus7 = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+      document.getElementById('editCloseAt').value = closeAt || toLocalInput(plus7);
+    });
+  </script>
+
+</body>
+</html>

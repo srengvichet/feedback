@@ -1,0 +1,1068 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title th:text="#{admin.course.title}">Course Management</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --shadow: 0 10px 30px rgba(15,23,42,.08);
+      --radius: 22px;
+      /* Year accent colours */
+      --y1: #2563eb; --y1-soft: #eff6ff; --y1-border: #bfdbfe;
+      --y2: #7c3aed; --y2-soft: #f5f3ff; --y2-border: #ddd6fe;
+      --y3: #16a34a; --y3-soft: #f0fdf4; --y3-border: #bbf7d0;
+      --y4: #d97706; --y4-soft: #fffbeb; --y4-border: #fde68a;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI","Noto Sans Khmer",system-ui,-apple-system,sans-serif;
+      margin: 0;
+    }
+    .page-wrap { max-width: 1480px; margin: 0 auto; }
+
+    /* ── Sticky topnav ── */
+    .admin-topnav {
+      background: #0f172a; padding: 0 28px; height: 58px;
+      display: flex; align-items: center; position: sticky; top: 0; z-index: 200;
+      box-shadow: 0 4px 20px rgba(15,23,42,.35);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; flex: 1; }
+    .nav-brand-icon { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg,#2563eb,#1d4ed8); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: .85rem; box-shadow: 0 4px 12px rgba(37,99,235,.4); }
+    .nav-brand-text { line-height: 1.2; }
+    .nav-brand-title { font-size: .9rem; font-weight: 700; color: #fff; }
+    .nav-brand-sub   { font-size: .7rem; color: #64748b; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .lang-toggle { display: flex; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: 3px; gap: 2px; }
+    .lang-opt { text-decoration: none; font-size: .72rem; font-weight: 700; padding: 4px 11px; border-radius: 999px; color: rgba(255,255,255,.5); transition: .15s; }
+    .lang-opt:hover { color: rgba(255,255,255,.85); }
+    .lang-opt.active { background: #2563eb; color: #fff; }
+    .user-chip { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: 4px 14px 4px 5px; }
+    .user-avatar { width: 27px; height: 27px; border-radius: 50%; background: linear-gradient(135deg,#3b82f6,#2563eb); color: #fff; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 800; }
+    .user-name { font-size: .8rem; font-weight: 600; color: #cbd5e1; }
+    .nav-logout { background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.25); color: #f87171; border-radius: 10px; padding: 6px 14px; font-size: .8rem; font-weight: 600; cursor: pointer; transition: .15s; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+    .nav-logout:hover { background: rgba(239,68,68,.22); color: #fca5a5; }
+
+    /* ── Hero ── */
+    .page-hero {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #3b82f6 100%);
+      padding: 28px 28px 36px; position: relative; overflow: hidden;
+    }
+    .page-hero::before { content: ""; position: absolute; right: -80px; top: -80px; width: 300px; height: 300px; border-radius: 50%; background: rgba(255,255,255,.06); }
+    .page-hero::after  { content: ""; position: absolute; left: -60px; bottom: -80px; width: 240px; height: 240px; border-radius: 50%; background: rgba(255,255,255,.04); }
+    .page-hero > * { position: relative; z-index: 1; }
+    .page-title { font-size: 1.85rem; font-weight: 800; color: #fff; margin: 0 0 .3rem; letter-spacing: -.02em; }
+    .page-subtitle { color: rgba(255,255,255,.72); margin: 0; font-size: .93rem; }
+    .hero-pill { display: inline-flex; align-items: center; gap: .35rem; background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25); border-radius: 999px; padding: .4rem .85rem; font-size: .8rem; font-weight: 700; }
+    .btn-hero { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.22); color: #fff; border-radius: 12px; padding: 9px 18px; font-size: .87rem; font-weight: 600; text-decoration: none; transition: .15s; }
+    .btn-hero:hover { background: rgba(255,255,255,.22); color: #fff; }
+    .btn-hero-accent { background: #fff; border: none; color: #1d4ed8; font-weight: 700; box-shadow: 0 6px 18px rgba(0,0,0,.18); }
+    .btn-hero-accent:hover { background: #f0f6ff; color: #1d4ed8; transform: translateY(-1px); }
+
+    /* ── Content area ── */
+    .content-area { background: var(--bg); padding: 28px; }
+
+    /* ── CARD ── */
+    .card {
+      border: none !important; border-radius: var(--radius) !important;
+      box-shadow: var(--shadow) !important; background: var(--card);
+    }
+    .panel-head {
+      padding: 18px 24px 14px; border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+    .panel-title { font-size: 1.05rem; font-weight: 800; margin-bottom: .15rem; }
+    .panel-subtitle { color: var(--muted); font-size: .88rem; margin: 0; }
+    .panel-body { padding: 20px 24px; }
+
+    /* ── FORM ── */
+    .form-label { font-weight: 700; color: #374151; font-size: .88rem; }
+    .form-control, .form-select {
+      border-radius: 12px; min-height: 44px;
+      border: 1px solid #dbe3ee; box-shadow: none; font-size: .9rem;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: #93c5fd; box-shadow: 0 0 0 .2rem rgba(37,99,235,.10);
+    }
+
+    /* ── YEAR TABS ── */
+    .year-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .year-tab {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 14px; border: 2px solid transparent;
+      font-weight: 700; font-size: .9rem; cursor: pointer;
+      background: #fff; transition: .15s; box-shadow: 0 2px 8px rgba(15,23,42,.06);
+    }
+    .year-tab .tab-badge {
+      font-size: .73rem; border-radius: 999px; padding: 2px 8px; font-weight: 800;
+    }
+    .year-tab.active-y1 { background: var(--y1-soft); border-color: var(--y1); color: var(--y1); }
+    .year-tab.active-y2 { background: var(--y2-soft); border-color: var(--y2); color: var(--y2); }
+    .year-tab.active-y3 { background: var(--y3-soft); border-color: var(--y3); color: var(--y3); }
+    .year-tab.active-y4 { background: var(--y4-soft); border-color: var(--y4); color: var(--y4); }
+    .year-tab:not([class*="active-"]) { color: var(--muted); border-color: var(--line); }
+    .year-tab:not([class*="active-"]):hover { border-color: #93c5fd; color: var(--primary); background: #f8faff; }
+
+    /* ── YEAR PANEL ── */
+    .year-panel { display: none; }
+    .year-panel.visible { display: block; }
+
+    .year-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 20px; border-radius: 16px 16px 0 0; font-weight: 800; font-size: 1.05rem;
+    }
+    .year-header .year-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 900; color: #fff;
+    }
+
+    .y1-header { background: var(--y1-soft); color: var(--y1); border: 1.5px solid var(--y1-border); border-bottom: none; }
+    .y2-header { background: var(--y2-soft); color: var(--y2); border: 1.5px solid var(--y2-border); border-bottom: none; }
+    .y3-header { background: var(--y3-soft); color: var(--y3); border: 1.5px solid var(--y3-border); border-bottom: none; }
+    .y4-header { background: var(--y4-soft); color: var(--y4); border: 1.5px solid var(--y4-border); border-bottom: none; }
+
+    .y1-icon { background: var(--y1); }
+    .y2-icon { background: var(--y2); }
+    .y3-icon { background: var(--y3); }
+    .y4-icon { background: var(--y4); }
+
+    .year-body {
+      border-radius: 0 0 16px 16px; border: 1.5px solid;
+      overflow: hidden; background: #fff;
+    }
+    .y1-body { border-color: var(--y1-border); }
+    .y2-body { border-color: var(--y2-border); }
+    .y3-body { border-color: var(--y3-border); }
+    .y4-body { border-color: var(--y4-border); }
+
+    /* ── SEMESTER PANELS ── */
+    .sem-grid { display: grid; grid-template-columns: 1fr 1fr; }
+    @media (max-width: 768px) { .sem-grid { grid-template-columns: 1fr; } }
+
+    .sem-col { padding: 0; }
+    .sem-col + .sem-col { border-left: 1px solid var(--line); }
+
+    .sem-header {
+      padding: 10px 16px; font-size: .8rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .06em;
+      border-bottom: 1px solid var(--line); background: #fafbfe;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .sem-badge {
+      font-size: .7rem; border-radius: 999px; padding: 2px 9px;
+      font-weight: 800; color: #fff;
+    }
+    .sem-count { color: var(--muted); font-weight: 600; font-size: .75rem; }
+
+    /* ── COURSE ROW ── */
+    .course-list { padding: 8px; }
+    .course-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 12px;
+      transition: background .12s;
+    }
+    .course-row:hover { background: #f8faff; }
+    .course-no {
+      width: 24px; height: 24px; border-radius: 8px;
+      background: #f1f5f9; color: var(--muted);
+      font-size: .72rem; font-weight: 800;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .course-code {
+      font-size: .78rem; font-weight: 800; border-radius: 8px;
+      padding: 3px 9px; white-space: nowrap; flex-shrink: 0;
+    }
+    .y1 .course-code { background: #eff6ff; color: var(--y1); }
+    .y2 .course-code { background: #f5f3ff; color: var(--y2); }
+    .y3 .course-code { background: #f0fdf4; color: var(--y3); }
+    .y4 .course-code { background: #fffbeb; color: var(--y4); }
+
+    .course-name { font-size: .88rem; font-weight: 600; flex: 1; min-width: 0; line-height: 1.3; }
+    .course-credit {
+      font-size: .73rem; font-weight: 700; color: var(--muted);
+      background: #f1f5f9; border-radius: 8px; padding: 2px 8px; white-space: nowrap; flex-shrink: 0;
+    }
+    .course-divider { height: 1px; background: var(--line); margin: 0 12px; opacity: .5; }
+
+    .sem-empty {
+      padding: 24px 16px; text-align: center;
+      color: var(--muted); font-size: .83rem;
+    }
+
+    /* ── ALERT ── */
+    .alert { border-radius: 16px; font-weight: 500; }
+
+    /* ── ACTION BUTTONS ── */
+    .course-actions { opacity: 0; transition: opacity .15s; }
+    .course-row:hover .course-actions { opacity: 1; }
+    .btn-action {
+      width: 28px; height: 28px; border-radius: 8px; border: none;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: .75rem; cursor: pointer; transition: .12s;
+    }
+    .btn-edit-course  { background: #eff6ff; color: var(--primary); }
+    .btn-edit-course:hover  { background: var(--primary); color: #fff; }
+    .btn-delete-course { background: #fef2f2; color: #dc2626; }
+    .btn-delete-course:hover { background: #dc2626; color: #fff; }
+
+    /* ── Radio button selectors ── */
+    .year-radio, .sem-radio { position: absolute; opacity: 0; width: 0; height: 0; }
+
+    .year-btn-label {
+      display: flex; align-items: center; justify-content: center;
+      padding: 10px 6px; border-radius: 12px; border: 2px solid var(--line);
+      font-weight: 800; font-size: .9rem; cursor: pointer;
+      color: var(--muted); background: #fff; transition: .15s; text-align: center;
+    }
+    .year-btn-label:has(.year-radio:checked) {
+      background: var(--ys); border-color: var(--yc); color: var(--yc);
+      box-shadow: 0 4px 12px rgba(0,0,0,.08);
+    }
+    .year-btn-label:hover { border-color: #93c5fd; color: var(--primary); }
+
+    .sem-btn-label {
+      display: flex; align-items: center; justify-content: center;
+      padding: 10px 12px; border-radius: 12px; border: 2px solid var(--line);
+      font-weight: 700; font-size: .88rem; cursor: pointer;
+      color: var(--muted); background: #fff; transition: .15s;
+    }
+    .sem-btn-label:has(.sem-radio:checked) {
+      background: #eff6ff; border-color: var(--primary); color: var(--primary);
+      box-shadow: 0 4px 12px rgba(37,99,235,.12);
+    }
+    .sem-btn-label:hover { border-color: #93c5fd; color: var(--primary); }
+
+    .active-unassigned { background: #f8fafc !important; border-color: #94a3b8 !important; color: #64748b !important; }
+
+    @media (max-width: 992px) {
+      .admin-topnav { padding: 0 16px; }
+      .page-hero { padding: 20px 16px 28px; }
+      .content-area { padding: 16px; }
+      .page-title { font-size: 1.55rem; }
+      .nav-brand-sub { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── Sticky Top Navigation ── -->
+  <nav class="admin-topnav">
+    <div class="nav-brand">
+      <div class="nav-brand-icon">
+        <img th:src="@{/images/num_logo.jpg}" alt="NUM Logo" object-fit="cover" style="width: 100%; height: 100%; border-radius: 10px;">
+      </div>
+      <div class="nav-brand-text">
+        <div class="nav-brand-title" th:text="#{common.brand}">NUM Feedback</div>
+        <div class="nav-brand-sub" th:text="#{admin.brand.subtitle}">Admin Panel</div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="lang-toggle">
+        <a href="javascript:void(0)" onclick="switchLang('en')" class="lang-opt" th:classappend="${#locale.language == 'en'} ? ' active'">EN</a>
+        <a href="javascript:void(0)" onclick="switchLang('kh')" class="lang-opt" th:classappend="${#locale.language == 'kh'} ? ' active'">KH</a>
+      </div>
+      <div class="user-chip">
+        <div class="user-avatar">A</div>
+        <span class="user-name" sec:authentication="name">Admin</span>
+      </div>
+      <form th:action="@{/login?logout}" method="post" style="margin:0;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <button class="nav-logout" type="submit">
+          <i class="bi bi-box-arrow-right"></i> <span th:text="#{common.signout}">Sign Out</span>
+        </button>
+      </form>
+    </div>
+  </nav>
+
+  <!-- ── Page Hero ── -->
+  <div class="page-hero">
+    <div class="page-wrap d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3">
+      <div>
+        <div class="mb-2">
+          <a href="/admin" class="btn-hero" style="font-size:.8rem;padding:6px 14px;">
+            <i class="bi bi-arrow-left"></i> <span th:text="#{admin.nav.dashboard}">Dashboard</span>
+          </a>
+        </div>
+        <h1 class="page-title" th:text="#{admin.course.title}">Course Management</h1>
+        <p class="page-subtitle" th:text="#{admin.course.subtitle}">Manage the full 4-year curriculum.</p>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <span class="hero-pill">
+            <i class="bi bi-book"></i>
+            <span th:text="#{admin.course.pill.count(${#lists.size(courses)})}">0 Courses</span>
+          </span>
+          <span class="hero-pill">
+            <i class="bi bi-grid-3x2-gap-fill"></i>
+            <span th:text="#{admin.course.pill.curriculum}">4 Years · 8 Semesters</span>
+          </span>
+        </div>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <a href="/admin/courses/export" class="btn-hero">
+          <i class="bi bi-file-earmark-excel-fill"></i> <span th:text="#{admin.course.btn.export}">Export Excel</span>
+        </a>
+        <a href="/admin/courses/template" class="btn-hero">
+          <i class="bi bi-download"></i> <span th:text="#{admin.course.btn.template}">Download Template</span>
+        </a>
+        <button class="btn-hero btn-hero-accent" data-bs-toggle="modal" data-bs-target="#importModal">
+          <i class="bi bi-upload"></i> <span th:text="#{admin.course.btn.import}">Import Excel</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Content Area ── -->
+  <div class="content-area">
+    <div class="page-wrap">
+
+      <!-- ══ ALERTS ══ -->
+      <div th:if="${param.error != null}" class="alert alert-danger d-flex gap-2 align-items-center mb-3">
+        <i class="bi bi-x-circle-fill"></i> <span th:text="#{admin.course.alert.error}">Please enter valid course information.</span>
+      </div>
+      <div th:if="${param.msg != null and param.msg[0] == 'created'}" class="alert alert-success d-flex gap-2 align-items-center mb-3">
+        <i class="bi bi-check-circle-fill"></i> <span th:text="#{admin.course.alert.created}">Course created successfully.</span>
+      </div>
+      <div th:if="${param.msg != null and param.msg[0] == 'updated'}" class="alert alert-success d-flex gap-2 align-items-center mb-3">
+        <i class="bi bi-check-circle-fill"></i> <span th:text="#{admin.course.alert.updated}">Course updated successfully.</span>
+      </div>
+      <div th:if="${param.msg != null and param.msg[0] == 'deleted'}" class="alert alert-warning d-flex gap-2 align-items-center mb-3">
+        <i class="bi bi-trash-fill"></i> <span th:text="#{admin.course.alert.deleted}">Course deleted.</span>
+      </div>
+      <div th:if="${param.msg != null and #strings.startsWith(param.msg[0], 'imported_')}" class="alert alert-success d-flex gap-2 align-items-start mb-3">
+        <i class="bi bi-file-earmark-check-fill mt-1"></i>
+        <div th:with="parts=${#strings.arraySplit(param.msg[0],'_')}">
+          <span th:text="#{admin.course.alert.import.pre}">Import complete —</span>
+          <strong th:text="${parts[1]}">0</strong> <span th:text="#{admin.course.alert.import.created}">created,</span>
+          <strong th:text="${parts[3]}">0</strong> <span th:text="#{admin.course.alert.import.updated}">updated,</span>
+          <strong th:text="${parts[5]}">0</strong> <span th:text="#{admin.course.alert.import.skipped}">skipped,</span>
+          <strong th:text="${parts[7]}">0</strong> <span th:text="#{admin.course.alert.import.errors}">errors.</span>
+        </div>
+      </div>
+      <div th:if="${param.msg != null and param.msg[0] == 'import_empty'}" class="alert alert-warning d-flex gap-2 align-items-center mb-3">
+        <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="#{admin.course.alert.importEmpty}">The uploaded file is empty or has no data rows.</span>
+      </div>
+      <div th:if="${param.msg != null and param.msg[0] == 'import_badformat'}" class="alert alert-danger d-flex gap-2 align-items-center mb-3">
+        <i class="bi bi-x-circle-fill"></i> <span th:text="#{admin.course.alert.importBadformat}">Invalid file format.</span>
+      </div>
+      <div th:if="${param.msg != null and param.msg[0] == 'import_error'}" class="alert alert-danger d-flex gap-2 align-items-center mb-3">
+        <i class="bi bi-x-circle-fill"></i> <span th:text="#{admin.course.alert.importError}">Failed to read the uploaded file.</span>
+      </div>
+
+      <!-- ══ MAIN ROW ══ -->
+      <div class="row g-3 align-items-start">
+
+        <!-- ── Add Course Form ── -->
+        <div class="col-12 col-xl-3">
+          <div class="card">
+            <div class="panel-head">
+              <div class="panel-title"><i class="bi bi-plus-circle me-1 text-primary"></i><span th:text="#{admin.course.form.title}">Add New Course</span></div>
+              <p class="panel-subtitle" th:text="#{admin.course.form.subtitle}">Select a year and semester, then fill in the course details.</p>
+            </div>
+            <div class="panel-body">
+              <form method="post" th:action="@{/admin/courses}" th:object="${newCourse}" class="row g-3">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                <!-- Year selector — visual buttons -->
+                <div class="col-12">
+                  <label class="form-label" th:text="#{admin.course.form.year}">Year <span class="text-danger">*</span></label>
+                  <span class="text-danger ms-1">*</span>
+                  <div class="d-grid gap-2" style="grid-template-columns:1fr 1fr 1fr 1fr; display:grid;">
+                    <label th:each="y : ${#numbers.sequence(1,4)}"
+                           th:for="${'yr' + y}"
+                           class="year-btn-label"
+                           th:style="${'--yc:var(--y' + y + ');--ys:var(--y' + y + '-soft);--yb:var(--y' + y + '-border)'}">
+                      <input type="radio" th:id="${'yr' + y}" name="studyYear" th:value="${y}" class="year-radio" required />
+                      <span th:text="${'Y' + y}">Y1</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Semester selector -->
+                <div class="col-12">
+                  <label class="form-label" th:text="#{admin.course.form.semester}">Semester</label>
+                  <span class="text-danger ms-1">*</span>
+                  <div class="d-flex gap-2">
+                    <label th:for="'sem1'" class="sem-btn-label flex-fill text-center">
+                      <input type="radio" id="sem1" name="semesterNo" value="1" class="sem-radio" required />
+                      <span th:text="#{admin.course.sem1}">Semester 1</span>
+                    </label>
+                    <label th:for="'sem2'" class="sem-btn-label flex-fill text-center">
+                      <input type="radio" id="sem2" name="semesterNo" value="2" class="sem-radio" required />
+                      <span th:text="#{admin.course.sem2}">Semester 2</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label">
+                    <span th:text="#{admin.course.form.code}">Course Code</span>
+                    <span class="text-danger">*</span>
+                  </label>
+                  <input class="form-control" th:placeholder="#{admin.course.form.code.placeholder}" th:field="*{code}" />
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label">
+                    <span th:text="#{admin.course.form.name}">Course Name</span>
+                    <span class="text-danger">*</span>
+                  </label>
+                  <input class="form-control" th:placeholder="#{admin.course.form.name.placeholder}" th:field="*{name}" />
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label">
+                    <span th:text="#{admin.course.form.credit}">Credit</span>
+                    <span class="text-muted fw-normal ms-1" th:text="#{admin.course.form.optional}">(optional)</span>
+                  </label>
+                  <input class="form-control" type="number" min="1" max="10" th:placeholder="#{admin.course.form.credit.placeholder}" th:field="*{credit}" />
+                </div>
+
+                <div class="col-12">
+                  <button class="btn btn-primary w-100" type="submit">
+                    <i class="bi bi-floppy me-1"></i> <span th:text="#{admin.course.form.save}">Save Course</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Curriculum View ── -->
+        <div class="col-12 col-xl-9">
+          <div class="card">
+            <div class="panel-head d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <div>
+                <div class="panel-title"><i class="bi bi-mortarboard me-1 text-primary"></i><span th:text="#{admin.course.overview.title}">Curriculum Overview</span></div>
+                <p class="panel-subtitle" th:text="#{admin.course.overview.subtitle}">4-year programme · 2 semesters per year</p>
+              </div>
+              <span style="display:inline-flex;align-items:center;gap:.35rem;background:#eff6ff;color:#1d4ed8;border-radius:999px;padding:.4rem .75rem;font-size:.82rem;font-weight:700;border:1px solid rgba(37,99,235,.1);">
+                <i class="bi bi-book"></i>
+                <span th:text="${#lists.size(courses)}">0</span>
+                <span th:text="#{admin.course.overview.total}">total</span>
+              </span>
+            </div>
+            <div class="panel-body">
+
+              <!-- Year tabs -->
+              <div class="year-tabs" id="yearTabs">
+                <button class="year-tab active-y1" data-target="panel-y1" data-year="1">
+                  <span th:text="#{admin.course.tab.year1}">Year 1</span>
+                  <span class="tab-badge" style="background:var(--y1-soft);color:var(--y1);" th:text="${cnt1}">0</span>
+                </button>
+                <button class="year-tab" data-target="panel-y2" data-year="2">
+                  <span th:text="#{admin.course.tab.year2}">Year 2</span>
+                  <span class="tab-badge" style="background:var(--y2-soft);color:var(--y2);" th:text="${cnt2}">0</span>
+                </button>
+                <button class="year-tab" data-target="panel-y3" data-year="3">
+                  <span th:text="#{admin.course.tab.year3}">Year 3</span>
+                  <span class="tab-badge" style="background:var(--y3-soft);color:var(--y3);" th:text="${cnt3}">0</span>
+                </button>
+                <button class="year-tab" data-target="panel-y4" data-year="4">
+                  <span th:text="#{admin.course.tab.year4}">Year 4</span>
+                  <span class="tab-badge" style="background:var(--y4-soft);color:var(--y4);" th:text="${cnt4}">0</span>
+                </button>
+                <button class="year-tab" data-target="panel-unassigned" data-year="0"
+                        th:if="${!unassigned.isEmpty()}">
+                  <span th:text="#{admin.course.tab.unassigned}">Unassigned</span>
+                  <span class="tab-badge" style="background:#f1f5f9;color:var(--muted);" th:text="${unassigned.size()}">0</span>
+                </button>
+              </div>
+
+              <!-- Year 1 -->
+              <div class="year-panel visible" id="panel-y1">
+                <div class="year-header y1-header">
+                  <div class="year-icon y1-icon">1</div>
+                  <div>
+                    <div th:text="#{admin.course.year1.label}">Year 1 — Foundation</div>
+                    <div style="font-size:.8rem;font-weight:600;opacity:.7;"
+                         th:text="#{admin.course.year1.desc(${cnt1})}"></div>
+                  </div>
+                </div>
+                <div class="year-body y1-body y1">
+                  <div class="sem-grid">
+                    <div class="sem-col">
+                      <div class="sem-header">
+                        <span class="sem-badge" style="background:var(--y1);">S1</span>
+                        <span th:text="#{admin.course.sem1}">Semester 1</span>
+                        <span class="sem-count ms-auto" th:text="#{admin.course.sem.count(${y1s1.size()})}"></span>
+                      </div>
+                      <div class="course-list" th:if="${!y1s1.isEmpty()}">
+                        <th:block th:each="c, st : ${y1s1}">
+                          <div class="course-row">
+                            <div class="course-no" th:text="${st.index + 1}">1</div>
+                            <span class="course-code" th:text="${c.code}">CODE</span>
+                            <span class="course-name" th:text="${c.name}">Name</span>
+                            <span class="course-credit" th:if="${c.credit != null}" th:text="${c.credit + ' cr'}"></span>
+                            <div class="course-actions ms-auto d-flex gap-1 flex-shrink-0">
+                              <button class="btn-action btn-edit-course"
+                                      th:attr="data-id=${c.id},data-code=${c.code},data-name=${c.name},data-credit=${c.credit},data-year=${c.studyYear},data-sem=${c.semesterNo}"
+                                      title="Edit" data-bs-toggle="modal" data-bs-target="#editCourseModal">
+                                <i class="bi bi-pencil-fill"></i>
+                              </button>
+                              <form th:action="@{/admin/courses/{id}/delete(id=${c.id})}" method="post" style="display:inline">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="submit" class="btn-action btn-delete-course" th:attr="data-code=${c.code}">
+                                  <i class="bi bi-trash-fill"></i>
+                                </button>
+                              </form>
+                            </div>
+                          </div>
+                          <div class="course-divider" th:if="${!st.last}"></div>
+                        </th:block>
+                      </div>
+                      <div class="sem-empty" th:if="${y1s1.isEmpty()}">
+                        <i class="bi bi-inbox opacity-25 d-block mb-1" style="font-size:1.4rem;"></i>
+                        <span th:text="#{admin.course.sem.empty}">No courses yet</span>
+                      </div>
+                    </div>
+                    <div class="sem-col">
+                      <div class="sem-header">
+                        <span class="sem-badge" style="background:var(--y1);">S2</span>
+                        <span th:text="#{admin.course.sem2}">Semester 2</span>
+                        <span class="sem-count ms-auto" th:text="#{admin.course.sem.count(${y1s2.size()})}"></span>
+                      </div>
+                      <div class="course-list" th:if="${!y1s2.isEmpty()}">
+                        <th:block th:each="c, st : ${y1s2}">
+                          <div class="course-row">
+                            <div class="course-no" th:text="${st.index + 1}">1</div>
+                            <span class="course-code" th:text="${c.code}">CODE</span>
+                            <span class="course-name" th:text="${c.name}">Name</span>
+                            <span class="course-credit" th:if="${c.credit != null}" th:text="${c.credit + ' cr'}"></span>
+                            <div class="course-actions ms-auto d-flex gap-1 flex-shrink-0">
+                              <button class="btn-action btn-edit-course"
+                                      th:attr="data-id=${c.id},data-code=${c.code},data-name=${c.name},data-credit=${c.credit},data-year=${c.studyYear},data-sem=${c.semesterNo}"
+                                      title="Edit" data-bs-toggle="modal" data-bs-target="#editCourseModal">
+                                <i class="bi bi-pencil-fill"></i>
+                              </button>
+                              <form th:action="@{/admin/courses/{id}/delete(id=${c.id})}" method="post" style="display:inline">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="submit" class="btn-action btn-delete-course" th:attr="data-code=${c.code}">
+                                  <i class="bi bi-trash-fill"></i>
+                                </button>
+                              </form>
+                            </div>
+                          </div>
+                          <div class="course-divider" th:if="${!st.last}"></div>
+                        </th:block>
+                      </div>
+                      <div class="sem-empty" th:if="${y1s2.isEmpty()}">
+                        <i class="bi bi-inbox opacity-25 d-block mb-1" style="font-size:1.4rem;"></i>
+                        <span th:text="#{admin.course.sem.empty}">No courses yet</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Year 2 -->
+              <div class="year-panel" id="panel-y2">
+                <div class="year-header y2-header">
+                  <div class="year-icon y2-icon">2</div>
+                  <div>
+                    <div th:text="#{admin.course.year2.label}">Year 2 — Intermediate</div>
+                    <div style="font-size:.8rem;font-weight:600;opacity:.7;"
+                         th:text="#{admin.course.year2.desc(${cnt2})}"></div>
+                  </div>
+                </div>
+                <div class="year-body y2-body y2">
+                  <div class="sem-grid">
+                    <div class="sem-col">
+                      <div class="sem-header">
+                        <span class="sem-badge" style="background:var(--y2);">S1</span>
+                        <span th:text="#{admin.course.sem3}">Semester 3</span>
+                        <span class="sem-count ms-auto" th:text="#{admin.course.sem.count(${y2s1.size()})}"></span>
+                      </div>
+                      <div class="course-list" th:if="${!y2s1.isEmpty()}">
+                        <th:block th:each="c, st : ${y2s1}">
+                          <div class="course-row">
+                            <div class="course-no" th:text="${st.index + 1}">1</div>
+                            <span class="course-code" th:text="${c.code}">CODE</span>
+                            <span class="course-name" th:text="${c.name}">Name</span>
+                            <span class="course-credit" th:if="${c.credit != null}" th:text="${c.credit + ' cr'}"></span>
+                            <div class="course-actions ms-auto d-flex gap-1 flex-shrink-0">
+                              <button class="btn-action btn-edit-course"
+                                      th:attr="data-id=${c.id},data-code=${c.code},data-name=${c.name},data-credit=${c.credit},data-year=${c.studyYear},data-sem=${c.semesterNo}"
+                                      title="Edit" data-bs-toggle="modal" data-bs-target="#editCourseModal">
+                                <i class="bi bi-pencil-fill"></i>
+                              </button>
+                              <form th:action="@{/admin/courses/{id}/delete(id=${c.id})}" method="post" style="display:inline">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="submit" class="btn-action btn-delete-course" th:attr="data-code=${c.code}">
+                                  <i class="bi bi-trash-fill"></i>
+                                </button>
+                              </form>
+                            </div>
+                          </div>
+                          <div class="course-divider" th:if="${!st.last}"></div>
+                        </th:block>
+                      </div>
+                      <div class="sem-empty" th:if="${y2s1.isEmpty()}">
+                        <i class="bi bi-inbox opacity-25 d-block mb-1" style="font-size:1.4rem;"></i>
+                        <span th:text="#{admin.course.sem.empty}">No courses yet</span>
+                      </div>
+                    </div>
+                    <div class="sem-col">
+                      <div class="sem-header">
+                        <span class="sem-badge" style="background:var(--y2);">S2</span>
+                        <span th:text="#{admin.course.sem4}">Semester 4</span>
+                        <span class="sem-count ms-auto" th:text="#{admin.course.sem.count(${y2s2.size()})}"></span>
+                      </div>
+                      <div class="course-list" th:if="${!y2s2.isEmpty()}">
+                        <th:block th:each="c, st : ${y2s2}">
+                          <div class="course-row">
+                            <div class="course-no" th:text="${st.index + 1}">1</div>
+                            <span class="course-code" th:text="${c.code}">CODE</span>
+                            <span class="course-name" th:text="${c.name}">Name</span>
+                            <span class="course-credit" th:if="${c.credit != null}" th:text="${c.credit + ' cr'}"></span>
+                            <div class="course-actions ms-auto d-flex gap-1 flex-shrink-0">
+                              <button class="btn-action btn-edit-course"
+                                      th:attr="data-id=${c.id},data-code=${c.code},data-name=${c.name},data-credit=${c.credit},data-year=${c.studyYear},data-sem=${c.semesterNo}"
+                                      title="Edit" data-bs-toggle="modal" data-bs-target="#editCourseModal">
+                                <i class="bi bi-pencil-fill"></i>
+                              </button>
+                              <form th:action="@{/admin/courses/{id}/delete(id=${c.id})}" method="post" style="display:inline">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="submit" class="btn-action btn-delete-course" th:attr="data-code=${c.code}">
+                                  <i class="bi bi-trash-fill"></i>
+                                </button>
+                              </form>
+                            </div>
+                          </div>
+                          <div class="course-divider" th:if="${!st.last}"></div>
+                        </th:block>
+                      </div>
+                      <div class="sem-empty" th:if="${y2s2.isEmpty()}">
+                        <i class="bi bi-inbox opacity-25 d-block mb-1" style="font-size:1.4rem;"></i>
+                        <span th:text="#{admin.course.sem.empty}">No courses yet</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Year 3 -->
+              <div class="year-panel" id="panel-y3">
+                <div class="year-header y3-header">
+                  <div class="year-icon y3-icon">3</div>
+                  <div>
+                    <div th:text="#{admin.course.year3.label}">Year 3 — Advanced</div>
+                    <div style="font-size:.8rem;font-weight:600;opacity:.7;"
+                         th:text="#{admin.course.year3.desc(${cnt3})}"></div>
+                  </div>
+                </div>
+                <div class="year-body y3-body y3">
+                  <div class="sem-grid">
+                    <div class="sem-col">
+                      <div class="sem-header">
+                        <span class="sem-badge" style="background:var(--y3);">S1</span>
+                        <span th:text="#{admin.course.sem5}">Semester 5</span>
+                        <span class="sem-count ms-auto" th:text="#{admin.course.sem.count(${y3s1.size()})}"></span>
+                      </div>
+                      <div class="course-list" th:if="${!y3s1.isEmpty()}">
+                        <th:block th:each="c, st : ${y3s1}">
+                          <div class="course-row">
+                            <div class="course-no" th:text="${st.index + 1}">1</div>
+                            <span class="course-code" th:text="${c.code}">CODE</span>
+                            <span class="course-name" th:text="${c.name}">Name</span>
+                            <span class="course-credit" th:if="${c.credit != null}" th:text="${c.credit + ' cr'}"></span>
+                            <div class="course-actions ms-auto d-flex gap-1 flex-shrink-0">
+                              <button class="btn-action btn-edit-course"
+                                      th:attr="data-id=${c.id},data-code=${c.code},data-name=${c.name},data-credit=${c.credit},data-year=${c.studyYear},data-sem=${c.semesterNo}"
+                                      title="Edit" data-bs-toggle="modal" data-bs-target="#editCourseModal">
+                                <i class="bi bi-pencil-fill"></i>
+                              </button>
+                              <form th:action="@{/admin/courses/{id}/delete(id=${c.id})}" method="post" style="display:inline">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="submit" class="btn-action btn-delete-course" th:attr="data-code=${c.code}">
+                                  <i class="bi bi-trash-fill"></i>
+                                </button>
+                              </form>
+                            </div>
+                          </div>
+                          <div class="course-divider" th:if="${!st.last}"></div>
+                        </th:block>
+                      </div>
+                      <div class="sem-empty" th:if="${y3s1.isEmpty()}">
+                        <i class="bi bi-inbox opacity-25 d-block mb-1" style="font-size:1.4rem;"></i>
+                        <span th:text="#{admin.course.sem.empty}">No courses yet</span>
+                      </div>
+                    </div>
+                    <div class="sem-col">
+                      <div class="sem-header">
+                        <span class="sem-badge" style="background:var(--y3);">S2</span>
+                        <span th:text="#{admin.course.sem6}">Semester 6</span>
+                        <span class="sem-count ms-auto" th:text="#{admin.course.sem.count(${y3s2.size()})}"></span>
+                      </div>
+                      <div class="course-list" th:if="${!y3s2.isEmpty()}">
+                        <th:block th:each="c, st : ${y3s2}">
+                          <div class="course-row">
+                            <div class="course-no" th:text="${st.index + 1}">1</div>
+                            <span class="course-code" th:text="${c.code}">CODE</span>
+                            <span class="course-name" th:text="${c.name}">Name</span>
+                            <span class="course-credit" th:if="${c.credit != null}" th:text="${c.credit + ' cr'}"></span>
+                            <div class="course-actions ms-auto d-flex gap-1 flex-shrink-0">
+                              <button class="btn-action btn-edit-course"
+                                      th:attr="data-id=${c.id},data-code=${c.code},data-name=${c.name},data-credit=${c.credit},data-year=${c.studyYear},data-sem=${c.semesterNo}"
+                                      title="Edit" data-bs-toggle="modal" data-bs-target="#editCourseModal">
+                                <i class="bi bi-pencil-fill"></i>
+                              </button>
+                              <form th:action="@{/admin/courses/{id}/delete(id=${c.id})}" method="post" style="display:inline">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="submit" class="btn-action btn-delete-course" th:attr="data-code=${c.code}">
+                                  <i class="bi bi-trash-fill"></i>
+                                </button>
+                              </form>
+                            </div>
+                          </div>
+                          <div class="course-divider" th:if="${!st.last}"></div>
+                        </th:block>
+                      </div>
+                      <div class="sem-empty" th:if="${y3s2.isEmpty()}">
+                        <i class="bi bi-inbox opacity-25 d-block mb-1" style="font-size:1.4rem;"></i>
+                        <span th:text="#{admin.course.sem.empty}">No courses yet</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Year 4 -->
+              <div class="year-panel" id="panel-y4">
+                <div class="year-header y4-header">
+                  <div class="year-icon y4-icon">4</div>
+                  <div>
+                    <div th:text="#{admin.course.year4.label}">Year 4 — Specialisation</div>
+                    <div style="font-size:.8rem;font-weight:600;opacity:.7;"
+                         th:text="#{admin.course.year4.desc(${cnt4})}"></div>
+                  </div>
+                </div>
+                <div class="year-body y4-body y4">
+                  <div class="sem-grid">
+                    <div class="sem-col">
+                      <div class="sem-header">
+                        <span class="sem-badge" style="background:var(--y4);">S1</span>
+                        <span th:text="#{admin.course.sem7}">Semester 7</span>
+                        <span class="sem-count ms-auto" th:text="#{admin.course.sem.count(${y4s1.size()})}"></span>
+                      </div>
+                      <div class="course-list" th:if="${!y4s1.isEmpty()}">
+                        <th:block th:each="c, st : ${y4s1}">
+                          <div class="course-row">
+                            <div class="course-no" th:text="${st.index + 1}">1</div>
+                            <span class="course-code" th:text="${c.code}">CODE</span>
+                            <span class="course-name" th:text="${c.name}">Name</span>
+                            <span class="course-credit" th:if="${c.credit != null}" th:text="${c.credit + ' cr'}"></span>
+                            <div class="course-actions ms-auto d-flex gap-1 flex-shrink-0">
+                              <button class="btn-action btn-edit-course"
+                                      th:attr="data-id=${c.id},data-code=${c.code},data-name=${c.name},data-credit=${c.credit},data-year=${c.studyYear},data-sem=${c.semesterNo}"
+                                      title="Edit" data-bs-toggle="modal" data-bs-target="#editCourseModal">
+                                <i class="bi bi-pencil-fill"></i>
+                              </button>
+                              <form th:action="@{/admin/courses/{id}/delete(id=${c.id})}" method="post" style="display:inline">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="submit" class="btn-action btn-delete-course" th:attr="data-code=${c.code}">
+                                  <i class="bi bi-trash-fill"></i>
+                                </button>
+                              </form>
+                            </div>
+                          </div>
+                          <div class="course-divider" th:if="${!st.last}"></div>
+                        </th:block>
+                      </div>
+                      <div class="sem-empty" th:if="${y4s1.isEmpty()}">
+                        <i class="bi bi-inbox opacity-25 d-block mb-1" style="font-size:1.4rem;"></i>
+                        <span th:text="#{admin.course.sem.empty}">No courses yet</span>
+                      </div>
+                    </div>
+                    <div class="sem-col">
+                      <div class="sem-header">
+                        <span class="sem-badge" style="background:var(--y4);">S2</span>
+                        <span th:text="#{admin.course.sem8}">Semester 8</span>
+                        <span class="sem-count ms-auto" th:text="#{admin.course.sem.count(${y4s2.size()})}"></span>
+                      </div>
+                      <div class="course-list" th:if="${!y4s2.isEmpty()}">
+                        <th:block th:each="c, st : ${y4s2}">
+                          <div class="course-row">
+                            <div class="course-no" th:text="${st.index + 1}">1</div>
+                            <span class="course-code" th:text="${c.code}">CODE</span>
+                            <span class="course-name" th:text="${c.name}">Name</span>
+                            <span class="course-credit" th:if="${c.credit != null}" th:text="${c.credit + ' cr'}"></span>
+                            <div class="course-actions ms-auto d-flex gap-1 flex-shrink-0">
+                              <button class="btn-action btn-edit-course"
+                                      th:attr="data-id=${c.id},data-code=${c.code},data-name=${c.name},data-credit=${c.credit},data-year=${c.studyYear},data-sem=${c.semesterNo}"
+                                      title="Edit" data-bs-toggle="modal" data-bs-target="#editCourseModal">
+                                <i class="bi bi-pencil-fill"></i>
+                              </button>
+                              <form th:action="@{/admin/courses/{id}/delete(id=${c.id})}" method="post" style="display:inline">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="submit" class="btn-action btn-delete-course" th:attr="data-code=${c.code}">
+                                  <i class="bi bi-trash-fill"></i>
+                                </button>
+                              </form>
+                            </div>
+                          </div>
+                          <div class="course-divider" th:if="${!st.last}"></div>
+                        </th:block>
+                      </div>
+                      <div class="sem-empty" th:if="${y4s2.isEmpty()}">
+                        <i class="bi bi-inbox opacity-25 d-block mb-1" style="font-size:1.4rem;"></i>
+                        <span th:text="#{admin.course.sem.empty}">No courses yet</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Unassigned -->
+              <div class="year-panel" id="panel-unassigned" th:if="${!#lists.isEmpty(unassigned)}">
+                <div class="year-header" style="background:#f8fafc;color:var(--muted);border:1.5px solid var(--line);border-bottom:none;border-radius:16px 16px 0 0;">
+                  <div class="year-icon" style="background:#94a3b8;">?</div>
+                  <div>
+                    <div th:text="#{admin.course.unassigned.label}">Unassigned</div>
+                    <div style="font-size:.8rem;font-weight:600;opacity:.7;"
+                         th:text="#{admin.course.unassigned.desc(${#lists.size(unassigned)})}"></div>
+                  </div>
+                </div>
+                <div class="year-body" style="border-color:var(--line);">
+                  <div class="course-list">
+                    <th:block th:each="c, st : ${unassigned}">
+                      <div class="course-row">
+                        <div class="course-no" th:text="${st.index + 1}">1</div>
+                        <span class="course-code" style="background:#f1f5f9;color:var(--muted);" th:text="${c.code}">CODE</span>
+                        <span class="course-name" th:text="${c.name}">Course Name</span>
+                        <span class="course-credit" th:if="${c.credit != null}" th:text="${c.credit + ' cr'}">3 cr</span>
+                      </div>
+                      <div class="course-divider" th:if="${!st.last}"></div>
+                    </th:block>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /row -->
+    </div><!-- /page-wrap -->
+  </div><!-- /content-area -->
+
+</body>
+
+<!-- ══ EDIT MODAL ══ -->
+<div class="modal fade" id="editCourseModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border:none;border-radius:20px;box-shadow:0 10px 30px rgba(15,23,42,.12);">
+      <div class="modal-header" style="border-bottom:1px solid #e5e7eb;background:linear-gradient(180deg,#fff 0%,#fbfdff 100%);border-radius:20px 20px 0 0;padding:18px 24px;">
+        <div>
+          <div class="fw-bold" style="font-size:1.05rem;">
+            <i class="bi bi-pencil-square me-2 text-primary"></i>
+            <span th:text="#{admin.course.edit.title}">Edit Course</span>
+          </div>
+          <div class="text-muted small" id="editCourseSubtitle" th:text="#{admin.course.edit.subtitle}">Update course details</div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form id="editCourseForm" method="post" action="#">
+        <div class="modal-body" style="padding:20px 24px;">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+          <div class="row g-3 mb-3">
+            <div class="col-6">
+              <label class="form-label" th:text="#{admin.course.edit.year}">Year</label>
+              <select name="studyYear" id="editStudyYear" class="form-select">
+                <option value="" th:text="#{admin.course.edit.unassigned}">— unassigned —</option>
+                <option value="1" th:text="#{admin.course.tab.year1}">Year 1</option>
+                <option value="2" th:text="#{admin.course.tab.year2}">Year 2</option>
+                <option value="3" th:text="#{admin.course.tab.year3}">Year 3</option>
+                <option value="4" th:text="#{admin.course.tab.year4}">Year 4</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label" th:text="#{admin.course.edit.semester}">Semester</label>
+              <select name="semesterNo" id="editSemesterNo" class="form-select">
+                <option value="" th:text="#{admin.course.edit.unassigned}">— unassigned —</option>
+                <option value="1" th:text="#{admin.course.sem1}">Semester 1</option>
+                <option value="2" th:text="#{admin.course.sem2}">Semester 2</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">
+              <span th:text="#{admin.course.edit.code}">Course Code</span>
+              <span class="text-danger">*</span>
+            </label>
+            <input type="text" name="code" id="editCode" class="form-control" required th:placeholder="#{admin.course.form.code.placeholder}" />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">
+              <span th:text="#{admin.course.edit.name}">Course Name</span>
+              <span class="text-danger">*</span>
+            </label>
+            <input type="text" name="name" id="editName" class="form-control" required th:placeholder="#{admin.course.form.name.placeholder}" />
+          </div>
+
+          <div class="mb-1">
+            <label class="form-label">
+              <span th:text="#{admin.course.edit.credit}">Credit</span>
+              <span class="text-muted fw-normal ms-1" th:text="#{admin.course.form.optional}">(optional)</span>
+            </label>
+            <input type="number" name="credit" id="editCredit" class="form-control" min="1" max="10" th:placeholder="#{admin.course.form.credit.placeholder}" />
+          </div>
+        </div>
+
+        <div class="modal-footer" style="border-top:1px solid #e5e7eb;padding:14px 24px;">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" th:text="#{admin.course.edit.cancel}">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-floppy me-1"></i><span th:text="#{admin.course.edit.save}">Save Changes</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ══ IMPORT MODAL ══ -->
+<div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border:none;border-radius:20px;box-shadow:0 10px 30px rgba(15,23,42,.12);">
+      <div class="modal-header" style="border-bottom:1px solid #e5e7eb;background:linear-gradient(180deg,#fff 0%,#fbfdff 100%);border-radius:20px 20px 0 0;padding:18px 24px;">
+        <div>
+          <div class="fw-bold" style="font-size:1.05rem;">
+            <i class="bi bi-upload me-2 text-primary"></i>
+            <span th:text="#{admin.course.import.title}">Import Courses from Excel</span>
+          </div>
+          <div class="text-muted small" th:text="#{admin.course.import.subtitle}">Upload an .xlsx file</div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" th:action="@{/admin/courses/import}" enctype="multipart/form-data">
+        <div class="modal-body" style="padding:20px 24px;">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">
+              <span th:text="#{admin.course.import.file}">Excel File</span>
+              <span class="text-danger">*</span>
+            </label>
+            <input type="file" name="file" class="form-control" accept=".xlsx" required />
+            <div class="form-text" th:text="#{admin.course.import.fileNote}">Only .xlsx files are supported.</div>
+          </div>
+
+          <div class="rounded-3 p-3" style="background:#f8faff;border:1px solid #bfdbfe;">
+            <div class="fw-bold mb-1" style="font-size:.85rem;color:var(--primary);">
+              <i class="bi bi-info-circle me-1"></i>
+              <span th:text="#{admin.course.import.columns.title}">Expected columns</span>
+            </div>
+            <div class="small text-muted">
+              <code>Year (1-4)</code> &nbsp;·&nbsp; <code>Semester (1-2)</code> &nbsp;·&nbsp;
+              <code>Code</code> &nbsp;·&nbsp; <code>Course Name</code> &nbsp;·&nbsp; <code>Credit</code>
+            </div>
+            <div class="small text-muted mt-1" th:utext="#{admin.course.import.columns.desc}">
+              Courses with existing codes will be <strong>updated</strong>. New codes will be <strong>created</strong>.
+            </div>
+            <div class="mt-2">
+              <a href="/admin/courses/template" class="btn btn-xs btn-outline-primary btn-sm py-1 px-2" style="font-size:.8rem;">
+                <i class="bi bi-download me-1"></i><span th:text="#{admin.course.import.template}">Download Template</span>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer" style="border-top:1px solid #e5e7eb;padding:14px 24px;">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" th:text="#{admin.course.import.cancel}">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-upload me-1"></i><span th:text="#{admin.course.import.btn}">Import</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  (() => {
+    // ── Year tabs ──
+    const tabs    = document.querySelectorAll('#yearTabs .year-tab');
+    const panels  = document.querySelectorAll('.year-panel');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const target = tab.dataset.target;
+        const year   = tab.dataset.year;
+
+        tabs.forEach(t => { t.className = 'year-tab'; });
+        tab.classList.add(year === '0' ? 'active-unassigned' : 'active-y' + year);
+
+        panels.forEach(p => {
+          p.classList.toggle('visible', p.id === target);
+        });
+      });
+    });
+
+    // ── Radio button styling ──
+    function styleRadioLabels(radios) {
+      radios.forEach(r => {
+        const lbl = r.closest('label') || r.parentElement;
+        r.addEventListener('change', () => {
+          radios.forEach(x => {
+            const l = x.closest('label') || x.parentElement;
+            l.setAttribute('data-checked', 'false');
+          });
+          lbl.setAttribute('data-checked', 'true');
+        });
+      });
+    }
+    styleRadioLabels(document.querySelectorAll('.year-radio'));
+    styleRadioLabels(document.querySelectorAll('.sem-radio'));
+
+    // ── Delete confirm ──
+    document.querySelectorAll('.btn-delete-course').forEach(btn => {
+      btn.addEventListener('click', e => {
+        if (!confirm('Delete course ' + (btn.dataset.code || '') + '?')) e.preventDefault();
+      });
+    });
+
+    // ── Edit modal ──
+    document.querySelectorAll('.btn-edit-course').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id     = btn.dataset.id;
+        const code   = btn.dataset.code   || '';
+        const name   = btn.dataset.name   || '';
+        const credit = btn.dataset.credit && btn.dataset.credit !== 'null' ? btn.dataset.credit : '';
+        const year   = btn.dataset.year   && btn.dataset.year   !== 'null' ? btn.dataset.year   : '';
+        const sem    = btn.dataset.sem    && btn.dataset.sem    !== 'null' ? btn.dataset.sem    : '';
+
+        document.getElementById('editCourseForm').action = '/admin/courses/' + id + '/update';
+        document.getElementById('editCourseSubtitle').textContent = code + ' — ' + name;
+        document.getElementById('editCode').value   = code;
+        document.getElementById('editName').value   = name;
+        document.getElementById('editCredit').value = credit;
+        document.getElementById('editStudyYear').value  = year;
+        document.getElementById('editSemesterNo').value = sem;
+      });
+    });
+  })();
+
+  function switchLang(lang) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('lang', lang);
+    window.location.href = url.toString();
+  }
+</script>
+</html>

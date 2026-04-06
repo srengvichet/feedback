@@ -1,0 +1,11 @@
+Clearn UP
++ .\mvnw.cmd -U clean package
+
+Run Project:
++ .\mvnw.cmd spring-boot:run
+
+
++ Copy and Past
+cd "C:\dev\feedback" 
+.\mvnw.cmd -U clean package
+.\mvnw.cmd spring-boot:run

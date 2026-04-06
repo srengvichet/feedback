@@ -1,0 +1,750 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title th:text="#{admin.questions.title}">Questions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --soft-primary: #eef4ff;
+      --soft-success: #ecfdf3;
+      --soft-warning: #fff7ed;
+      --soft-danger: #fef2f2;
+      --shadow: 0 10px 30px rgba(15,23,42,.08);
+      --radius: 22px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Noto Sans Khmer", "Segoe UI", system-ui, -apple-system, sans-serif;
+      margin: 0;
+    }
+
+    .page-wrap { max-width: 1480px; margin: 0 auto; }
+
+    .admin-topnav {
+      background: #0f172a;
+      padding: 0 28px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: 0 4px 20px rgba(15,23,42,.35);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; flex: 1; }
+    .nav-brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg,#2563eb,#1d4ed8);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: .85rem;
+      box-shadow: 0 4px 12px rgba(37,99,235,.4);
+    }
+    .nav-brand-text { line-height: 1.2; }
+    .nav-brand-title { font-size: .9rem; font-weight: 700; color: #fff; }
+    .nav-brand-sub { font-size: .7rem; color: #64748b; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .lang-toggle { display: flex; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: 3px; gap: 2px; }
+    .lang-opt {
+      text-decoration: none;
+      font-size: .72rem;
+      font-weight: 700;
+      padding: 4px 11px;
+      border-radius: 999px;
+      color: rgba(255,255,255,.5);
+      border: none;
+      background: transparent;
+      transition: .15s;
+    }
+    .lang-opt:hover { color: rgba(255,255,255,.85); }
+    .lang-opt.active { background: #2563eb; color: #fff; }
+    .user-chip { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: 4px 14px 4px 5px; }
+    .user-avatar { width: 27px; height: 27px; border-radius: 50%; background: linear-gradient(135deg,#3b82f6,#2563eb); color: #fff; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 800; }
+    .user-name { font-size: .8rem; font-weight: 600; color: #cbd5e1; }
+    .nav-logout { background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.25); color: #f87171; border-radius: 10px; padding: 6px 14px; font-size: .8rem; font-weight: 600; cursor: pointer; transition: .15s; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+    .nav-logout:hover { background: rgba(239,68,68,.22); color: #fca5a5; }
+
+    .page-hero {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #3b82f6 100%);
+      padding: 28px 28px 36px;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-hero::before { content: ""; position: absolute; right: -80px; top: -80px; width: 300px; height: 300px; border-radius: 50%; background: rgba(255,255,255,.06); }
+    .page-hero::after { content: ""; position: absolute; left: -60px; bottom: -80px; width: 240px; height: 240px; border-radius: 50%; background: rgba(255,255,255,.04); }
+    .page-hero > * { position: relative; z-index: 1; }
+    .page-title { font-size: 1.85rem; font-weight: 800; color: #fff; margin: 0 0 .3rem; letter-spacing: -.02em; }
+    .page-subtitle { color: rgba(255,255,255,.72); margin: 0; font-size: .93rem; }
+
+    .soft-pill {
+      display: inline-flex; align-items: center; gap: .35rem;
+      background: rgba(255,255,255,.15); color: #fff;
+      border-radius: 999px; padding: .45rem .75rem;
+      font-size: .82rem; font-weight: 700;
+      border: 1px solid rgba(255,255,255,.25);
+    }
+    .soft-pill.success { background: rgba(22,163,74,.2); color: #fff; border-color: rgba(134,239,172,.3); }
+    .soft-pill.warning { background: rgba(217,119,6,.25); color: #fff; border-color: rgba(251,191,36,.3); }
+
+    .btn-hero { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.22); color: #fff; border-radius: 12px; padding: 9px 18px; font-size: .87rem; font-weight: 600; text-decoration: none; transition: .15s; }
+    .btn-hero:hover { background: rgba(255,255,255,.22); color: #fff; }
+    .btn-hero-accent { background: #fff; border: none; color: #1d4ed8; font-weight: 700; box-shadow: 0 6px 18px rgba(0,0,0,.18); }
+    .btn-hero-accent:hover { background: #f0f6ff; color: #1d4ed8; transform: translateY(-1px); }
+
+    /* ── CARDS ── */
+    .card {
+      border: none !important;
+      border-radius: var(--radius) !important;
+      box-shadow: var(--shadow) !important;
+      overflow: hidden;
+      background: var(--card);
+    }
+    .panel-head {
+      padding: 18px 24px 14px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+    .panel-title { font-size: 1.05rem; font-weight: 800; margin-bottom: .15rem; }
+    .panel-subtitle { color: var(--muted); font-size: .88rem; margin: 0; }
+    .panel-body { padding: 20px 24px; }
+
+    /* ── ACCENT CARDS ── */
+    .card-accent-purple { border-left: 4px solid #2563eb !important; }
+    .card-accent-green  { border-left: 4px solid #16a34a !important; }
+
+    /* ── KPI ── */
+    .mini-stat {
+      background: #fff; border-radius: 20px;
+      box-shadow: var(--shadow); padding: 1rem 1.2rem; height: 100%;
+    }
+    .mini-stat .label { color: var(--muted); font-size: .84rem; font-weight: 700; margin-bottom: .3rem; }
+    .mini-stat .value { font-size: 1.6rem; font-weight: 800; line-height: 1.1; }
+    .mini-stat .sub   { color: var(--muted); font-size: .78rem; margin-top: .25rem; }
+
+    /* ── FORMS ── */
+    .btn { border-radius: 14px; font-weight: 700; }
+    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border: none; box-shadow: 0 8px 18px rgba(37,99,235,.18); }
+    .btn-success { background: linear-gradient(135deg, #16a34a, #15803d); border: none; box-shadow: 0 8px 18px rgba(22,163,74,.18); }
+
+    .form-label { font-weight: 700; color: #374151; font-size: .9rem; }
+    .form-control, .form-select {
+      border-radius: 14px; min-height: 46px;
+      border: 1px solid #dbe3ee; box-shadow: none;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: #93c5fd;
+      box-shadow: 0 0 0 .2rem rgba(37,99,235,.10);
+    }
+    .form-control-sm, .form-select-sm { min-height: 36px; border-radius: 10px; }
+
+    /* ── TABLE ── */
+    .table-wrap { border-radius: 18px; overflow: auto; }
+    .table { margin-bottom: 0; border-collapse: separate; border-spacing: 0 8px; }
+    .table thead th {
+      border: none !important; color: var(--muted);
+      font-size: .77rem; text-transform: uppercase;
+      letter-spacing: .05em; font-weight: 800;
+      white-space: nowrap; background: transparent !important;
+      padding: 8px 12px;
+    }
+    .table tbody tr {
+      background: #fff;
+      box-shadow: 0 3px 12px rgba(15,23,42,.05);
+      transition: .15s ease-in-out;
+    }
+    .table tbody tr:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(15,23,42,.09); }
+    .table tbody td {
+      vertical-align: middle; padding: 12px 12px;
+      border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9;
+      font-size: .92rem;
+    }
+    .table tbody td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 14px; border-bottom-left-radius: 14px; }
+    .table tbody td:last-child  { border-right: 1px solid #f1f5f9; border-top-right-radius: 14px; border-bottom-right-radius: 14px; }
+
+    .badge-soft {
+      border: 1px solid rgba(0,0,0,.06); font-weight: 700;
+      letter-spacing: .2px; border-radius: 999px; padding: .4em .75em;
+    }
+
+    /* ── IMPORT SUB-PANELS ── */
+    .import-panel {
+      border-radius: 16px; padding: 16px;
+    }
+
+    /* ── PAGINATION ── */
+    .pagination .page-link { border-radius: 10px; font-weight: 700; border: none; color: var(--primary); margin: 0 2px; }
+    .pagination .page-item.active .page-link { background: var(--primary); color: #fff; }
+    .pagination .page-item.disabled .page-link { opacity: .4; }
+
+    /* ── ALERTS ── */
+    .alert { border-radius: 16px; font-weight: 500; box-shadow: 0 6px 20px rgba(15,23,42,.06); }
+
+    .content-area { background: var(--bg); padding: 28px; min-height: calc(100vh - 58px - 140px); }
+
+    .action-btn { border-radius: 10px; font-size: .78rem; }
+
+    @media (max-width: 992px) {
+      .admin-topnav { padding: 0 16px; }
+      .page-hero { padding: 20px 16px 28px; }
+      .content-area { padding: 16px; }
+      .page-title { font-size: 1.55rem; }
+      .nav-brand-sub { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+<nav class="admin-topnav">
+  <div class="nav-brand">
+    <div class="nav-brand-icon">
+        <img th:src="@{/images/num_logo.jpg}" alt="NUM Logo" object-fit="cover" style="width: 100%; height: 100%; border-radius: 10px;">
+      </div>
+    <div class="nav-brand-text">
+      <div class="nav-brand-title">NUM Feedback</div>
+      <div class="nav-brand-sub">Admin Portal</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="lang-toggle">
+      <a href="javascript:void(0)" onclick="switchLang('en')" class="lang-opt" th:classappend="${#locale.language == 'en'} ? ' active'">EN</a>
+      <a href="javascript:void(0)" onclick="switchLang('km')" class="lang-opt" th:classappend="${#locale.language == 'km'} ? ' active'">KH</a>
+    </div>
+    <div class="user-chip">
+      <div class="user-avatar">A</div>
+      <span class="user-name" sec:authentication="name">Admin</span>
+    </div>
+    <form th:action="@{/login?logout}" method="post" style="margin:0;">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+      <button class="nav-logout" type="submit">
+        <i class="bi bi-box-arrow-right"></i> Sign Out
+      </button>
+    </form>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="page-wrap d-flex flex-column flex-lg-row justify-content-between align-items-start gap-3">
+    <div>
+      <div class="mb-2">
+        <a href="/admin" class="btn-hero">
+          <i class="bi bi-arrow-left"></i> <span th:text="#{admin.questions.back}">Admin</span>
+        </a>
+      </div>
+      <h1 class="page-title" th:text="#{admin.questions.title}">Questions</h1>
+      <p class="page-subtitle" th:text="#{admin.questions.subtitle}">Manage question bank, activation status, import/export, and evaluation window.</p>
+      <div class="d-flex flex-wrap gap-2 mt-3">
+        <span class="soft-pill">
+          <i class="bi bi-list-check"></i>
+          <span th:text="${totalRows != null ? totalRows : 0}">0</span> <span th:text="#{admin.questions.pill.questions}">Questions</span>
+        </span>
+        <span class="soft-pill warning">
+          <i class="bi bi-tag"></i>
+          <span th:text="${filterKind != null ? filterKind : 'ALL'}">ALL</span>
+        </span>
+        <span class="soft-pill success">
+          <i class="bi bi-toggles"></i>
+          <span th:text="${filterActive == null ? 'All Statuses' : (filterActive ? 'Active Only' : 'Inactive Only')}">All Statuses</span>
+        </span>
+      </div>
+    </div>
+    <a class="btn-hero btn-hero-accent"
+       th:href="@{/admin/questions/new(kind=${filterKind != null ? filterKind : 'STUDENT_FEEDBACK'})}">
+      <i class="bi bi-plus-lg"></i> <span th:text="#{admin.questions.btn.newQuestion}">New Question</span>
+    </a>
+  </div>
+</div>
+
+<div class="content-area">
+  <div class="page-wrap">
+
+    <!-- ══ KPI CARDS ══ -->
+    <div class="row g-3 mb-3">
+      <div class="col-6 col-lg-3">
+        <div class="mini-stat">
+          <div class="label"><i class="bi bi-list-check me-1"></i><span th:text="#{admin.questions.kpi.total}">Total Questions</span></div>
+          <div class="value text-primary" th:text="${totalRows != null ? totalRows : 0}">0</div>
+          <div class="sub" th:text="#{admin.questions.kpi.total.sub}">in current filter</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="mini-stat">
+          <div class="label"><i class="bi bi-tag me-1"></i><span th:text="#{admin.questions.kpi.kind}">Selected Kind</span></div>
+          <div class="value" style="font-size:1.1rem;" th:text="${filterKind != null ? filterKind : 'ALL'}">ALL</div>
+          <div class="sub" th:text="#{admin.questions.kpi.kind.sub}">question category</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="mini-stat">
+          <div class="label"><i class="bi bi-check2-circle me-1"></i><span th:text="#{admin.questions.kpi.active}">Active Filter</span></div>
+          <div class="value" style="font-size:1.1rem;">
+            <span th:if="${filterActive == null}"                    th:text="#{admin.questions.kpi.active.all}">All</span>
+            <span th:if="${filterActive != null and filterActive}"   th:text="#{admin.questions.kpi.active.activeOnly}">Active Only</span>
+            <span th:if="${filterActive != null and !filterActive}"  th:text="#{admin.questions.kpi.active.inactiveOnly}">Inactive Only</span>
+          </div>
+          <div class="sub" th:text="#{admin.questions.kpi.active.sub}">activation status</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="mini-stat">
+          <div class="label"><i class="bi bi-book me-1"></i><span th:text="#{admin.questions.kpi.page}">Page</span></div>
+          <div class="value">
+            <span th:text="${page}">1</span><span class="fs-6 fw-normal text-muted"> / <span th:text="${totalPages != null ? totalPages : 1}">1</span></span>
+          </div>
+          <div class="sub" th:text="#{admin.questions.kpi.page.sub}">current page view</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ALERTS ══ -->
+    <div th:if="${param.msg != null and param.msg.contains('deleted_all')}" class="alert alert-success d-flex gap-2 align-items-center mb-3">
+      <i class="bi bi-check-circle-fill"></i> <span th:text="#{admin.questions.alert.deletedAll}">All questions for the selected kind were deleted.</span>
+    </div>
+    <div th:if="${param.msg != null and param.msg.contains('deleted') and !(param.msg.contains('deleted_all'))}" class="alert alert-success d-flex gap-2 align-items-center mb-3">
+      <i class="bi bi-check-circle-fill"></i> <span th:text="#{admin.questions.alert.deleted}">Question deleted.</span>
+    </div>
+    <div th:if="${param.msg != null and param.msg.contains('deactivated')}" class="alert alert-warning d-flex gap-2 align-items-center mb-3">
+      <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="#{admin.questions.alert.deactivated}">Question was used already, so it was deactivated instead of deleted.</span>
+    </div>
+    <div th:if="${param.msg != null and param.msg.contains('seeded')}" class="alert alert-success d-flex gap-2 align-items-center mb-3">
+      <i class="bi bi-check-circle-fill"></i> <span th:text="#{admin.questions.alert.seeded}">Default student feedback questions created.</span>
+    </div>
+    <div th:if="${param.msg != null and param.msg.contains('already_seeded')}" class="alert alert-warning d-flex gap-2 align-items-center mb-3">
+      <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="#{admin.questions.alert.alreadySeeded}">Student feedback questions already exist. (Seed is blocked)</span>
+    </div>
+    <div th:if="${param.msg != null and param.msg.contains('normalized')}" class="alert alert-success d-flex gap-2 align-items-center mb-3">
+      <i class="bi bi-check-circle-fill"></i> <span th:text="#{admin.questions.alert.normalized}">Order numbers normalized (1..N).</span>
+    </div>
+    <div th:if="${param.msg != null and param.msg.contains('published')}" class="alert alert-success d-flex gap-2 align-items-center mb-3">
+      <i class="bi bi-check-circle-fill"></i> <span th:text="#{admin.questions.alert.published}">All questions published.</span>
+    </div>
+    <div th:if="${param.msg != null and param.msg.contains('unpublished')}" class="alert alert-warning d-flex gap-2 align-items-center mb-3">
+      <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="#{admin.questions.alert.unpublished}">All questions unpublished.</span>
+    </div>
+    <div th:if="${param.msg != null and param.msg.contains('window_opened')}" class="alert alert-success d-flex gap-2 align-items-center mb-3">
+      <i class="bi bi-unlock-fill"></i> <span th:text="#{admin.questions.alert.windowOpened}">Feedback window opened.</span>
+    </div>
+    <div th:if="${param.msg != null and param.msg.contains('window_closed')}" class="alert alert-warning d-flex gap-2 align-items-center mb-3">
+      <i class="bi bi-lock-fill"></i> <span th:text="#{admin.questions.alert.windowClosed}">Feedback window closed.</span>
+    </div>
+    <div th:if="${param.msg != null and param.msg.contains('import_ok')}" class="alert alert-success d-flex gap-2 align-items-center mb-3">
+      <i class="bi bi-check-circle-fill"></i>
+      <span th:text="#{admin.questions.alert.importOk}">Import completed.</span>
+      <span class="ms-1 small">
+        <span th:text="#{admin.questions.alert.importOk.imported}">Imported</span>=<span th:text="${param.imported != null ? param.imported[0] : 0}">0</span>,
+        <span th:text="#{admin.questions.alert.importOk.updated}">Updated</span>=<span th:text="${param.updated != null ? param.updated[0] : 0}">0</span>,
+        <span th:text="#{admin.questions.alert.importOk.skipped}">Skipped</span>=<span th:text="${param.skipped != null ? param.skipped[0] : 0}">0</span>
+      </span>
+    </div>
+    <div th:if="${param.msg != null and param.msg.contains('import_failed')}" class="alert alert-danger d-flex gap-2 align-items-center mb-3">
+      <i class="bi bi-x-circle-fill"></i> <span th:text="#{admin.questions.alert.importFailed}">Import failed. Please check your CSV format and try again.</span>
+    </div>
+    <div th:if="${param.msg != null and param.msg.contains('import_bad_header')}" class="alert alert-warning d-flex gap-2 align-items-center mb-3">
+      <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="#{admin.questions.alert.importBadHeader}">Import failed: CSV header is missing required columns (type, text).</span>
+    </div>
+    <div th:if="${param.msg != null and param.msg.contains('import_empty')}" class="alert alert-warning d-flex gap-2 align-items-center mb-3">
+      <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="#{admin.questions.alert.importEmpty}">Import failed: No file selected or file is empty.</span>
+    </div>
+
+    <!-- ══ FILTER CARD ══ -->
+    <div class="card mb-3">
+      <div class="panel-head d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+          <div class="panel-title"><i class="bi bi-funnel me-1 text-primary"></i><span th:text="#{admin.questions.filter.title}">Filter Questions</span></div>
+          <p class="panel-subtitle" th:text="#{admin.questions.filter.subtitle}">Narrow the question list by kind and active status.</p>
+        </div>
+        <span class="soft-pill" style="background:#eef4ff;color:#1d4ed8;border-color:#c7d2fe;"><i class="bi bi-funnel"></i> <span th:text="#{admin.questions.filter.pill}">Filters</span></span>
+      </div>
+      <div class="panel-body">
+        <form method="get" th:action="@{/admin/questions}" class="row g-3 align-items-end">
+          <div class="col-md-4">
+            <label class="form-label" th:text="#{admin.questions.filter.kind}">Kind</label>
+            <select class="form-select" name="kind">
+              <option value="" th:selected="${filterKind == null}" th:text="#{admin.questions.filter.kind.all}">All Kinds</option>
+              <option th:each="k : ${kinds}" th:value="${k}" th:text="${k}"
+                      th:selected="${filterKind != null and filterKind == k}"></option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" th:text="#{admin.questions.filter.active}">Active Status</label>
+            <select class="form-select" name="active">
+              <option value="" th:selected="${filterActive == null}" th:text="#{admin.questions.filter.active.all}">All</option>
+              <option value="true"  th:selected="${filterActive != null and filterActive}"  th:text="#{admin.questions.filter.active.activeOnly}">Active only</option>
+              <option value="false" th:selected="${filterActive != null and !filterActive}" th:text="#{admin.questions.filter.active.inactiveOnly}">Inactive only</option>
+            </select>
+          </div>
+          <div class="col-md-2 d-grid">
+            <button class="btn btn-primary"><i class="bi bi-funnel-fill"></i> <span th:text="#{admin.questions.filter.btn.apply}">Apply</span></button>
+          </div>
+          <div class="col-md-2 d-grid">
+            <a class="btn btn-outline-secondary" href="/admin/questions"><i class="bi bi-arrow-counterclockwise"></i> <span th:text="#{admin.questions.filter.btn.reset}">Reset</span></a>
+          </div>
+        </form>
+
+        <hr class="my-3">
+
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <span class="text-muted small fw-bold" th:text="#{admin.questions.filter.danger}">Danger zone:</span>
+          <form method="post" action="/admin/questions/delete-all" class="d-inline"
+                onsubmit="return confirm(MSG_CONFIRM_DELETE_ALL);">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <input type="hidden" name="kind" th:value="${filterKind != null ? filterKind : 'STUDENT_FEEDBACK'}" />
+            <button type="submit" class="btn btn-outline-danger btn-sm">
+              <i class="bi bi-trash3"></i> <span th:text="#{admin.questions.filter.btn.deleteAll}">Delete All of Kind</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ EVALUATION WINDOW CONTROL ══ -->
+    <div class="card card-accent-purple mb-3">
+      <div class="panel-head d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+          <div class="panel-title"><i class="bi bi-toggle2-on me-1 text-primary"></i><span th:text="#{admin.questions.window.title}">Evaluation Window Control</span></div>
+          <p class="panel-subtitle" th:text="#{admin.questions.window.subtitle}">Open or close the feedback submission window for the selected kind and semester.</p>
+        </div>
+        <span class="soft-pill" style="background:#eef4ff;color:#1d4ed8;border-color:#c7d2fe;">
+          <i class="bi bi-calendar-range"></i>
+          <span th:text="#{admin.questions.window.kind}">Kind:</span>
+          <span th:text="${filterKind != null ? filterKind : 'STUDENT_FEEDBACK'}">STUDENT_FEEDBACK</span>
+        </span>
+      </div>
+      <div class="panel-body">
+        <form method="post" class="row g-3 align-items-end">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+          <input type="hidden" name="kind" th:value="${filterKind != null ? filterKind : 'STUDENT_FEEDBACK'}" />
+
+          <div class="col-12 col-lg-5">
+            <label class="form-label" th:text="#{admin.questions.window.semester}">Semester</label>
+            <select class="form-select" name="semesterId" required>
+              <option th:each="s : ${semesters}" th:value="${s.id}" th:text="${s.name}"></option>
+            </select>
+          </div>
+
+          <div class="col-6 col-lg-2">
+            <label class="form-label" th:text="#{admin.questions.window.daysOpen}">Days Open</label>
+            <input class="form-control" type="number" name="days" value="7" min="1" max="60" />
+          </div>
+
+          <div class="col-6 col-lg-2 d-grid">
+            <label class="form-label d-none d-lg-block">&nbsp;</label>
+            <button class="btn btn-primary" type="submit" formaction="/admin/questions/window/open">
+              <i class="bi bi-unlock-fill"></i> <span th:text="#{admin.questions.window.btn.open}">Open Now</span>
+            </button>
+          </div>
+
+          <div class="col-12 col-lg-3 d-grid">
+            <label class="form-label d-none d-lg-block">&nbsp;</label>
+            <button class="btn btn-outline-danger" type="submit"
+                    formaction="/admin/questions/window/close"
+                    onclick="return confirm(MSG_CONFIRM_CLOSE_WINDOW);">
+              <i class="bi bi-lock-fill"></i> <span th:text="#{admin.questions.window.btn.close}">Close Window Now</span>
+            </button>
+          </div>
+        </form>
+        <p class="text-muted small mt-3 mb-0">
+          <i class="bi bi-info-circle me-1"></i>
+          <span th:text="#{admin.questions.window.note}">For a full view of both TEACHER_SELF and STUDENT_FEEDBACK per semester, use</span> <b>/admin/windows</b>.
+        </p>
+      </div>
+    </div>
+
+    <!-- ══ IMPORT / EXPORT ══ -->
+    <div class="card card-accent-green mb-3">
+      <div class="panel-head d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+          <div class="panel-title"><i class="bi bi-arrow-down-up me-1" style="color:#16a34a;"></i><span th:text="#{admin.questions.import.title}">Import / Export Questions</span></div>
+          <p class="panel-subtitle" th:text="#{admin.questions.import.subtitle}">Export the current filter to CSV or Excel, or bulk import questions from file.</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <a class="btn btn-success btn-sm"
+             th:href="@{/admin/questions/export-excel(kind=${filterKind}, active=${filterActive})}">
+            <i class="bi bi-file-earmark-excel"></i> <span th:text="#{admin.questions.import.btn.excel}">Excel</span>
+          </a>
+          <a class="btn btn-outline-success btn-sm"
+             th:href="@{/admin/questions/export(kind=${filterKind}, active=${filterActive})}">
+            <i class="bi bi-filetype-csv"></i> <span th:text="#{admin.questions.import.btn.csv}">CSV</span>
+          </a>
+          <a class="btn btn-outline-secondary btn-sm" href="/admin/questions/export-template">
+            <i class="bi bi-file-earmark-text"></i> <span th:text="#{admin.questions.import.btn.template}">Template</span>
+          </a>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="row g-3">
+
+          <!-- CSV Import -->
+          <div class="col-12 col-lg-6">
+            <div class="import-panel bg-light border">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="fw-bold"><i class="bi bi-filetype-csv me-1 text-primary"></i><span th:text="#{admin.questions.import.csv.title}">Import CSV</span></div>
+                <span class="badge text-bg-secondary rounded-pill">.csv</span>
+              </div>
+              <form method="post" action="/admin/questions/import" enctype="multipart/form-data" class="row g-2">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <input type="hidden" name="kind" th:value="${filterKind != null ? filterKind : 'STUDENT_FEEDBACK'}" />
+
+                <div class="col-12 col-md-4">
+                  <label class="form-label" style="font-size:.85rem;" th:text="#{admin.questions.import.mode}">Mode</label>
+                  <select class="form-select form-select-sm js-mode" name="mode" data-target="#csvReplaceWarn">
+                    <option value="append" selected th:text="#{admin.questions.import.mode.append}">Append / Upsert</option>
+                    <option value="replace" th:text="#{admin.questions.import.mode.replace}">Replace (delete all of kind)</option>
+                  </select>
+                </div>
+                <div class="col-12 col-md-8">
+                  <label class="form-label" style="font-size:.85rem;" th:text="#{admin.questions.import.csv.file}">CSV File</label>
+                  <input class="form-control form-control-sm" type="file" name="file" accept=".csv,text/csv" required />
+                </div>
+                <div class="col-12">
+                  <div id="csvReplaceWarn" class="alert alert-warning py-2 mb-2 small d-none">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                    <b th:text="#{admin.questions.import.warn.label}">Warning:</b> <span th:text="#{admin.questions.import.warn}">Replace deletes all questions for this kind before importing. Export a backup first.</span>
+                  </div>
+                  <p class="text-muted small mb-2" th:utext="#{admin.questions.import.csv.hint}">Required: <b>type</b>, <b>text</b>. Optional: <b>id</b>, <b>orderNo</b>, <b>active</b>, <b>scaleMin</b>, <b>scaleMax</b>.</p>
+                </div>
+                <div class="col-12 d-grid">
+                  <button class="btn btn-primary btn-sm" type="submit" onclick="return confirm(MSG_CONFIRM_IMPORT_CSV);">
+                    <i class="bi bi-cloud-upload"></i> <span th:text="#{admin.questions.import.csv.btn}">Import CSV</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Excel Import -->
+          <div class="col-12 col-lg-6">
+            <div class="import-panel border">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="fw-bold"><i class="bi bi-file-earmark-excel me-1 text-success"></i><span th:text="#{admin.questions.import.excel.title}">Import Excel</span></div>
+                <span class="badge text-bg-success rounded-pill">.xlsx</span>
+              </div>
+              <form method="post" action="/admin/questions/import-excel" enctype="multipart/form-data" class="row g-2">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <input type="hidden" name="kind" th:value="${filterKind != null ? filterKind : 'STUDENT_FEEDBACK'}" />
+
+                <div class="col-12 col-md-4">
+                  <label class="form-label" style="font-size:.85rem;" th:text="#{admin.questions.import.mode}">Mode</label>
+                  <select class="form-select form-select-sm js-mode" name="mode" data-target="#xlsxReplaceWarn">
+                    <option value="append" selected th:text="#{admin.questions.import.mode.append}">Append / Upsert</option>
+                    <option value="replace" th:text="#{admin.questions.import.mode.replace}">Replace (delete all of kind)</option>
+                  </select>
+                </div>
+                <div class="col-12 col-md-8">
+                  <label class="form-label" style="font-size:.85rem;" th:text="#{admin.questions.import.excel.file}">Excel File</label>
+                  <input class="form-control form-control-sm" type="file" name="file" accept=".xlsx" required />
+                </div>
+                <div class="col-12">
+                  <div id="xlsxReplaceWarn" class="alert alert-warning py-2 mb-2 small d-none">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                    <b th:text="#{admin.questions.import.warn.label}">Warning:</b> <span th:text="#{admin.questions.import.warn}">Replace deletes all questions for this kind before importing. Export a backup first.</span>
+                  </div>
+                  <p class="text-muted small mb-2" th:utext="#{admin.questions.import.excel.hint}">Headers: <b>type/text</b> or <b>Type/Text</b>. Optional: <b>ID</b>, <b>Order</b>, <b>Active</b>, <b>Scale Min</b>, <b>Scale Max</b>.</p>
+                </div>
+                <div class="col-12 d-grid">
+                  <button class="btn btn-success btn-sm" type="submit" onclick="return confirm(MSG_CONFIRM_IMPORT_EXCEL);">
+                    <i class="bi bi-cloud-upload"></i> <span th:text="#{admin.questions.import.excel.btn}">Import Excel</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+        </div>
+        <p class="text-muted small mt-3 mb-0">
+          <i class="bi bi-lightbulb me-1"></i>
+          <span th:text="#{admin.questions.import.tip}">Tip: Excel export/import is recommended for Khmer text formatting and column widths.</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- ══ QUESTION TABLE ══ -->
+    <div class="card">
+      <div class="panel-head d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+          <div class="panel-title"><i class="bi bi-table me-1 text-primary"></i><span th:text="#{admin.questions.table.title}">Question Table</span></div>
+          <p class="panel-subtitle">
+            <span th:text="#{admin.questions.table.page}">Page</span>
+            <span th:text="${page}">1</span>
+            <span th:text="#{admin.questions.table.of}">of</span>
+            <span th:text="${totalPages != null ? totalPages : 1}">1</span>
+            &nbsp;·&nbsp;
+            <span th:text="${totalRows != null ? totalRows : 0}">0</span>
+            <span th:text="#{admin.questions.table.questions}">question(s)</span>
+          </p>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <form method="get" th:action="@{/admin/questions}" class="d-flex align-items-center gap-2">
+            <input type="hidden" name="kind"   th:if="${filterKind   != null}" th:value="${filterKind}" />
+            <input type="hidden" name="active" th:if="${filterActive != null}" th:value="${filterActive}" />
+            <label class="text-muted small fw-bold mb-0" th:text="#{admin.questions.table.perPage}">Per page</label>
+            <select class="form-select form-select-sm" name="size" style="width:80px;" onchange="this.form.submit()">
+              <option value="10"  th:selected="${size == 10}">10</option>
+              <option value="20"  th:selected="${size == 20}">20</option>
+              <option value="50"  th:selected="${size == 50}">50</option>
+              <option value="100" th:selected="${size == 100}">100</option>
+            </select>
+          </form>
+          <span class="soft-pill" style="background:#eef4ff;color:#1d4ed8;border-color:#c7d2fe;"><i class="bi bi-list-check"></i> <span th:text="${totalRows != null ? totalRows : 0}">0</span> <span th:text="#{admin.questions.table.total}">total</span></span>
+        </div>
+      </div>
+      <div class="panel-body" style="padding:16px 24px;">
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th style="width:52px;">#</th>
+                
+                <th th:text="#{admin.questions.table.col.kind}">Kind</th>
+                <th th:text="#{admin.questions.table.col.order}">Order</th>
+                <th th:text="#{admin.questions.table.col.type}">Type</th>
+                <th th:text="#{admin.questions.table.col.status}">Status</th>
+                <th th:text="#{admin.questions.table.col.text}">Question Text</th>
+                <th style="width:300px;" th:text="#{admin.questions.table.col.actions}">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="q, stat : ${questions}">
+                <td class="text-muted small" th:text="${(page - 1) * size + stat.index + 1}">1</td>
+                
+                <td>
+                  <span class="badge badge-soft text-bg-light" th:text="${q.kind}"></span>
+                </td>
+                <td class="fw-bold" th:text="${q.orderNo}"></td>
+                <td th:text="${q.type}"></td>
+                <td>
+                  <span class="badge badge-soft"
+                        th:classappend="${q.active} ? ' text-bg-success' : ' text-bg-secondary'"
+                        th:text="${q.active} ? #{admin.questions.table.status.active} : #{admin.questions.table.status.inactive}"></span>
+                </td>
+                <td th:text="${q.text}" style="max-width:320px;white-space:normal;line-height:1.4;"></td>
+                <td>
+                  <div class="d-flex flex-wrap gap-1">
+                    <a class="btn btn-sm btn-outline-primary action-btn" th:href="@{/admin/questions/{id}/edit(id=${q.id})}">
+                      <i class="bi bi-pencil"></i> <span th:text="#{admin.questions.table.btn.edit}">Edit</span>
+                    </a>
+                    <form method="post" th:action="@{/admin/questions/{id}/move-up(id=${q.id})}" style="display:inline;">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                      <button class="btn btn-sm btn-outline-secondary action-btn" th:title="#{admin.questions.table.btn.moveUp}"><i class="bi bi-arrow-up"></i></button>
+                    </form>
+                    <form method="post" th:action="@{/admin/questions/{id}/move-down(id=${q.id})}" style="display:inline;">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                      <button class="btn btn-sm btn-outline-secondary action-btn" th:title="#{admin.questions.table.btn.moveDown}"><i class="bi bi-arrow-down"></i></button>
+                    </form>
+                    <form method="post" th:action="@{/admin/questions/{id}/toggle(id=${q.id})}" style="display:inline;">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                      <button class="btn btn-sm btn-outline-warning action-btn"
+                              th:text="${q.active} ? #{admin.questions.table.btn.deactivate} : #{admin.questions.table.btn.activate}"></button>
+                    </form>
+                    <form method="post" th:action="@{/admin/questions/{id}/delete(id=${q.id})}" style="display:inline;"
+                          onsubmit="return confirm(MSG_CONFIRM_DELETE);">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                      <button class="btn btn-sm btn-outline-danger action-btn"><i class="bi bi-trash3"></i></button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+
+              <tr th:if="${#lists.isEmpty(questions)}">
+                <td colspan="7" class="text-center py-5">
+                  <i class="bi bi-inbox d-block mb-2 opacity-25" style="font-size:2.5rem;"></i>
+                  <span class="text-muted" th:text="#{admin.questions.table.empty}">No questions found. Try adjusting the filter or create a new question.</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- PAGINATION -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3"
+             th:if="${totalPages != null and totalPages > 1}">
+          <div class="small text-muted">
+            <span th:text="#{admin.questions.table.page}">Page</span>
+            <strong th:text="${page}"></strong>
+            <span th:text="#{admin.questions.table.of}">of</span>
+            <strong th:text="${totalPages}"></strong>
+            &nbsp;·&nbsp; <span th:text="${totalRows}"></span>
+            <span th:text="#{admin.questions.table.paginationQuestions}">questions</span>
+          </div>
+          <nav aria-label="Question pagination">
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item" th:classappend="${page <= 1} ? ' disabled' : ''">
+                <a class="page-link"
+                   th:href="@{/admin/questions(page=${page-1},size=${size},kind=${filterKind},active=${filterActive})}">
+                  <i class="bi bi-chevron-left"></i>
+                </a>
+              </li>
+              <li class="page-item"
+                  th:each="p : ${#numbers.sequence(((page-2)>1)?(page-2):1,((page+2)<totalPages)?(page+2):totalPages)}"
+                  th:classappend="${p == page} ? ' active' : ''">
+                <a class="page-link" th:text="${p}"
+                   th:href="@{/admin/questions(page=${p},size=${size},kind=${filterKind},active=${filterActive})}"></a>
+              </li>
+              <li class="page-item" th:classappend="${page >= totalPages} ? ' disabled' : ''">
+                <a class="page-link"
+                   th:href="@{/admin/questions(page=${page+1},size=${size},kind=${filterKind},active=${filterActive})}">
+                  <i class="bi bi-chevron-right"></i>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /page-wrap -->
+</div><!-- /content-area -->
+
+<script th:inline="javascript">
+  var MSG_CONFIRM_DELETE_ALL    = /*[[#{admin.questions.js.confirmDeleteAll}]]*/ 'Delete ALL questions for this selected kind? This cannot be undone.';
+  var MSG_CONFIRM_DELETE        = /*[[#{admin.questions.js.confirmDelete}]]*/ 'Delete this question? If used already, it will be deactivated.';
+  var MSG_CONFIRM_CLOSE_WINDOW  = /*[[#{admin.questions.js.confirmCloseWindow}]]*/ 'Close the window now? Users will not be able to submit.';
+  var MSG_CONFIRM_IMPORT_CSV    = /*[[#{admin.questions.js.confirmImportCsv}]]*/ 'Import this CSV file?';
+  var MSG_CONFIRM_IMPORT_EXCEL  = /*[[#{admin.questions.js.confirmImportExcel}]]*/ 'Import this Excel file?';
+</script>
+<script>
+  function switchLang(lang) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('lang', lang);
+    window.location.href = url.toString();
+  }
+
+  (function () {
+    function refresh(sel) {
+      const target = sel.getAttribute('data-target');
+      if (!target) return;
+      const warn = document.querySelector(target);
+      if (!warn) return;
+      warn.classList.toggle('d-none', sel.value !== 'replace');
+    }
+    document.querySelectorAll('.js-mode').forEach(sel => {
+      sel.addEventListener('change', () => refresh(sel));
+      refresh(sel);
+    });
+  })();
+</script>
+
+</body>
+</html>

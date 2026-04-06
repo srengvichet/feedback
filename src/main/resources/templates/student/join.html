@@ -1,0 +1,438 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Join Class</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg1:#f4f7fb;
+      --bg2:#eef3f9;
+      --card:#ffffff;
+      --text:#1f2a37;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --primary:#2563eb;
+      --primary-dark:#1d4ed8;
+      --success:#10b981;
+      --warning:#f59e0b;
+      --danger:#ef4444;
+      --soft-primary:#e8f0ff;
+      --soft-success:#eafaf4;
+      --soft-warning:#fff7e8;
+      --soft-danger:#fef2f2;
+      --soft-info:#eefafc;
+      --shadow:0 10px 30px rgba(15,23,42,.08);
+      --radius:24px;
+    }
+
+    body{
+      background: radial-gradient(circle at top left, #f8fbff 0%, #f4f7fb 35%, #eef3f9 100%);
+      color:var(--text);
+      font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;
+    }
+
+    .page-wrap{
+      max-width:950px;
+      margin:0 auto;
+    }
+
+    .topbar{
+      background:linear-gradient(135deg,#ffffff 0%,#f7faff 100%);
+      border:1px solid rgba(255,255,255,.75);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:24px 28px;
+      position:relative;
+      overflow:hidden;
+      margin-bottom:1rem;
+    }
+
+    .topbar::after{
+      content:"";
+      position:absolute;
+      right:-60px;
+      top:-60px;
+      width:220px;
+      height:220px;
+      background:radial-gradient(circle, rgba(37,99,235,.18), rgba(37,99,235,.02) 70%);
+      border-radius:50%;
+    }
+
+    .topbar > *{position:relative;z-index:1;}
+
+    .back-link{
+      text-decoration:none;
+      color:var(--muted);
+      font-weight:600;
+      font-size:.95rem;
+    }
+
+    .back-link:hover{color:var(--primary);}
+
+    .page-title{
+      font-size:2rem;
+      font-weight:800;
+      margin:.5rem 0 .25rem;
+      letter-spacing:-.02em;
+    }
+
+    .page-subtitle{
+      color:var(--muted);
+      margin:0;
+      font-size:.98rem;
+    }
+
+    .card{
+      border:none !important;
+      border-radius:var(--radius) !important;
+      box-shadow:var(--shadow) !important;
+      overflow:hidden;
+      background:var(--card);
+    }
+
+    .panel-head{
+      padding:20px 24px 14px;
+      border-bottom:1px solid var(--line);
+      background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);
+    }
+
+    .panel-title{
+      font-size:1.08rem;
+      font-weight:800;
+      margin:0;
+    }
+
+    .panel-subtitle{
+      color:var(--muted);
+      font-size:.92rem;
+      margin:4px 0 0;
+    }
+
+    .panel-body{
+      padding:22px 24px;
+    }
+
+    .form-label{
+      font-weight:700;
+      color:#374151;
+    }
+
+    .form-control{
+      border-radius:14px;
+      min-height:48px;
+      border:1px solid #dbe3ee;
+      box-shadow:none;
+    }
+
+    .form-control:focus{
+      border-color:#93c5fd;
+      box-shadow:0 0 0 .2rem rgba(37,99,235,.10);
+    }
+
+    .btn{
+      border-radius:14px;
+      font-weight:700;
+    }
+
+    .btn-primary{
+      background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+      border:none;
+      box-shadow:0 8px 18px rgba(37,99,235,.18);
+    }
+
+    .btn-success{
+      background:linear-gradient(135deg,#16a34a,#15803d);
+      border:none;
+      box-shadow:0 8px 18px rgba(22,163,74,.18);
+    }
+
+    .alert{
+      border:none;
+      border-radius:16px;
+      box-shadow:0 6px 20px rgba(15,23,42,.06);
+    }
+
+    .info-box{
+      border-radius:18px;
+      padding:16px 18px;
+      background:linear-gradient(180deg,#f8fbff 0%,#f4f9ff 100%);
+      border:1px solid #dbeafe;
+      font-size:.9rem;
+      color:#374151;
+    }
+
+    .code-pill{
+      display:inline-flex;
+      align-items:center;
+      border-radius:999px;
+      padding:8px 14px;
+      font-size:.9rem;
+      font-weight:800;
+      white-space:nowrap;
+      background:#2563eb;
+      color:#fff;
+    }
+
+    .meta-pill{
+      display:inline-flex;
+      align-items:center;
+      border-radius:999px;
+      padding:7px 12px;
+      font-size:.83rem;
+      font-weight:800;
+      white-space:nowrap;
+      background:#eef2ff;
+      color:#4338ca;
+      margin-right:8px;
+      margin-top:8px;
+    }
+
+    .mini-muted{
+      color:var(--muted);
+      font-size:.84rem;
+    }
+
+    .table-wrap{
+      padding:10px 18px 18px;
+    }
+
+    .table{
+      margin-bottom:0;
+      border-collapse:separate;
+      border-spacing:0 10px;
+    }
+
+    .table thead th{
+      border:none;
+      color:var(--muted);
+      font-size:.84rem;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      font-weight:800;
+      padding:10px 14px;
+      white-space:nowrap;
+    }
+
+    .table tbody tr{
+      background:#fff;
+      box-shadow:0 4px 14px rgba(15,23,42,.05);
+    }
+
+    .table tbody td{
+      padding:16px 14px;
+      vertical-align:middle;
+      border-top:1px solid #f1f5f9;
+      border-bottom:1px solid #f1f5f9;
+      font-size:.95rem;
+    }
+
+    .table tbody td:first-child{
+      border-left:1px solid #f1f5f9;
+      border-top-left-radius:14px;
+      border-bottom-left-radius:14px;
+    }
+
+    .table tbody td:last-child{
+      border-right:1px solid #f1f5f9;
+      border-top-right-radius:14px;
+      border-bottom-right-radius:14px;
+    }
+
+    .subject-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:42px;
+      border-radius:999px;
+      padding:7px 12px;
+      font-size:.83rem;
+      font-weight:800;
+      background:#eef2ff;
+      color:#4338ca;
+    }
+
+    .shift-pill{
+      display:inline-flex;
+      align-items:center;
+      border-radius:999px;
+      padding:7px 12px;
+      font-size:.83rem;
+      font-weight:800;
+      white-space:nowrap;
+      background:#ecfeff;
+      color:#0f766e;
+    }
+
+    .helper-note{
+      font-size:.85rem;
+      color:var(--muted);
+    }
+
+    @media (max-width: 992px){
+      .page-title{font-size:1.6rem}
+      .topbar{padding:20px}
+    }
+  </style>
+</head>
+
+<body>
+<div class="container-fluid py-4 py-lg-5">
+  <div class="page-wrap">
+
+    <div class="topbar">
+      <a href="/student" class="back-link">&larr; Back</a>
+      <h1 class="page-title">Join Class</h1>
+      <p class="page-subtitle">Enter a class join code to preview the subjects and enroll in the correct class schedule.</p>
+    </div>
+
+    <div th:if="${msg == 'empty_code'}" class="alert alert-warning mt-3">
+      Please enter a join code.
+    </div>
+
+    <div th:if="${error != null}" class="alert alert-danger mt-3" th:text="${error}"></div>
+
+    <div class="card mt-4">
+      <div class="panel-head">
+        <h2 class="panel-title">Enter Join Code</h2>
+        <p class="panel-subtitle">You can join by scanning a QR code or typing the code manually.</p>
+      </div>
+
+      <div class="panel-body">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-8">
+            <label class="form-label">Join code</label>
+            <form method="post" th:action="@{/student/join/enter}" class="row g-2">
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+              <div class="col-8 col-md-6">
+                <input class="form-control"
+                       name="code"
+                       id="codeInput"
+                       placeholder="e.g., HDRK4XFD"
+                       maxlength="20"
+                       autocomplete="off"
+                       style="text-transform: uppercase;"
+                       oninput="this.value=this.value.toUpperCase();">
+              </div>
+              <div class="col-4 col-md-3">
+                <button class="btn btn-primary w-100" type="submit">Continue</button>
+              </div>
+              <div class="col-12">
+                <div class="helper-note">
+                  Use the exact code shared by your teacher or administrator.
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div class="col-md-4">
+            <div class="info-box">
+              If you get <b>“not for your Cohort/Group/Shift”</b>, your student profile does not match the join code.
+              Please ask admin to correct your cohort, group, or shift.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div th:if="${joinCode != null}" class="card mt-4">
+      <div class="panel-head">
+        <h2 class="panel-title">Join Code Preview</h2>
+        <p class="panel-subtitle">Review the semester, class profile, and subjects before joining.</p>
+      </div>
+
+      <div class="panel-body">
+
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+          <span class="code-pill" th:text="${joinCode.code}">CODE</span>
+        </div>
+
+        <div class="mb-3">
+          <span class="meta-pill">
+            Semester:
+            <span class="ms-1" th:text="${joinCode.semester != null ? joinCode.semester.name : '-'}">-</span>
+          </span>
+
+          <span class="meta-pill">
+            Cohort:
+            <span class="ms-1" th:text="${joinCode.cohort != null ? joinCode.cohort.cohortNo : '-'}">-</span>
+          </span>
+
+          <span class="meta-pill">
+            Group:
+            <span class="ms-1" th:text="${joinCode.groupNo != null ? joinCode.groupNo : '-'}">-</span>
+          </span>
+
+          <span class="meta-pill">
+            Shift:
+            <span class="ms-1" th:text="${joinCode.shiftTime != null ? joinCode.shiftTime : '-'}">-</span>
+          </span>
+          <span class="meta-pill">
+            Room:
+            <span th:text="${schedules != null && !#lists.isEmpty(schedules) && schedules[0].room != null ? schedules[0].room +' '+schedules[0].building : '-'}">Room</span>
+          </span>
+        </div>
+
+        <div class="small text-muted mb-3" th:if="${joinCode.expiresAt != null}">
+          Expires:
+          <span th:text="${#temporals.format(joinCode.expiresAt, 'yyyy-MM-dd HH:mm')}"></span>
+        </div>
+
+        <h6 class="mt-3 mb-3 fw-bold">Subjects you will be enrolled into</h6>
+
+        <div class="table-wrap px-0">
+          <div class="table-responsive">
+            <table class="table mb-0">
+              <thead>
+                <tr>
+                  <th style="width:80px;">No</th>
+                  <th style="width:120px;">Weekday</th>
+                  <th style="width:220px;">Teacher</th>
+                  <th>Course</th>
+                  
+                  
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="t : ${schedules}">
+                  <td class="text-center">
+                    <span class="subject-pill" th:text="${t.subjectNo != null ? t.subjectNo : '-'}">-</span>
+                  </td>
+                  <td th:text="${t.weekday != null ? t.weekday : '-'}">-</td>
+                  <td th:text="${t.teacher != null ? t.teacher.username : '-'}">-</td>
+                  <td th:text="${t.course != null ? (t.course.code + ' - ' + t.course.name) : '-'}">-</td>
+                  
+                  
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(schedules)}">
+                  <td colspan="7" class="text-center py-4 text-muted">No subjects found for this join code.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="alert alert-info mt-3 mb-0 small">
+          If the join code is for <b>all subjects</b>, you will be enrolled into all subjects in your schedule.
+          If the join code is for <b>one subject</b>, you will be enrolled only into that subject.
+        </div>
+
+        <form method="post"
+              th:action="@{/student/join/{code}(code=${joinCode.code})}"
+              class="mt-3">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+          <button class="btn btn-success">Join Now</button>
+          <a class="btn btn-outline-secondary ms-2" href="/student">Cancel</a>
+        </form>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
